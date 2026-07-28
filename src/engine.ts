@@ -1,6 +1,4 @@
-// 核心排盘引擎：串联 起卦→四柱→6面板→综合分析
-// 唯一对外入口：paipan()
-
+// 核心排盘引擎
 import {
   CoreState, TimeInput, QiGuaMethod, QiGuaBasis, MovingMark, Hexagram
 } from './types';
@@ -28,7 +26,6 @@ export function paipan(
   const q = dispatchQigua(method, input, numberInput, extra, birth, basis);
   const hexIndex = q.hexIndex;
   const moving = q.moving;
-
   const hexagram: Hexagram = buildHexagram(hexIndex, moving, bazi.day.gan);
   const bianIndex = findChangedHexagram(hexIndex, moving);
   const huIndex = findHuHexagram(hexIndex);
@@ -41,33 +38,15 @@ export function paipan(
     bianHexagram: bianHex,
     huHexagram: huHex
   };
-
   const xiaoliu = buildXiaoLiu(bazi, input.hour);
   const meihua = buildMeiHua(hexagram, moving);
   const zhouyi = buildZhouYi(hexagram, moving);
   const ziwei = buildZiWei(bazi);
   const liuyao = buildLiuYao(hexagram, moving, bazi);
   const baziPanel = { ...bazi, ...buildBaziPanel(bazi) } as unknown as CoreState['panels']['bazi'];
-
   return {
-    input,
-    method,
-    numberInput,
-    bazi,
-    hexagram,
-    moving: movingMark,
-    basis,
-    birth,
-    gender,
-    name,
-    panels: {
-      xiaoliu,
-      meihua,
-      zhouyi,
-      ziwei,
-      liuyao,
-      bazi: baziPanel
-    }
+    input, method, numberInput, bazi, hexagram, moving: movingMark, basis, birth, gender, name,
+    panels: { xiaoliu, meihua, zhouyi, ziwei, liuyao, bazi: baziPanel }
   };
 }
 
@@ -82,6 +61,5 @@ export function fullPaipan(
   name?: string
 ): { state: CoreState; synthesis: ReturnType<typeof synthesize> } {
   const state = paipan(input, method, numberInput, extra, birth, basis, gender, name);
-  const synthesis = synthesize(state);
-  return { state, synthesis };
+  return { state, synthesis: synthesize(state) };
 }
