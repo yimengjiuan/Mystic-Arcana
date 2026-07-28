@@ -26,7 +26,7 @@
 | `time` | 时间起卦 | 年月日时 | 依据农历年月日时推演上下卦与动爻，可结合生辰八字 |
 | `number` | 数字起卦 | 2~3 个数字 | 以数字取上下卦，两数之和或第三数取动爻 |
 | `meihua` | 梅花易数 | 2 个数字 + 时辰 | 上卦数、下卦数加时辰数定动爻 |
-| `zaobi` | 造笔起卦 | 时间 + 随机种子 | 基于时间哈希生成六爻，模拟随机摇卦 |
+| `zaobi` | 蓍草占卜 | 时间 + 随机种子 | 基于时间哈希生成六爻，模拟随机摇卦 |
 | `cuanke` | 铜钱摇卦 | 6 次背面数（0-3） | 三枚铜钱六次结果，0 为老阴、3 为老阳为动爻 |
 
 起卦可依据三种数据源（`QiGuaBasis`）：
@@ -41,7 +41,7 @@
 
 | 面板 | 标识 | 核心输出 |
 |------|------|----------|
-| **四柱八字** | `bazi` | 年月日时柱、天干地支、藏干十神、纳音、大运流年 |
+| **四柱八字** | `bazi` | 年月日时柱、天干地支、藏干十神、纳音、命局概述 |
 | **纳甲六爻** | `liuyao` | 本卦/变卦、世应、六亲、六神、伏神、动爻 |
 | **梅花易数** | `meihua` | 本卦/互卦/变卦、体用分析、体用五行生克 |
 | **周易卦辞** | `zhouyi` | 卦辞、彖传、象传、爻辞、吉凶判断 |
@@ -94,7 +94,8 @@ Mystic-Arcana/
 │   └── ui/
 │       ├── main.ts              # Web UI 主程序
 │       ├── index.html           # 界面布局
-│       └── style.css            # 样式表
+│       ├── style.css            # 样式表
+│       └── assets/              # 静态资源（GitHub 图标等）
 ├── tests/
 │   ├── golden.test.ts           # 黄金测试用例
 │   └── cases.test.ts            # 实战卦象验证用例（5 大场景）
@@ -102,7 +103,8 @@ Mystic-Arcana/
 │   ├── serve.mjs                # 本地预览服务器
 │   ├── copy-ui.mjs              # UI 构建资源拷贝
 │   └── fix-imports.mjs          # 构建后导入路径修正
-├── dist_ui/                     # UI 可直接预览的构建产物
+├── dist_ui/                     # UI 可直接预览的构建产物（GitHub Pages 部署源）
+├── start.bat                    # Windows 一键构建启动脚本
 ├── package.json
 ├── tsconfig.json
 └── tsconfig.test.json
@@ -122,7 +124,7 @@ npm install
 npm run build
 ```
 
-构建产出两个目录：`dist/`（运行时模块）与 `dist_test/`（测试模块）。
+构建产出 `dist/` 目录（运行时模块）。测试配置（`tsconfig.test.json`）仅做类型检查，不额外产出文件。
 
 ### 运行测试
 
@@ -162,10 +164,10 @@ npm run serve
 import { paipan } from './dist/engine';
 
 const state = paipan(
-  { year: 2024, month: 1, day: 15, hour: 10, minute: 0 },  // 起卦时间
+  { year: 2024, month: 1, day: 15, hour: 10, minute: 0, second: 0 },  // 起卦时间
   'time',          // 起卦方式
   [],              // 数字输入（数字/梅花/铜钱用）
-  0,               // 额外参数（造笔种子）
+  0,               // 额外参数（蓍草占卜种子）
   undefined,       // 生辰时间（结合八字时用）
   'time',          // 起卦依据
   '男',            // 性别
@@ -186,7 +188,7 @@ const state = paipan(
 import { fullPaipan } from './dist/engine';
 
 const { state, synthesis } = fullPaipan(
-  { year: 2024, month: 1, day: 15, hour: 10, minute: 0 },
+  { year: 2024, month: 1, day: 15, hour: 10, minute: 0, second: 0 },
   'time',
   [],
   0,
@@ -209,7 +211,7 @@ const { state, synthesis } = fullPaipan(
 ```typescript
 import { fullPaipan } from './dist/engine';
 
-const input = { year: 2024, month: 6, day: 20, hour: 14, minute: 0 };
+const input = { year: 2024, month: 6, day: 20, hour: 14, minute: 0, second: 0 };
 
 // 数字起卦（2-3 个数）
 fullPaipan(input, 'number', [5, 10]);
@@ -220,7 +222,7 @@ fullPaipan(input, 'meihua', [3, 8]);
 // 铜钱摇卦（6 次背面数，0-3）
 fullPaipan(input, 'cuanke', [2, 1, 3, 0, 2, 1]);
 
-// 造笔起卦（随机种子）
+// 蓍草占卜（随机种子）
 fullPaipan(input, 'zaobi', [], 42);
 ```
 
@@ -241,7 +243,7 @@ fullPaipan(input, 'zaobi', [], 42);
 
 | 类型 | 说明 |
 |------|------|
-| `TimeInput` | 时间输入（year/month/day/hour/minute） |
+| `TimeInput` | 时间输入（year/month/day/hour/minute/second） |
 | `Bazi` | 四柱八字（年月日时干支 + 农历 + 节气） |
 | `Hexagram` | 卦象（名称/宫位/五行/世应/六爻） |
 | `CoreState` | 完整排盘状态（输入/八字/卦象/六面板） |

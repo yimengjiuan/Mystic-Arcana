@@ -5,7 +5,7 @@
  *   time   - 时间起卦（年月日时数取卦）
  *   number - 数字起卦（2-3 个数字取卦）
  *   meihua - 梅花易数（数字+时辰取动爻）
- *   zaobi  - 造币起卦（伪随机摇卦）
+ *   zaobi  - 蓍草占卜（伪随机摇卦）
  *   cuanke - 铜钱摇卦（6 次背面数）
  */
 import { modOrMax } from './parser';
@@ -95,7 +95,7 @@ export function meihuaQiGua(input: TimeInput, numberInput: readonly number[] = [
 }
 
 /**
- * 造币起卦法（伪随机）。
+ * 蓍草占卜起卦法（伪随机）。
  * 以时间戳+种子生成 6 爻阴阳及动爻，模拟硬币摇卦的随机性。
  */
 export function zaobiQiGua(input: TimeInput, seed: number = 0, birth?: TimeInput, basis?: QiGuaBasis) {
