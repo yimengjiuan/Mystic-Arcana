@@ -1,4 +1,4 @@
-export interface TimeInput { readonly year: number; readonly month: number; readonly day: number; readonly hour: number; readonly minute: number; }
+export interface TimeInput { readonly year: number; readonly month: number; readonly day: number; readonly hour: number; readonly minute: number; readonly second: number; }
 export interface GZ { readonly gan: string; readonly zhi: string; readonly ganzhi: string; }
 export interface Bazi { readonly year: GZ; readonly month: GZ; readonly day: GZ; readonly hour: GZ; readonly solarTermYear: number; readonly lunar: { readonly year: number; readonly month: number; readonly day: number; isLeap: boolean }; readonly solarTermNext: string; }
 export interface Line { readonly position: 1 | 2 | 3 | 4 | 5 | 6; readonly yinYang: 'yang' | 'yin'; readonly changed: boolean; readonly tiangan: string; readonly dizhi: string; readonly shi: boolean; readonly ying: boolean; readonly liuQin: string; }

@@ -16,21 +16,21 @@ const METHOD_HINTS = {
 };
 function setDefaultTime() {
     const now = new Date();
-    ['year', 'month', 'day', 'hour'].forEach((id, i) => {
+    ['year', 'month', 'day', 'hour', 'second'].forEach((id, i) => {
         const el = $(id);
         if (el)
-            el.value = String([now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours()][i]);
+            el.value = String([now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), now.getSeconds()][i]);
     });
 }
 function readForm() {
     const num = (id) => parseInt($(id)?.value || '0', 10);
-    const y = num('year'), m = num('month'), d = num('day'), h = num('hour');
+    const y = num('year'), m = num('month'), d = num('day'), h = num('hour'), s = num('second');
     const method = ($('method')?.value || 'time');
     const nums = ($('nums')?.value || '').split(/[,\s]+/).map(Number).filter(n => !isNaN(n));
     const basis = ($('basis')?.value || 'time');
-    const birth = basis === 'time' ? undefined : { year: num('byear'), month: num('bmonth'), day: num('bday'), hour: num('bhour'), minute: 0 };
+    const birth = basis === 'time' ? undefined : { year: num('byear'), month: num('bmonth'), day: num('bday'), hour: num('bhour'), minute: 0, second: num('bsecond') };
     const gender = $('gender')?.value;
-    let input = { year: y, month: m, day: d, hour: h, minute: 0 };
+    let input = { year: y, month: m, day: d, hour: h, minute: 0, second: s };
     if (basis === 'bazi' && birth)
         input = { ...birth };
     return { input, method, nums, basis, birth, gender };
@@ -40,7 +40,7 @@ function updateBasisVisibility() {
     const block = $('birth-block');
     if (block)
         block.style.display = basis === 'time' ? 'none' : 'grid';
-    for (const id of ['year', 'month', 'day', 'hour']) {
+    for (const id of ['year', 'month', 'day', 'hour', 'second']) {
         const el = $(id);
         if (el)
             el.disabled = basis === 'bazi';
@@ -67,7 +67,7 @@ function renderHex(hex) {
     return `<div class="hex"><h3>${hex.fullName}（${hex.palace}宫）</h3><div>${hex.lines.slice().reverse().map(renderLine).join('')}</div></div>`;
 }
 function makeLabel(input, method, basis) {
-    return `${input.year}/${input.month}/${input.day} ${input.hour}时[${method}${BASIS_SUFFIX[basis]}]`;
+    return `${input.year}/${input.month}/${input.day} ${input.hour}时${input.second}秒[${method}${BASIS_SUFFIX[basis]}]`;
 }
 function renderPanels(state, syn) {
     const x = state.panels;
@@ -90,7 +90,7 @@ function renderAIResult(content) {
 }
 function buildPaipanText(state, syn, q) {
     const x = state.panels;
-    return [`所问之事：${q}`, state.birth ? `生辰：${state.birth.year}-${state.birth.month}-${state.birth.day} ${state.birth.hour}时` : '', state.gender ? `性别：${state.gender}` : '', `起卦方式：${state.method}`, `起卦依据：${BASIS_ZH[state.basis]}`, `本卦：${state.hexagram.fullName}（${state.hexagram.palace}宫）`, `动爻：${state.moving.positions.join('、') || '无'}`, `变卦：${state.moving.bianName}`, `小六壬：${x.xiaoliu.result}`, `综合趋势：${syn.trend}（评分${syn.score}）`, `综合摘要：${syn.summary}`].filter(Boolean).join('\n');
+    return [`所问之事：${q}`, state.birth ? `生辰：${state.birth.year}-${state.birth.month}-${state.birth.day} ${state.birth.hour}时${state.birth.second}秒` : '', state.gender ? `性别：${state.gender}` : '', `起卦方式：${state.method}`, `起卦依据：${BASIS_ZH[state.basis]}`, `本卦：${state.hexagram.fullName}（${state.hexagram.palace}宫）`, `动爻：${state.moving.positions.join('、') || '无'}`, `变卦：${state.moving.bianName}`, `小六壬：${x.xiaoliu.result}`, `综合趋势：${syn.trend}（评分${syn.score}）`, `综合摘要：${syn.summary}`].filter(Boolean).join('\n');
 }
 async function askAI(state, syn, q, key) {
     const res = await fetch('https://api.deepseek.com/chat/completions', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key }, body: JSON.stringify({ model: 'deepseek-chat', messages: [{ role: 'system', content: '你是一位精通周易、梅花易数、小六壬、六爻、紫微斗数的易学解卦师。请根据排盘数据，用古雅清晰的语言给出解卦分析，包含吉凶总断、事理剖析、趋避建议。可使用标题(####)、加粗(**)和引用(>)标记。' }, { role: 'user', content: buildPaipanText(state, syn, q) }] }) });
@@ -123,7 +123,7 @@ function renderCompareTable() {
     const hdr = history.map(h => `<th>${h.label}</th>`).join('');
     let rows = [];
     if (activeTab === 'overview')
-        rows = [['起卦方式', history.map(h => h.method)], ['起卦依据', history.map(h => BASIS_ZH[h.basis])], ['时间', history.map(h => `${h.input.year}-${h.input.month}-${h.input.day} ${h.input.hour}:00`)], ['本卦', history.map(h => h.state.hexagram.fullName)], ['宫位', history.map(h => h.state.hexagram.palace + '宫')], ['动爻', history.map(h => h.state.moving.positions.join('、') || '无')], ['变卦', history.map(h => h.state.moving.bianName)], ['小六壬', history.map(h => h.state.panels.xiaoliu.result)], ['趋势', history.map(h => h.synthesis.trend)], ['评分', history.map(h => String(h.synthesis.score))]];
+        rows = [['起卦方式', history.map(h => h.method)], ['起卦依据', history.map(h => BASIS_ZH[h.basis])], ['时间', history.map(h => `${h.input.year}-${h.input.month}-${h.input.day} ${h.input.hour}时${h.input.second}秒`)], ['本卦', history.map(h => h.state.hexagram.fullName)], ['宫位', history.map(h => h.state.hexagram.palace + '宫')], ['动爻', history.map(h => h.state.moving.positions.join('、') || '无')], ['变卦', history.map(h => h.state.moving.bianName)], ['小六壬', history.map(h => h.state.panels.xiaoliu.result)], ['趋势', history.map(h => h.synthesis.trend)], ['评分', history.map(h => String(h.synthesis.score))]];
     else if (activeTab === 'bazi') {
         const lb = ['年柱', '月柱', '日柱', '时柱'];
         for (let i = 0; i < 4; i++)
