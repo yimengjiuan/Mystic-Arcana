@@ -9,6 +9,14 @@
 
 > **个人娱乐项目**，借助 AI 工具辅助完成，排盘结果仅供娱乐参考，力求严谨、努力向专业靠拢。详见末尾[免责声明](#免责声明)。
 
+## 在线体验
+
+已通过 GitHub Pages 部署，无需安装环境，打开浏览器即可体验：
+
+**[https://yimengjiuan.github.io/Mystic-Arcana/](https://yimengjiuan.github.io/Mystic-Arcana/)**
+
+> 首次访问需等待 GitHub Actions 构建部署完成（推送到 main 后约 1-2 分钟）。AI 解卦功能需在界面内自行填入 DeepSeek API Key。
+
 ## 功能概览
 
 ### 5 种起卦方式
