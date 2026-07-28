@@ -26,13 +26,56 @@ const METHOD_HINTS = {
 // ============================================================
 // 表单读写
 // ============================================================
-/** 将表单时间默认设为当前时间 */
+/**
+ * 通过世界时间 API 获取浏览器所在时区的准确时间。
+ * 静态部署时系统时钟可能不准，以此获取权威时间。
+ * @returns 时间组件，失败返回 null
+ */
+async function fetchWorldTime() {
+    try {
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Shanghai';
+        const res = await fetch(`https://uapis.cn/api/v1/misc/worldtime?city=${encodeURIComponent(timezone)}`);
+        if (!res.ok)
+            return null;
+        const data = await res.json();
+        if (!data.datetime)
+            return null;
+        const dt = new Date(data.datetime);
+        if (isNaN(dt.getTime()))
+            return null;
+        return {
+            year: dt.getFullYear(),
+            month: dt.getMonth() + 1,
+            day: dt.getDate(),
+            hour: dt.getHours(),
+            second: dt.getSeconds(),
+        };
+    }
+    catch {
+        return null;
+    }
+}
+/** 将表单时间默认设为当前时间（先本地时间即时填充，再异步校正为世界时间 API 的准确时间） */
 function setDefaultTime() {
     const now = new Date();
-    ['year', 'month', 'day', 'hour', 'second'].forEach((id, i) => {
+    const ids = ['year', 'month', 'day', 'hour', 'second'];
+    const defaults = [now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), now.getSeconds()];
+    // 先用本地时间快速填充，保证 UI 立即可用
+    ids.forEach((id, i) => {
         const el = $(id);
         if (el)
-            el.value = String([now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), now.getSeconds()][i]);
+            el.value = String(defaults[i]);
+    });
+    // 异步获取世界时间 API 的准确时间并覆盖
+    fetchWorldTime().then(worldTime => {
+        if (!worldTime)
+            return;
+        const values = [worldTime.year, worldTime.month, worldTime.day, worldTime.hour, worldTime.second];
+        ids.forEach((id, i) => {
+            const el = $(id);
+            if (el)
+                el.value = String(values[i]);
+        });
     });
 }
 /** 读取表单输入，组装起卦参数 */
