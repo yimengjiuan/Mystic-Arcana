@@ -1,33 +1,7 @@
-import { Hexagram, MeiHuaPanel } from '../types';
+import type { Hexagram, MeiHuaPanel } from '../types';
 import { wuXingOf } from '../utils/parser';
 import { getHexagramByIndex, changeLines, TRIGRAMS } from '../data/hexagrams';
 import { findHexagramByTrigrams } from '../data/hexagrams';
-
 const SHENG_KE: Record<string, readonly string[]> = {金:['金','水','木','火','土'],木:['木','火','土','金','水'],水:['水','木','火','土','金'],火:['火','土','金','水','木'],土:['土','金','水','木','火']};
-
-function makeHex(index: number): Hexagram {
-  const r = getHexagramByIndex(index);
-  return { index, name: r.name, fullName: r.fullName, upper: r.upper, lower: r.lower, palace: r.palace, element: r.element, nature: r.nature, lines: [], shiPosition: r.shiPosition, yingPosition: r.yingPosition };
-}
-
-export function buildMeiHua(ben: Hexagram, dong: readonly number[]): MeiHuaPanel {
-  const raw = getHexagramByIndex(ben.index);
-  const huIdx = findHexagramByTrigrams(bitsToIdx([raw.lines[1], raw.lines[2], raw.lines[3]]), bitsToIdx([raw.lines[2], raw.lines[3], raw.lines[4]]));
-  const changed = changeLines(raw.lines, dong);
-  const bianIdx = findHexagramByTrigrams(bitsToIdx([changed[0], changed[1], changed[2]]), bitsToIdx([changed[3], changed[4], changed[5]]));
-  const upperDong = dong.some(d => d >= 4), lowerDong = dong.some(d => d <= 3);
-  const huL = bitsToIdx([raw.lines[2], raw.lines[3], raw.lines[4]]);
-  const ti = upperDong && !lowerDong ? makeHex(findHexagramByTrigrams(huL, huL)) : ben;
-  const yong = lowerDong && !upperDong ? makeHex(findHexagramByTrigrams(bitsToIdx([raw.lines[0], raw.lines[1], raw.lines[2]]), bitsToIdx([raw.lines[0], raw.lines[1], raw.lines[2]])) : makeHex(bianIdx);
-  const tiEl = wuXingOf(TRIGRAMS[ben.upper] || '');
-  const yongEl = wuXingOf(TRIGRAMS[ben.lower] || '');
-  const idx = (SHENG_KE[tiEl] || []).indexOf(yongEl);
-  let interp = '体用比和，谋事可成。';
-  if (idx === 1) interp = '体克用，所谋易成但费力。';
-  else if (idx === 2) interp = '用克体，所谋难成，防损耗。';
-  else if (idx === 3) interp = '用生体，大吉，百事可成。';
-  else if (idx === 4) interp = '体生用，小凶，付出多收获少。';
-  return { ben, hu: makeHex(huIdx), bian: makeHex(bianIdx), dong, ti, yong, tiElement: tiEl, yongElement: yongEl, interpretation: interp };
-}
-
-function bitsToIdx(a: readonly boolean[]): number { return (a[0] ? 4 : 0) + (a[1] ? 2 : 0) + (a[2] ? 1 : 0); }
+function makeHex(index: number): Hexagram { const r = getHexagramByIndex(index); return { index, name: r.name, fullName: r.fullName, upper: r.upper, lower: r.lower, palace: r.palace, element: r.element, nature: r.nature, lines: [], shiPosition: r.shiPosition, yingPosition: r.yingPosition }; }
+export function buildMeiHua(ben: Hexagram, dong: readonly number[]): MeiHuaPanel { const raw = getHexagramByIndex(ben.index); const bitsToIdx = (a: readonly boolean[]) => (a[0] ? 4 : 0) + (a[1] ? 2 : 0) + (a[2] ? 1 : 0); const huIdx = findHexagramByTrigrams(bitsToIdx([raw.lines[1], raw.lines[2], raw.lines[3]]), bitsToIdx([raw.lines[2], raw.lines[3], raw.lines[4]])); const changed = changeLines(raw.lines, dong); const bianIdx = findHexagramByTrigrams(bitsToIdx([changed[0], changed[1], changed[2]]), bitsToIdx([changed[3], changed[4], changed[5]])); const upperDong = dong.some(d => d >= 4), lowerDong = dong.some(d => d <= 3); const ti = upperDong && !lowerDong ? makeHex(findHexagramByTrigrams(bitsToIdx([raw.lines[2], raw.lines[3], raw.lines[4]]), bitsToIdx([raw.lines[2], raw.lines[3], raw.lines[4]])) : ben; const yong = lowerDong && !upperDong ? makeHex(findHexagramByTrigrams(bitsToIdx([raw.lines[0], raw.lines[1], raw.lines[2]]), bitsToIdx([raw.lines[0], raw.lines[1], raw.lines[2]])) : makeHex(bianIdx); const tiEl = wuXingOf(TRIGRAMS[ben.upper] || ''); const yongEl = wuXingOf(TRIGRAMS[ben.lower] || ''); const idx = (SHENG_KE[tiEl] || []).indexOf(yongEl); let interp = '体用比和，谋事可成。'; if (idx === 1) interp = '体克用，所谋易成但费力。'; else if (idx === 2) interp = '用克体，所谋难成，防损耗。'; else if (idx === 3) interp = '用生体，大吉，百事可成。'; else if (idx === 4) interp = '体生用，小凶，付出多收获少。'; return { ben, hu: makeHex(huIdx), bian: makeHex(bianIdx), dong, ti, yong, tiElement: tiEl, yongElement: yongEl, interpretation: interp }; }
