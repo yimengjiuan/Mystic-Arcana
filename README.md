@@ -33,7 +33,7 @@
 
 - 自动识别卦象五行属性
 - 体用关系分析
-- 旺相休囚死状态判断
+-旺相休囚死状态判断
 - 日干生旺死墓绝分析
 
 ## 技术栈
@@ -46,7 +46,7 @@
 ## 项目结构
 
 ```
-Mystic-Arcana/
+xuanji-paipan/
 ├── src/
 │   ├── engine.ts          # 核心排盘引擎
 │   ├── types/             # TypeScript类型定义
@@ -93,22 +93,27 @@ import { paipan, fullPaipan } from './dist/engine';
 
 // 简单排盘
 const result = paipan(
-  { year: 2024, month: 1, day: 15, hour: 10, minute: 0 },
+  { year: 2024, month: 1, day: 15, hour: 10 },
   'time'
 );
 
 // 完整排盘（含综合分析）
 const { state, synthesis } = fullPaipan(
-  { year: 2024, month: 1, day: 15, hour: 10, minute: 0 },
+  { year: 2024, month: 1, day: 15, hour: 10 },
   'time',
-  [],
-  0,
-  undefined,
-  'time',
-  '男',
-  '张三'
+  [],      // 报数
+  0,       // 额外参数
+  undefined, // 出生时间
+  'time',  // 起卦依据
+  '男',    // 性别
+  '张三'   // 姓名
 );
 ```
+
+## 相关文档
+
+- [六爻排盘说明](./六爻.mmd)
+- [案例分析](./案例.mmd)
 
 ## License
 
