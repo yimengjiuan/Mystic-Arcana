@@ -109,4 +109,10 @@ tr:nth-child(even) td{background:rgba(15,10,7,.3)}tr:hover td{background:rgba(21
 .ai-content code{background:rgba(15,10,7,.5);border:1px solid var(--border);border-radius:4px;padding:0 4px;font-family:ui-monospace,Consolas,monospace;font-size:13px;color:var(--xiang)}
 footer{text-align:center;padding:32px 24px;background:linear-gradient(180deg,transparent,rgba(15,10,7,.8));color:var(--ink-d);font-size:12px;margin-top:48px;border-top:1px solid var(--border);letter-spacing:2px;line-height:2}
 footer p:first-child{color:var(--gold);font-size:13px;letter-spacing:4px;margin-bottom:8px}
-@media(max-width:768px){header h1{font-size:28px;letter-spacing:8px}main{padding:16px}.pillars{grid-template-columns:repeat(2,1fr)}.triple{grid-template-columns:1fr}#output{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr 1fr}.result{font-size:28px;letter-spacing:8px}.compare-section{padding:16px}.compare-tab{padding:6px 12px;font-size:12px;letter-spacing:1px}.compare-table th,.compare-table td{padding:8px 10px;font-size:13px}.compare-table .col-key{white-space:normal}}
+footer .opensource-notice{font-size:11px;color:var(--ink-d);opacity:.8}
+footer .opensource-notice a{color:var(--gold);text-decoration:none;transition:color .3s}
+footer .opensource-notice a:hover{color:var(--gold-b);text-decoration:underline}
+.github-link{position:absolute;top:24px;right:32px;display:flex;align-items:center;gap:6px;padding:6px 14px;border:1px solid var(--border);border-radius:20px;color:var(--ink-d);text-decoration:none;font-size:12px;letter-spacing:2px;transition:all .3s;z-index:10}
+.github-link:hover{color:var(--gold-b);border-color:var(--gold);box-shadow:0 0 12px var(--glow-x);background:rgba(212,168,87,.08)}
+.github-link svg{flex:none}
+@media(max-width:768px){header h1{font-size:28px;letter-spacing:8px}main{padding:16px}.pillars{grid-template-columns:repeat(2,1fr)}.triple{grid-template-columns:1fr}#output{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr 1fr}.result{font-size:28px;letter-spacing:8px}.compare-section{padding:16px}.compare-tab{padding:6px 12px;font-size:12px;letter-spacing:1px}.compare-table th,.compare-table td{padding:8px 10px;font-size:13px}.compare-table .col-key{white-space:normal}.github-link{top:14px;right:14px;padding:4px 10px;font-size:11px}}
