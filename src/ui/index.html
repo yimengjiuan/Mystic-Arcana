@@ -1,74 +1,44 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>玄机阁 · 术数排盘</title>
-  <link rel="stylesheet" href="./style.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>玄机阁·术数排盘</title>
+<link rel="stylesheet" href="./style.css">
 </head>
 <body>
-  <header>
-    <h1>玄 机 阁</h1>
-    <div class="subtitle">五起卦 · 六面板 · 综合分析</div>
-  </header>
-
-  <main>
-    <section class="form-section">
-      <h2>起卦参数</h2>
-      <div class="form-grid">
-        <label>年<input id="year" type="number" value="2000" /></label>
-        <label>月<input id="month" type="number" value="1" min="1" max="12" /></label>
-        <label>日<input id="day" type="number" value="1" min="1" max="31" /></label>
-        <label>时<input id="hour" type="number" value="12" min="0" max="23" /></label>
-        <label>分<input id="minute" type="number" value="0" min="0" max="59" /></label>
-        <label>起卦方式
-          <select id="method">
-            <option value="time">时间起卦</option>
-            <option value="number">数字起卦</option>
-            <option value="meihua">梅花易数</option>
-            <option value="zaobi">蓍草占卜</option>
-            <option value="cuanke">铜钱摇卦</option>
-          </select>
-        </label>
-        <label>数字/铜钱<input id="nums" type="text" placeholder="如 5,10" /></label>
-        <label>附加数<input id="extra" type="number" value="0" /></label>
-      </div>
-      <label class="full-label">起卦依据
-        <select id="basis">
-          <option value="time" selected>仅时间</option>
-          <option value="time_bazi">时间+八字</option>
-          <option value="bazi">仅八字</option>
-        </select>
-      </label>
-      <div id="birth-block" class="form-grid" style="display:none; margin-top:14px;">
-        <label>生辰年<input id="byear" type="number" value="1990" /></label>
-        <label>生辰月<input id="bmonth" type="number" value="1" min="1" max="12" /></label>
-        <label>生辰日<input id="bday" type="number" value="1" min="1" max="31" /></label>
-        <label>生辰时<input id="bhour" type="number" value="12" min="0" max="23" /></label>
-        <label>性别<select id="gender"><option value="男">男</option><option value="女">女</option></select></label>
-        <label>姓名<input id="pname" type="text" placeholder="可选" /></label>
-      </div>
-      <label class="full-label">所问之事<textarea id="question" rows="2" placeholder="请输入您想问的问题（填写后启用AI解卦）"></textarea></label>
-      <label class="full-label">DeepSeek Key<input id="apikey" type="password" placeholder="sk-...  填写后启用AI解卦" /></label>
-      <button id="run-btn">排 盘</button>
-    </section>
-
-    <div id="output"></div>
-
-    <section class="compare-section" id="compare-section" style="display:none;">
-      <h2>横向比对 · 多次排盘</h2>
-      <div class="compare-tabs" id="compare-tabs"></div>
-      <div class="compare-table-wrap">
-        <table class="compare-table" id="compare-table"></table>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <p>玄机阁 · 仅供文化研究与术数学习参考 · 不构成任何决策建议</p>
-    <p>本工具基于《周易》《梅花易数》《紫微斗数》《四柱命理》《小六壬》等传统术数构建</p>
-  </footer>
-
-  <script type="module" src="./ui/main.js"></script>
+<header><h1>玄 机 阁</h1><div class="subtitle">五起卦·六面板·综合分析</div></header>
+<main>
+<section class="form-section">
+<h2>起卦参数</h2>
+<div class="form-grid">
+<label>年<input id="year" type="number" value="2000"></label>
+<label>月<input id="month" type="number" value="1" min="1" max="12"></label>
+<label>日<input id="day" type="number" value="1" min="1" max="31"></label>
+<label>时<input id="hour" type="number" value="12" min="0" max="23"></label>
+<label>起卦方式<select id="method"><option value="time">时间起卦</option><option value="number">数字起卦</option><option value="meihua">梅花易数</option><option value="zaobi">蓍草占卜</option><option value="cuanke">铜钱摇卦</option></select></label>
+<label>数字/铜钱<input id="nums" type="text" placeholder="如5,10"></label>
+</div>
+<label class="full-label">起卦依据<select id="basis"><option value="time" selected>仅时间</option><option value="time_bazi">时间+八字</option><option value="bazi">仅八字</option></select></label>
+<div id="birth-block" class="form-grid" style="display:none;margin-top:14px">
+<label>生辰年<input id="byear" type="number" value="1990"></label>
+<label>生辰月<input id="bmonth" type="number" value="1" min="1" max="12"></label>
+<label>生辰日<input id="bday" type="number" value="1" min="1" max="31"></label>
+<label>生辰时<input id="bhour" type="number" value="12" min="0" max="23"></label>
+<label>性别<select id="gender"><option>男</option><option>女</option></select></label>
+</div>
+<label class="full-label">所问之事<textarea id="question" rows="2" placeholder="请输入您想问的问题"></textarea></label>
+<label class="full-label">DeepSeek Key<input id="apikey" type="password" placeholder="sk-..."></textarea></label>
+<button id="run-btn">排 盘</button>
+</section>
+<div id="output"></div>
+<section class="compare-section" id="compare-section" style="display:none">
+<h2>横向比对</h2>
+<div class="compare-tabs" id="compare-tabs"></div>
+<table class="compare-table" id="compare-table"></table>
+</section>
+</main>
+<footer><p>玄机阁·仅供文化研究与术数学习参考</p></footer>
+<script type="module" src="./main.js"></script>
 </body>
 </html>
