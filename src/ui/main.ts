@@ -1,25 +1,50 @@
-// UI 主程序：DOM 绑定、事件、面板渲染、横向比对、AI解卦
+/**
+ * UI 主程序
+ * ------------------------------------------------------------------
+ * 负责 DOM 绑定、事件处理、面板渲染、横向比对及 AI 解卦。
+ * 依赖浏览器 DOM 环境，通过 ES Module 直接在浏览器中加载。
+ */
 import { fullPaipan } from '../engine';
 import type { TimeInput, QiGuaMethod, QiGuaBasis, CoreState, Synthesized, Hexagram, Line } from '../types';
 import { buildBaziPanel } from '../panels/bazi';
 
+/** 按元素 ID 获取 DOM 元素 */
 const $ = (id: string) => document.getElementById(id);
 
-interface Snap { id: number; label: string; input: TimeInput; method: QiGuaMethod; basis: QiGuaBasis; state: CoreState; synthesis: Synthesized }
+/** 历史快照记录 */
+interface Snap {
+  id: number;
+  label: string;
+  input: TimeInput;
+  method: QiGuaMethod;
+  basis: QiGuaBasis;
+  state: CoreState;
+  synthesis: Synthesized;
+}
+
 const history: Snap[] = [];
 let snapshotId = 0;
 let activeTab = 'overview';
 
+/** 起卦依据中文标签 */
 const BASIS_ZH: Record<QiGuaBasis, string> = { time: '仅时间', time_bazi: '时间+八字', bazi: '仅八字' };
+/** 起卦依据后缀（用于快照标签） */
 const BASIS_SUFFIX: Record<QiGuaBasis, string> = { time: '', time_bazi: '+八', bazi: '八' };
+
+/** 各起卦方法的输入提示与标签 */
 const METHOD_HINTS: Record<QiGuaMethod, { ph: string; lb: string }> = {
   time: { ph: '时间起卦无需输入', lb: '数字/铜钱' },
   number: { ph: '如 5,10 或 3,8,14', lb: '数字(2-3个)' },
   meihua: { ph: '如 1,5 (上卦数,下卦数)', lb: '上下卦数' },
   zaobi: { ph: '随机种子(可选)', lb: '种子数' },
-  cuanke: { ph: '如 2,1,3,0,2,1', lb: '6次背面数(0-3)' }
+  cuanke: { ph: '如 2,1,3,0,2,1', lb: '6次背面数(0-3)' },
 };
 
+// ============================================================
+// 表单读写
+// ============================================================
+
+/** 将表单时间默认设为当前时间 */
 function setDefaultTime(): void {
   const now = new Date();
   (['year', 'month', 'day', 'hour', 'second'] as const).forEach((id, i) => {
@@ -28,6 +53,7 @@ function setDefaultTime(): void {
   });
 }
 
+/** 读取表单输入，组装起卦参数 */
 function readForm() {
   const num = (id: string) => parseInt(($(id) as HTMLInputElement)?.value || '0', 10);
   const y = num('year'), m = num('month'), d = num('day'), h = num('hour'), s = num('second');
@@ -37,10 +63,12 @@ function readForm() {
   const birth: TimeInput | undefined = basis === 'time' ? undefined : { year: num('byear'), month: num('bmonth'), day: num('bday'), hour: num('bhour'), minute: 0, second: num('bsecond') };
   const gender = ($('gender') as HTMLSelectElement)?.value as '男' | '女' | undefined;
   let input: TimeInput = { year: y, month: m, day: d, hour: h, minute: 0, second: s };
+  // 仅八字模式时，以生辰替代起卦时间
   if (basis === 'bazi' && birth) input = { ...birth };
   return { input, method, nums, basis, birth, gender };
 }
 
+/** 根据起卦依据切换生辰输入区可见性 */
 function updateBasisVisibility(): void {
   const basis = (($('basis') as HTMLSelectElement)?.value || 'time') as QiGuaBasis;
   const block = $('birth-block');
@@ -51,6 +79,7 @@ function updateBasisVisibility(): void {
   }
 }
 
+/** 根据起卦方法更新输入框提示与标签 */
 function updateMethodHint(): void {
   const method = (($('method') as HTMLSelectElement)?.value || 'time') as QiGuaMethod;
   const hint = METHOD_HINTS[method];
@@ -62,25 +91,37 @@ function updateMethodHint(): void {
   }
 }
 
+// ============================================================
+// 卦象渲染
+// ============================================================
+
+/** 渲染单爻为 HTML */
 function renderLine(line: Line): string {
   const isYang = line.yinYang === 'yang';
-  const mark = line.changed ? (isYang ? '━━━━━ ○' : '━ ━ ━ ×') : (isYang ? '━━━━━' : '━ ━ ━');
+  const mark = line.changed
+    ? (isYang ? '━━━━━ ○' : '━ ━ ━ ×')
+    : (isYang ? '━━━━━' : '━ ━ ━');
   const tags = (line.shi ? '<span class="tag-shi">世</span>' : '') + (line.ying ? '<span class="tag-ying">应</span>' : '');
   return `<div class="line ${isYang ? 'yang' : 'yin'} ${line.changed ? 'changed' : ''}"><span class="line-mark">${mark}</span><span class="line-pos">${line.position}爻</span><span class="line-gz">${line.tiangan}${line.dizhi}</span><span class="line-lq">${line.liuQin}</span>${tags}</div>`;
 }
 
+/** 渲染完整卦象（含六爻，自上而下显示） */
 function renderHex(hex: Hexagram): string {
   return `<div class="hex"><h3>${hex.fullName}（${hex.palace}宫）</h3><div>${hex.lines.slice().reverse().map(renderLine).join('')}</div></div>`;
 }
 
+/** 生成快照标签 */
 function makeLabel(input: TimeInput, method: QiGuaMethod, basis: QiGuaBasis): string {
   return `${input.year}/${input.month}/${input.day} ${input.hour}时${input.second}秒[${method}${BASIS_SUFFIX[basis]}]`;
 }
 
+/** 渲染所有面板为 HTML */
 function renderPanels(state: CoreState, syn: Synthesized): string {
   const x = state.panels;
   const bd = buildBaziPanel(state.bazi);
-  const pillars = bd.pillars.map((p, i) => `<div class="pillar"><div class="p-name">${['年柱', '月柱', '日柱', '时柱'][i]}</div><div class="p-gz">${p.gz.ganzhi}</div><div class="p-cg">${p.canggan.map(c => `${c.gan}<sub>${c.shiShen}</sub>`).join(' ')}</div><div class="p-ny">${p.nayin}</div></div>`).join('');
+  const pillars = bd.pillars.map((p, i) =>
+    `<div class="pillar"><div class="p-name">${['年柱', '月柱', '日柱', '时柱'][i]}</div><div class="p-gz">${p.gz.ganzhi}</div><div class="p-cg">${p.canggan.map(c => `${c.gan}<sub>${c.shiShen}</sub>`).join(' ')}</div><div class="p-ny">${p.nayin}</div></div>`
+  ).join('');
   return [
     `<section class="panel xiaoliu"><h2>小六壬</h2><div class="path">${x.xiaoliu.path.join(' -> ')}</div><div class="result ${x.xiaoliu.result}">${x.xiaoliu.result}</div><div class="element">五行：${x.xiaoliu.element}</div><p>${x.xiaoliu.meaning}</p></section>`,
     `<section class="panel bazi"><h2>四柱</h2><div class="pillars">${pillars}</div><p>${bd.summary}</p></section>`,
@@ -88,64 +129,172 @@ function renderPanels(state: CoreState, syn: Synthesized): string {
     `<section class="panel zhouyi"><h2>周易</h2><div class="ci"><div><strong>本卦辞：</strong>${x.zhouyi.guaCi.ben}</div><div><strong>变卦辞：</strong>${x.zhouyi.guaCi.bian}</div></div><div class="tz"><strong>彖传：</strong>${x.zhouyi.tuanZhuan}</div><div class="xz"><strong>象传：</strong>${x.zhouyi.xiangZhuan}</div><div class="yao">${x.zhouyi.yaoCi.map(y => `<div>${y}</div>`).join('')}</div><p>判断：${x.zhouyi.judgment}</p></section>`,
     `<section class="panel ziwei"><h2>紫微简化</h2><div>命宫：${x.ziwei.mingGong} 身宫：${x.ziwei.shenGong}</div><div>五行局：${x.ziwei.wuXingJu}</div><table><tr><th>主星</th><th>宫位</th><th>亮度</th></tr>${x.ziwei.mainStars.map(s => `<tr><td>${s.star}</td><td>${s.gong}</td><td>${s.brightness}</td></tr>`).join('')}</table><p>${x.ziwei.summary}</p></section>`,
     `<section class="panel liuyao"><h2>六爻基础</h2><div>${x.liuyao.summary}</div><table><tr><th>爻位</th><th>六亲</th><th>干支</th><th>六神</th></tr>${x.liuyao.liuQinMap.map((q, i) => `<tr><td>${q.position}爻</td><td>${q.liuQin}</td><td>${q.ganZhi}</td><td>${x.liuyao.liuShen[i] || ''}</td></tr>`).join('')}</table></section>`,
-    `<section class="panel synthesis"><h2>综合分析</h2><div class="trend ${syn.trend}">${syn.trend} 评分 ${syn.score}</div><p class="summary">${syn.summary}</p><div class="kp"><strong>要点：</strong>${syn.keyPoints.join('；') || '-'}</div><div class="warn"><strong>提醒：</strong>${syn.warnings.join('；') || '-'}</div><div class="rec"><strong>建议：</strong>${syn.recommendations.join('；')}</div></section>`
+    `<section class="panel synthesis"><h2>综合分析</h2><div class="trend ${syn.trend}">${syn.trend} 评分 ${syn.score}</div><p class="summary">${syn.summary}</p><div class="kp"><strong>要点：</strong>${syn.keyPoints.join('；') || '-'}</div><div class="warn"><strong>提醒：</strong>${syn.warnings.join('；') || '-'}</div><div class="rec"><strong>建议：</strong>${syn.recommendations.join('；')}</div></section>`,
   ].join('');
 }
 
+// ============================================================
+// AI 解卦
+// ============================================================
+
+/** 将 Markdown 风格文本渲染为 HTML */
 function renderAIResult(content: string): string {
   const esc = content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  const html = esc.replace(/^####\s+(.*)$/gm, '<span class="ai-h4">$1</span>').replace(/^###\s+(.*)$/gm, '<span class="ai-h3">$1</span>').replace(/^##\s+(.*)$/gm, '<span class="ai-h2">$1</span>').replace(/\*\*(.+?)\*\*/g, '<span class="ai-em">$1</span>').replace(/^&gt;\s?(.*)$/gm, '<span class="ai-quote">$1</span>').replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\n/g, '<br>');
+  const html = esc
+    .replace(/^####\s+(.*)$/gm, '<span class="ai-h4">$1</span>')
+    .replace(/^###\s+(.*)$/gm, '<span class="ai-h3">$1</span>')
+    .replace(/^##\s+(.*)$/gm, '<span class="ai-h2">$1</span>')
+    .replace(/\*\*(.+?)\*\*/g, '<span class="ai-em">$1</span>')
+    .replace(/^&gt;\s?(.*)$/gm, '<span class="ai-quote">$1</span>')
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\n/g, '<br>');
   return `<section class="panel ai" id="ai-panel"><h2>AI 解卦</h2><div class="ai-content">${html}</div></section>`;
 }
 
+/** 构建发送给 AI 的排盘文本摘要 */
 function buildPaipanText(state: CoreState, syn: Synthesized, q: string): string {
   const x = state.panels;
-  return [`所问之事：${q}`, state.birth ? `生辰：${state.birth.year}-${state.birth.month}-${state.birth.day} ${state.birth.hour}时${state.birth.second}秒` : '', state.gender ? `性别：${state.gender}` : '', `起卦方式：${state.method}`, `起卦依据：${BASIS_ZH[state.basis]}`, `本卦：${state.hexagram.fullName}（${state.hexagram.palace}宫）`, `动爻：${state.moving.positions.join('、') || '无'}`, `变卦：${state.moving.bianName}`, `小六壬：${x.xiaoliu.result}`, `综合趋势：${syn.trend}（评分${syn.score}）`, `综合摘要：${syn.summary}`].filter(Boolean).join('\n');
+  return [
+    `所问之事：${q}`,
+    state.birth ? `生辰：${state.birth.year}-${state.birth.month}-${state.birth.day} ${state.birth.hour}时${state.birth.second}秒` : '',
+    state.gender ? `性别：${state.gender}` : '',
+    `起卦方式：${state.method}`,
+    `起卦依据：${BASIS_ZH[state.basis]}`,
+    `本卦：${state.hexagram.fullName}（${state.hexagram.palace}宫）`,
+    `动爻：${state.moving.positions.join('、') || '无'}`,
+    `变卦：${state.moving.bianName}`,
+    `小六壬：${x.xiaoliu.result}`,
+    `综合趋势：${syn.trend}（评分${syn.score}）`,
+    `综合摘要：${syn.summary}`,
+  ].filter(Boolean).join('\n');
 }
 
+/**
+ * 调用 DeepSeek AI 进行解卦。
+ * @param state - 排盘状态
+ * @param syn - 综合分析
+ * @param q - 用户问题
+ * @param key - API 密钥
+ * @returns AI 回复文本
+ */
 async function askAI(state: CoreState, syn: Synthesized, q: string, key: string): Promise<string> {
-  const res = await fetch('https://api.deepseek.com/chat/completions', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key }, body: JSON.stringify({ model: 'deepseek-chat', messages: [{ role: 'system', content: '你是一位精通周易、梅花易数、小六壬、六爻、紫微斗数的易学解卦师。请根据排盘数据，用古雅清晰的语言给出解卦分析，包含吉凶总断、事理剖析、趋避建议。可使用标题(####)、加粗(**)和引用(>)标记。' }, { role: 'user', content: buildPaipanText(state, syn, q) }] }) });
+  const res = await fetch('https://api.deepseek.com/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+    body: JSON.stringify({
+      model: 'deepseek-chat',
+      messages: [
+        { role: 'system', content: '你是一位精通周易、梅花易数、小六壬、六爻、紫微斗数的易学解卦师。请根据排盘数据，用古雅清晰的语言给出解卦分析，包含吉凶总断、事理剖析、趋避建议。可使用标题(####)、加粗(**)和引用(>)标记。' },
+        { role: 'user', content: buildPaipanText(state, syn, q) },
+      ],
+    }),
+  });
   if (!res.ok) throw new Error('AI请求失败：' + res.status);
   const data = await res.json() as { choices?: { message?: { content?: string } }[] };
   return data.choices?.[0]?.message?.content || '（AI未返回内容）';
 }
 
+// ============================================================
+// 历史快照与横向比对
+// ============================================================
+
+/** 添加一条排盘快照至历史（最多保留 8 条） */
 function addSnapshot(input: TimeInput, method: QiGuaMethod, basis: QiGuaBasis, state: CoreState, syn: Synthesized): void {
   history.unshift({ id: ++snapshotId, label: makeLabel(input, method, basis), input, method, basis, state, synthesis: syn });
   if (history.length > 8) history.pop();
 }
 
+/** 渲染比对标签页 */
 function renderCompareTabs(): void {
   const el = $('compare-tabs');
   if (!el) return;
   const tabs = [['overview', '总览'], ['bazi', '四柱'], ['hexagram', '卦象'], ['xiaoliu', '小六壬'], ['synthesis', '综合']];
   el.innerHTML = tabs.map(([k, n]) => `<span class="compare-tab ${k === activeTab ? 'active' : ''}" data-tab="${k}">${n}</span>`).join('');
-  el.querySelectorAll('.compare-tab').forEach(t => t.addEventListener('click', () => { activeTab = (t as HTMLElement).dataset.tab || 'overview'; renderCompareTabs(); renderCompareTable(); }));
+  el.querySelectorAll('.compare-tab').forEach(t => t.addEventListener('click', () => {
+    activeTab = (t as HTMLElement).dataset.tab || 'overview';
+    renderCompareTabs();
+    renderCompareTable();
+  }));
 }
 
+/** 渲染比对表格（按当前标签页展示不同维度） */
 function renderCompareTable(): void {
   const el = $('compare-table') as HTMLTableElement | null;
   if (!el) return;
   if (history.length === 0) { el.innerHTML = '<tr><td class="error">暂无记录</td></tr>'; return; }
+
   const hdr = history.map(h => `<th>${h.label}</th>`).join('');
   let rows: [string, string[]][] = [];
-  if (activeTab === 'overview') rows = [['起卦方式', history.map(h => h.method)], ['起卦依据', history.map(h => BASIS_ZH[h.basis])], ['时间', history.map(h => `${h.input.year}-${h.input.month}-${h.input.day} ${h.input.hour}时${h.input.second}秒`)], ['本卦', history.map(h => h.state.hexagram.fullName)], ['宫位', history.map(h => h.state.hexagram.palace + '宫')], ['动爻', history.map(h => h.state.moving.positions.join('、') || '无')], ['变卦', history.map(h => h.state.moving.bianName)], ['小六壬', history.map(h => h.state.panels.xiaoliu.result)], ['趋势', history.map(h => h.synthesis.trend)], ['评分', history.map(h => String(h.synthesis.score))]];
-  else if (activeTab === 'bazi') { const lb = ['年柱', '月柱', '日柱', '时柱']; for (let i = 0; i < 4; i++) rows.push([lb[i], history.map(h => [h.state.bazi.year, h.state.bazi.month, h.state.bazi.day, h.state.bazi.hour][i].ganzhi)]); }
-  else if (activeTab === 'hexagram') rows = [['本卦', history.map(h => h.state.hexagram.fullName)], ['宫位', history.map(h => h.state.hexagram.palace + '宫')], ['世爻', history.map(h => h.state.hexagram.shiPosition + '爻')], ['应爻', history.map(h => h.state.hexagram.yingPosition + '爻')], ['动爻', history.map(h => h.state.moving.positions.join('、') || '无')], ['变卦', history.map(h => h.state.moving.bianName)], ['互卦', history.map(h => h.state.moving.huHexagram.name)]];
-  else if (activeTab === 'xiaoliu') rows = [['结果', history.map(h => h.state.panels.xiaoliu.result)], ['五行', history.map(h => h.state.panels.xiaoliu.element)], ['路径', history.map(h => h.state.panels.xiaoliu.path.join('->'))]];
-  else if (activeTab === 'synthesis') rows = [['趋势', history.map(h => h.synthesis.trend)], ['评分', history.map(h => String(h.synthesis.score))], ['概要', history.map(h => h.synthesis.summary.substring(0, 30) + '...')], ['要点', history.map(h => h.synthesis.keyPoints.join('；').substring(0, 30) + '...')]];
+
+  if (activeTab === 'overview') {
+    rows = [
+      ['起卦方式', history.map(h => h.method)],
+      ['起卦依据', history.map(h => BASIS_ZH[h.basis])],
+      ['时间', history.map(h => `${h.input.year}-${h.input.month}-${h.input.day} ${h.input.hour}时${h.input.second}秒`)],
+      ['本卦', history.map(h => h.state.hexagram.fullName)],
+      ['宫位', history.map(h => h.state.hexagram.palace + '宫')],
+      ['动爻', history.map(h => h.state.moving.positions.join('、') || '无')],
+      ['变卦', history.map(h => h.state.moving.bianName)],
+      ['小六壬', history.map(h => h.state.panels.xiaoliu.result)],
+      ['趋势', history.map(h => h.synthesis.trend)],
+      ['评分', history.map(h => String(h.synthesis.score))],
+    ];
+  } else if (activeTab === 'bazi') {
+    const lb = ['年柱', '月柱', '日柱', '时柱'];
+    for (let i = 0; i < 4; i++) {
+      rows.push([lb[i], history.map(h => [h.state.bazi.year, h.state.bazi.month, h.state.bazi.day, h.state.bazi.hour][i].ganzhi)]);
+    }
+  } else if (activeTab === 'hexagram') {
+    rows = [
+      ['本卦', history.map(h => h.state.hexagram.fullName)],
+      ['宫位', history.map(h => h.state.hexagram.palace + '宫')],
+      ['世爻', history.map(h => h.state.hexagram.shiPosition + '爻')],
+      ['应爻', history.map(h => h.state.hexagram.yingPosition + '爻')],
+      ['动爻', history.map(h => h.state.moving.positions.join('、') || '无')],
+      ['变卦', history.map(h => h.state.moving.bianName)],
+      ['互卦', history.map(h => h.state.moving.huHexagram.name)],
+    ];
+  } else if (activeTab === 'xiaoliu') {
+    rows = [
+      ['结果', history.map(h => h.state.panels.xiaoliu.result)],
+      ['五行', history.map(h => h.state.panels.xiaoliu.element)],
+      ['路径', history.map(h => h.state.panels.xiaoliu.path.join('->'))],
+    ];
+  } else if (activeTab === 'synthesis') {
+    rows = [
+      ['趋势', history.map(h => h.synthesis.trend)],
+      ['评分', history.map(h => String(h.synthesis.score))],
+      ['概要', history.map(h => h.synthesis.summary.substring(0, 30) + '...')],
+      ['要点', history.map(h => h.synthesis.keyPoints.join('；').substring(0, 30) + '...')],
+    ];
+  }
+
   const body = rows.map(([k, v]) => `<tr><td class="col-key">${k}</td>${v.map(x => `<td>${x}</td>`).join('')}</tr>`).join('');
   el.innerHTML = `<tr><th>项目</th>${hdr}</tr>${body}`;
 }
 
-function showCompare(): void { const s = $('compare-section'); if (s) { s.style.display = 'block'; renderCompareTabs(); renderCompareTable(); } }
+/** 显示比对区域 */
+function showCompare(): void {
+  const s = $('compare-section');
+  if (s) {
+    s.style.display = 'block';
+    renderCompareTabs();
+    renderCompareTable();
+  }
+}
 
+// ============================================================
+// 事件绑定与初始化
+// ============================================================
+
+/** 绑定所有交互事件 */
 function bindEvents(): void {
   $('method')?.addEventListener('change', updateMethodHint);
   $('basis')?.addEventListener('change', updateBasisVisibility);
   $('run-btn')?.addEventListener('click', () => {
     const out = $('output');
     if (out) out.innerHTML = '<div class="loading">推演中</div>';
+    // 延迟执行以显示加载动画
     setTimeout(() => {
       try {
         const { input, method, nums, basis, birth, gender } = readForm();
@@ -155,14 +304,30 @@ function bindEvents(): void {
         if (out) out.innerHTML = renderPanels(state, synthesis);
         showCompare();
         out?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        // 若填写了 API Key 和问题，异步请求 AI 解卦
         const key = ($('apikey') as HTMLInputElement)?.value || '';
         const q = ($('question') as HTMLTextAreaElement)?.value || '';
-        if (key && q) { askAI(state, synthesis, q, key).then(c => { if (out) out.innerHTML += renderAIResult(c); }).catch(e => { if (out) out.innerHTML += `<section class="panel ai"><h2>AI 解卦</h2><p>失败：${(e as Error).message}</p></section>`; }); }
-      } catch (e) { if (out) out.innerHTML = `<div class="error">${(e as Error).message}</div>`; }
+        if (key && q) {
+          askAI(state, synthesis, q, key)
+            .then(c => { if (out) out.innerHTML += renderAIResult(c); })
+            .catch(e => { if (out) out.innerHTML += `<section class="panel ai"><h2>AI 解卦</h2><p>失败：${(e as Error).message}</p></section>`; });
+        }
+      } catch (e) {
+        if (out) out.innerHTML = `<div class="error">${(e as Error).message}</div>`;
+      }
     }, 100);
   });
 }
 
-function init(): void { setDefaultTime(); updateBasisVisibility(); updateMethodHint(); bindEvents(); }
+/** 初始化入口 */
+function init(): void {
+  setDefaultTime();
+  updateBasisVisibility();
+  updateMethodHint();
+  bindEvents();
+}
+
+// 根据文档加载状态决定初始化时机
 if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', init);
 else init();
