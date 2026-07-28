@@ -1,8 +1,8 @@
-import { wuXingOf } from '../utils/parser.js';
-import { getHexagramByIndex, findHexagramByTrigrams } from '../data/hexagrams.js';
+import { wuXingOf, findChangedHexagram } from '../utils/parser.js';
+import { getHexagramByIndex } from '../data/hexagrams.js';
 const LIU_SHEN = ['青龙', '朱雀', '勾陈', '螣蛇', '白虎', '玄武'];
 function makeHex(index) { const r = getHexagramByIndex(index); return { index, name: r.name, fullName: r.fullName, upper: r.upper, lower: r.lower, palace: r.palace, element: r.element, nature: r.nature, lines: [], shiPosition: r.shiPosition, yingPosition: r.yingPosition }; }
-export function buildLiuYao(ben, dong, bazi) { const raw = getHexagramByIndex(ben.index); const changed = raw.lines.map((b, i) => dong.includes(i + 1) ? !b : b); const bitsToIdx = (a) => (a[0] ? 4 : 0) + (a[1] ? 2 : 0) + (a[2] ? 1 : 0); const bianIdx = findHexagramByTrigrams(bitsToIdx([changed[0], changed[1], changed[2]]), bitsToIdx([changed[3], changed[4], changed[5]])); const palaceIdx = ['乾', '坎', '艮', '震', '巽', '离', '坤', '兑'].indexOf(ben.palace); const fuShi = Array.from({ length: 6 }, (_, i) => ({ hex: makeHex(palaceIdx * 8 + 1), line: i + 1 })); const dayEl = wuXingOf(bazi.day.gan); const liuQinMap = ben.lines.map((l, i) => { const el = wuXingOf(l.dizhi); let lq = '和'; if (el === dayEl)
+export function buildLiuYao(ben, dong, bazi) { const bianIdx = findChangedHexagram(ben.index, dong); const palaceIdx = ['乾', '坎', '艮', '震', '巽', '离', '坤', '兑'].indexOf(ben.palace); const fuShi = Array.from({ length: 6 }, (_, i) => ({ hex: makeHex(palaceIdx * 8 + 1), line: i + 1 })); const dayEl = wuXingOf(bazi.day.gan); const liuQinMap = ben.lines.map((l, i) => { const el = wuXingOf(l.dizhi); let lq = '和'; if (el === dayEl)
     lq = '比肩';
 else {
     const sheng = { 木: '火', 火: '土', 土: '金', 金: '水', 水: '木' };

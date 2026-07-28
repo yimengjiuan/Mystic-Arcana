@@ -6,7 +6,7 @@ function yearBranchSeq(lunarYear) { return ((lunarYear - 4) % 12 + 12) % 12 + 1;
 function timeNumbers(input) { const lunar = solarToLunar(input.year, input.month, input.day); return { yearNum: yearBranchSeq(lunar.year), monthNum: lunar.month, dayNum: lunar.day, hourNum: hourSeq(input.hour) }; }
 export function timeQiGua(input, birth, basis) {
     const a = timeNumbers(input);
-    let yn = a.yearNum, mn = a.monthNum, dn = a.dayNum, hn = a.hourNum;
+    let yn = a.yearNum, mn = a.monthNum, dn = a.dayNum, hn = a.hourNum, sn = input.second;
     if (birth) {
         const b = timeNumbers(birth);
         if (basis === 'bazi') {
@@ -14,15 +14,17 @@ export function timeQiGua(input, birth, basis) {
             mn = b.monthNum;
             dn = b.dayNum;
             hn = b.hourNum;
+            sn = birth.second;
         }
         else if (basis === 'time_bazi') {
             yn += b.yearNum;
             mn += b.monthNum;
             dn += b.dayNum;
             hn += b.hourNum;
+            sn += birth.second;
         }
     }
-    const total = yn + mn + dn, upper = modOrMax(total, 8) - 1, total2 = total + hn, lower = modOrMax(total2, 8) - 1, moveLine = modOrMax(total2, 6);
+    const total = yn + mn + dn, upper = modOrMax(total, 8) - 1, total2 = total + hn, lower = modOrMax(total2, 8) - 1, moveLine = modOrMax(total2 + sn, 6);
     return { upper, lower, moving: [moveLine] };
 }
 export function numberQiGua(nums) {

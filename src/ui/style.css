@@ -91,10 +91,10 @@ tr:nth-child(even) td{background:rgba(15,10,7,.3)}tr:hover td{background:rgba(21
 .compare-tab{padding:8px 18px;background:rgba(15,10,7,.6);border:1px solid var(--border);border-radius:20px;color:var(--ink-d);cursor:pointer;font-family:inherit;font-size:13px;letter-spacing:2px;transition:all .3s}
 .compare-tab.active{background:linear-gradient(135deg,var(--zhu),var(--zhu-d));color:var(--ink);border-color:var(--gold);box-shadow:0 0 12px var(--glow-z)}
 .compare-tab:hover:not(.active){border-color:var(--gold);color:var(--ink)}
-.compare-table-wrap{overflow-x:auto;border-radius:8px;border:1px solid var(--border)}
-.compare-table{width:100%;min-width:600px}
+.compare-table-wrap{overflow-x:auto;border-radius:8px;border:1px solid var(--border);-webkit-overflow-scrolling:touch}
+.compare-table{width:100%}
 .compare-table th{background:rgba(74,107,111,.25);padding:12px 14px;text-align:left;white-space:nowrap}
-.compare-table td{padding:10px 14px;border-top:1px solid var(--border)}
+.compare-table td{padding:10px 14px;border-top:1px solid var(--border);word-break:break-word}
 .compare-table tr:hover td{background:rgba(212,168,87,.06)}
 .compare-table .col-key{color:var(--ink-d);font-weight:bold;white-space:nowrap}
 .error{background:linear-gradient(135deg,var(--zhu),var(--zhu-d));color:var(--ink);padding:18px 24px;border-radius:10px;margin:16px 0;border:1px solid var(--gold);box-shadow:0 0 20px var(--glow-z);grid-column:1/-1}
@@ -109,4 +109,4 @@ tr:nth-child(even) td{background:rgba(15,10,7,.3)}tr:hover td{background:rgba(21
 .ai-content code{background:rgba(15,10,7,.5);border:1px solid var(--border);border-radius:4px;padding:0 4px;font-family:ui-monospace,Consolas,monospace;font-size:13px;color:var(--xiang)}
 footer{text-align:center;padding:32px 24px;background:linear-gradient(180deg,transparent,rgba(15,10,7,.8));color:var(--ink-d);font-size:12px;margin-top:48px;border-top:1px solid var(--border);letter-spacing:2px;line-height:2}
 footer p:first-child{color:var(--gold);font-size:13px;letter-spacing:4px;margin-bottom:8px}
-@media(max-width:768px){header h1{font-size:28px;letter-spacing:8px}main{padding:16px}.pillars{grid-template-columns:repeat(2,1fr)}.triple{grid-template-columns:1fr}#output{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr 1fr}.result{font-size:28px;letter-spacing:8px}}
+@media(max-width:768px){header h1{font-size:28px;letter-spacing:8px}main{padding:16px}.pillars{grid-template-columns:repeat(2,1fr)}.triple{grid-template-columns:1fr}#output{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr 1fr}.result{font-size:28px;letter-spacing:8px}.compare-section{padding:16px}.compare-tab{padding:6px 12px;font-size:12px;letter-spacing:1px}.compare-table th,.compare-table td{padding:8px 10px;font-size:13px}.compare-table .col-key{white-space:normal}}

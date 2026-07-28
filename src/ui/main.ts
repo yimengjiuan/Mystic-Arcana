@@ -22,21 +22,21 @@ const METHOD_HINTS: Record<QiGuaMethod, { ph: string; lb: string }> = {
 
 function setDefaultTime(): void {
   const now = new Date();
-  (['year', 'month', 'day', 'hour'] as const).forEach((id, i) => {
+  (['year', 'month', 'day', 'hour', 'second'] as const).forEach((id, i) => {
     const el = $(id) as HTMLInputElement | null;
-    if (el) el.value = String([now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours()][i]);
+    if (el) el.value = String([now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), now.getSeconds()][i]);
   });
 }
 
 function readForm() {
   const num = (id: string) => parseInt(($(id) as HTMLInputElement)?.value || '0', 10);
-  const y = num('year'), m = num('month'), d = num('day'), h = num('hour');
+  const y = num('year'), m = num('month'), d = num('day'), h = num('hour'), s = num('second');
   const method = (($('method') as HTMLSelectElement)?.value || 'time') as QiGuaMethod;
   const nums = (($('nums') as HTMLInputElement)?.value || '').split(/[,\s]+/).map(Number).filter(n => !isNaN(n));
   const basis = (($('basis') as HTMLSelectElement)?.value || 'time') as QiGuaBasis;
-  const birth: TimeInput | undefined = basis === 'time' ? undefined : { year: num('byear'), month: num('bmonth'), day: num('bday'), hour: num('bhour'), minute: 0 };
+  const birth: TimeInput | undefined = basis === 'time' ? undefined : { year: num('byear'), month: num('bmonth'), day: num('bday'), hour: num('bhour'), minute: 0, second: num('bsecond') };
   const gender = ($('gender') as HTMLSelectElement)?.value as '男' | '女' | undefined;
-  let input: TimeInput = { year: y, month: m, day: d, hour: h, minute: 0 };
+  let input: TimeInput = { year: y, month: m, day: d, hour: h, minute: 0, second: s };
   if (basis === 'bazi' && birth) input = { ...birth };
   return { input, method, nums, basis, birth, gender };
 }
@@ -45,7 +45,7 @@ function updateBasisVisibility(): void {
   const basis = (($('basis') as HTMLSelectElement)?.value || 'time') as QiGuaBasis;
   const block = $('birth-block');
   if (block) block.style.display = basis === 'time' ? 'none' : 'grid';
-  for (const id of ['year', 'month', 'day', 'hour']) {
+  for (const id of ['year', 'month', 'day', 'hour', 'second']) {
     const el = $(id) as HTMLInputElement | null;
     if (el) el.disabled = basis === 'bazi';
   }
@@ -74,7 +74,7 @@ function renderHex(hex: Hexagram): string {
 }
 
 function makeLabel(input: TimeInput, method: QiGuaMethod, basis: QiGuaBasis): string {
-  return `${input.year}/${input.month}/${input.day} ${input.hour}时[${method}${BASIS_SUFFIX[basis]}]`;
+  return `${input.year}/${input.month}/${input.day} ${input.hour}时${input.second}秒[${method}${BASIS_SUFFIX[basis]}]`;
 }
 
 function renderPanels(state: CoreState, syn: Synthesized): string {
@@ -100,7 +100,7 @@ function renderAIResult(content: string): string {
 
 function buildPaipanText(state: CoreState, syn: Synthesized, q: string): string {
   const x = state.panels;
-  return [`所问之事：${q}`, state.birth ? `生辰：${state.birth.year}-${state.birth.month}-${state.birth.day} ${state.birth.hour}时` : '', state.gender ? `性别：${state.gender}` : '', `起卦方式：${state.method}`, `起卦依据：${BASIS_ZH[state.basis]}`, `本卦：${state.hexagram.fullName}（${state.hexagram.palace}宫）`, `动爻：${state.moving.positions.join('、') || '无'}`, `变卦：${state.moving.bianName}`, `小六壬：${x.xiaoliu.result}`, `综合趋势：${syn.trend}（评分${syn.score}）`, `综合摘要：${syn.summary}`].filter(Boolean).join('\n');
+  return [`所问之事：${q}`, state.birth ? `生辰：${state.birth.year}-${state.birth.month}-${state.birth.day} ${state.birth.hour}时${state.birth.second}秒` : '', state.gender ? `性别：${state.gender}` : '', `起卦方式：${state.method}`, `起卦依据：${BASIS_ZH[state.basis]}`, `本卦：${state.hexagram.fullName}（${state.hexagram.palace}宫）`, `动爻：${state.moving.positions.join('、') || '无'}`, `变卦：${state.moving.bianName}`, `小六壬：${x.xiaoliu.result}`, `综合趋势：${syn.trend}（评分${syn.score}）`, `综合摘要：${syn.summary}`].filter(Boolean).join('\n');
 }
 
 async function askAI(state: CoreState, syn: Synthesized, q: string, key: string): Promise<string> {
@@ -129,7 +129,7 @@ function renderCompareTable(): void {
   if (history.length === 0) { el.innerHTML = '<tr><td class="error">暂无记录</td></tr>'; return; }
   const hdr = history.map(h => `<th>${h.label}</th>`).join('');
   let rows: [string, string[]][] = [];
-  if (activeTab === 'overview') rows = [['起卦方式', history.map(h => h.method)], ['起卦依据', history.map(h => BASIS_ZH[h.basis])], ['时间', history.map(h => `${h.input.year}-${h.input.month}-${h.input.day} ${h.input.hour}:00`)], ['本卦', history.map(h => h.state.hexagram.fullName)], ['宫位', history.map(h => h.state.hexagram.palace + '宫')], ['动爻', history.map(h => h.state.moving.positions.join('、') || '无')], ['变卦', history.map(h => h.state.moving.bianName)], ['小六壬', history.map(h => h.state.panels.xiaoliu.result)], ['趋势', history.map(h => h.synthesis.trend)], ['评分', history.map(h => String(h.synthesis.score))]];
+  if (activeTab === 'overview') rows = [['起卦方式', history.map(h => h.method)], ['起卦依据', history.map(h => BASIS_ZH[h.basis])], ['时间', history.map(h => `${h.input.year}-${h.input.month}-${h.input.day} ${h.input.hour}时${h.input.second}秒`)], ['本卦', history.map(h => h.state.hexagram.fullName)], ['宫位', history.map(h => h.state.hexagram.palace + '宫')], ['动爻', history.map(h => h.state.moving.positions.join('、') || '无')], ['变卦', history.map(h => h.state.moving.bianName)], ['小六壬', history.map(h => h.state.panels.xiaoliu.result)], ['趋势', history.map(h => h.synthesis.trend)], ['评分', history.map(h => String(h.synthesis.score))]];
   else if (activeTab === 'bazi') { const lb = ['年柱', '月柱', '日柱', '时柱']; for (let i = 0; i < 4; i++) rows.push([lb[i], history.map(h => [h.state.bazi.year, h.state.bazi.month, h.state.bazi.day, h.state.bazi.hour][i].ganzhi)]); }
   else if (activeTab === 'hexagram') rows = [['本卦', history.map(h => h.state.hexagram.fullName)], ['宫位', history.map(h => h.state.hexagram.palace + '宫')], ['世爻', history.map(h => h.state.hexagram.shiPosition + '爻')], ['应爻', history.map(h => h.state.hexagram.yingPosition + '爻')], ['动爻', history.map(h => h.state.moving.positions.join('、') || '无')], ['变卦', history.map(h => h.state.moving.bianName)], ['互卦', history.map(h => h.state.moving.huHexagram.name)]];
   else if (activeTab === 'xiaoliu') rows = [['结果', history.map(h => h.state.panels.xiaoliu.result)], ['五行', history.map(h => h.state.panels.xiaoliu.element)], ['路径', history.map(h => h.state.panels.xiaoliu.path.join('->'))]];

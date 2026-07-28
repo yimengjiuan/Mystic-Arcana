@@ -1,63 +1,100 @@
-# 玄机阁术数排盘工具
+# 玄机阁术数排盘工具 · Mystic Arcana
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.4-blue)
 ![Node](https://img.shields.io/badge/Node-20+-green)
+![Version](https://img.shields.io/badge/version-1.0.0-orange)
 
-一个专业的中国传统术数排盘工具，支持多种起卦方式和六种经典命理面板。
+一个专业的中国传统术数排盘引擎与可视化工具，纯 TypeScript 实现，支持 **5 种起卦方式**、**6 种术数面板**与**综合趋势分析**，内置 Web UI 与 AI 解卦能力。
 
-## 功能特点
+## 功能概览
 
-### 5种起卦方式
+### 5 种起卦方式
 
-| 起卦方式 | 说明 | 状态 |
-|---------|------|------|
-| 时间卦 | 根据年月日时起卦 | ✅ 已实现 |
-| 报数卦 | 任意报三个数起卦 | ✅ 已实现 |
-| 铜钱摇卦 | 模拟三枚铜钱摇卦 | ✅ 已实现 |
-| 文字卦 | 通过文字解析起卦 | 🔜 开发中 |
-| 排盘回推 | 从卦象反推起卦信息 | ✅ 已实现 |
+| 方法标识 | 名称 | 输入 | 说明 |
+|---------|------|------|------|
+| `time` | 时间起卦 | 年月日时 | 依据农历年月日时推演上下卦与动爻，可结合生辰八字 |
+| `number` | 数字起卦 | 2~3 个数字 | 以数字取上下卦，两数之和或第三数取动爻 |
+| `meihua` | 梅花易数 | 2 个数字 + 时辰 | 上卦数、下卦数加时辰数定动爻 |
+| `zaobi` | 造笔起卦 | 时间 + 随机种子 | 基于时间哈希生成六爻，模拟随机摇卦 |
+| `cuanke` | 铜钱摇卦 | 6 次背面数（0-3） | 三枚铜钱六次结果，0 为老阴、3 为老阳为动爻 |
 
-### 6种术数面板
+起卦可依据三种数据源（`QiGuaBasis`）：
 
-| 面板 | 说明 | 核心功能 |
+| 标识 | 名称 | 说明 |
+|------|------|------|
+| `time` | 仅时间 | 仅以当前起卦时间推演 |
+| `time_bazi` | 时间 + 八字 | 起卦时间与生辰八字叠加 |
+| `bazi` | 仅八字 | 以生辰八字为基准推演 |
+
+### 6 种术数面板
+
+| 面板 | 标识 | 核心输出 |
 |------|------|----------|
-| **八字** | 四柱八字 | 年月日时柱、干支、大运、流年 |
-| **六爻** | 纳甲六爻 | 世应、伏神、六亲、六神 |
-| **梅花** | 梅花易数 | 互卦、变卦、体用分析 |
-| **小六壬** | 六壬掌中诀 | 掌诀排盘、吉凶判断 |
-| **奇门** | 奇门遁甲 | 天地人神四盘、值符值使 |
-| **紫薇** | 紫微斗数 | 十二宫位、星曜排布 |
+| **四柱八字** | `bazi` | 年月日时柱、天干地支、藏干十神、纳音、大运流年 |
+| **纳甲六爻** | `liuyao` | 本卦/变卦、世应、六亲、六神、伏神、动爻 |
+| **梅花易数** | `meihua` | 本卦/互卦/变卦、体用分析、体用五行生克 |
+| **周易卦辞** | `zhouyi` | 卦辞、彖传、象传、爻辞、吉凶判断 |
+| **小六壬** | `xiaoliu` | 掌诀路径、六神结果（大安/留连/速喜/赤口/小吉/空亡）、五行寓意 |
+| **紫微斗数** | `ziwei` | 命宫身宫、五行局、主星宫位亮度 |
 
 ### 综合分析
 
-- 自动识别卦象五行属性
-- 体用关系分析
--旺相休囚死状态判断
-- 日干生旺死墓绝分析
+`synthesize` 引擎汇聚各面板信息，输出结构化判断：
+
+- **趋势判定**：上吉 / 吉 / 平 / 凶 / 大凶
+- **量化评分**：0-100 分制
+- **关键要点**：各面板吉凶提示
+- **风险提醒**：需注意的事项
+- **行动建议**：趋避方向
 
 ## 技术栈
 
-- **语言**: TypeScript 5.4
-- **运行环境**: Node.js 20+
-- **构建工具**: TypeScript Compiler
-- **测试框架**: Node.js native test runner
+- **语言**：TypeScript 5.4（CommonJS）
+- **运行环境**：Node.js 20+
+- **构建工具**：TypeScript Compiler（tsc）
+- **测试框架**：Node.js 原生测试运行器 + tsx
+- **Web UI**：原生 HTML/CSS/TS，零运行时框架依赖
+- **AI 解卦**：DeepSeek Chat API（可选）
 
 ## 项目结构
 
 ```
-xuanji-paipan/
+Mystic-Arcana/
 ├── src/
-│   ├── engine.ts          # 核心排盘引擎
-│   ├── types/             # TypeScript类型定义
-│   ├── utils/             # 工具函数（日历、干支、八卦）
-│   ├── panels/            # 六种术数面板实现
-│   ├── data/              # 卦象数据、干支数据
-│   ├── analysis/          # 综合分析模块
-│   └── ui/                # 前端界面
-├── tests/                 # 测试文件
-├── dist/                  # 编译输出
-└── scripts/               # 构建脚本
+│   ├── engine.ts                # 核心排盘引擎（paipan / fullPaipan）
+│   ├── types/index.ts           # 全局类型定义
+│   ├── utils/
+│   │   ├── qigua.ts             # 5 种起卦算法与调度
+│   │   ├── parser.ts            # 建卦、变卦、互卦解析
+│   │   └── calendar.ts          # 农历与干支历法转换
+│   ├── panels/
+│   │   ├── bazi.ts              # 四柱八字面板
+│   │   ├── liuyao.ts            # 纳甲六爻面板
+│   │   ├── meihua.ts            # 梅花易数面板
+│   │   ├── zhouyi.ts            # 周易卦辞面板
+│   │   ├── xiaoliu.ts           # 小六壬面板
+│   │   └── ziwei.ts             # 紫微斗数面板
+│   ├── data/
+│   │   ├── hexagrams.ts         # 64 卦与八卦数据
+│   │   ├── lunar.ts             # 农历转换算法
+│   │   └── najia.ts             # 纳甲（干支配卦）数据
+│   ├── analysis/
+│   │   └── synthesizer.ts       # 综合分析引擎
+│   └── ui/
+│       ├── main.ts              # Web UI 主程序
+│       ├── index.html           # 界面布局
+│       └── style.css            # 样式表
+├── tests/
+│   └── golden.test.ts           # 黄金测试用例
+├── scripts/
+│   ├── serve.mjs                # 本地预览服务器
+│   ├── copy-ui.mjs              # UI 构建资源拷贝
+│   └── fix-imports.mjs          # 构建后导入路径修正
+├── dist_ui/                     # UI 可直接预览的构建产物
+├── package.json
+├── tsconfig.json
+└── tsconfig.test.json
 ```
 
 ## 快速开始
@@ -68,17 +105,13 @@ xuanji-paipan/
 npm install
 ```
 
-### 开发模式
-
-```bash
-npm run serve
-```
-
-### 构建
+### 构建项目
 
 ```bash
 npm run build
 ```
+
+构建产出两个目录：`dist/`（运行时模块）与 `dist_test/`（测试模块）。
 
 ### 运行测试
 
@@ -86,35 +119,121 @@ npm run build
 npm test
 ```
 
-## 使用示例
+### 启动 Web UI
 
-```typescript
-import { paipan, fullPaipan } from './dist/engine';
-
-// 简单排盘
-const result = paipan(
-  { year: 2024, month: 1, day: 15, hour: 10 },
-  'time'
-);
-
-// 完整排盘（含综合分析）
-const { state, synthesis } = fullPaipan(
-  { year: 2024, month: 1, day: 15, hour: 10 },
-  'time',
-  [],      // 报数
-  0,       // 额外参数
-  undefined, // 出生时间
-  'time',  // 起卦依据
-  '男',    // 性别
-  '张三'   // 姓名
-);
+```bash
+npm run serve
 ```
 
-## 相关文档
+浏览器打开终端提示的本地地址，即可使用可视化排盘界面。
 
-- [六爻排盘说明](./六爻.mmd)
-- [案例分析](./案例.mmd)
+## 核心 API
 
-## License
+### `paipan` — 基础排盘
+
+执行起卦与全部面板计算，返回完整的 `CoreState` 状态。
+
+```typescript
+import { paipan } from './dist/engine';
+
+const state = paipan(
+  { year: 2024, month: 1, day: 15, hour: 10, minute: 0 },  // 起卦时间
+  'time',          // 起卦方式
+  [],              // 数字输入（数字/梅花/铜钱用）
+  0,               // 额外参数（造笔种子）
+  undefined,       // 生辰时间（结合八字时用）
+  'time',          // 起卦依据
+  '男',            // 性别
+  '张三'           // 姓名
+);
+
+// state.hexagram   — 本卦信息
+// state.bazi       — 四柱八字
+// state.panels     — 六大面板数据
+// state.moving     — 动爻与变卦
+```
+
+### `fullPaipan` — 排盘 + 综合分析
+
+在 `paipan` 基础上额外执行综合分析，返回状态与分析结果。
+
+```typescript
+import { fullPaipan } from './dist/engine';
+
+const { state, synthesis } = fullPaipan(
+  { year: 2024, month: 1, day: 15, hour: 10, minute: 0 },
+  'time',
+  [],
+  0,
+  undefined,
+  'time',
+  '男',
+  '张三'
+);
+
+// synthesis.trend           — 趋势（上吉/吉/平/凶/大凶）
+// synthesis.score           — 评分（0-100）
+// synthesis.summary         — 综合摘要
+// synthesis.keyPoints       — 关键要点
+// synthesis.warnings        — 风险提醒
+// synthesis.recommendations — 行动建议
+```
+
+### 起卦方式示例
+
+```typescript
+import { fullPaipan } from './dist/engine';
+
+const input = { year: 2024, month: 6, day: 20, hour: 14, minute: 0 };
+
+// 数字起卦（2-3 个数）
+fullPaipan(input, 'number', [5, 10]);
+
+// 梅花易数（上卦数, 下卦数）
+fullPaipan(input, 'meihua', [3, 8]);
+
+// 铜钱摇卦（6 次背面数，0-3）
+fullPaipan(input, 'cuanke', [2, 1, 3, 0, 2, 1]);
+
+// 造笔起卦（随机种子）
+fullPaipan(input, 'zaobi', [], 42);
+```
+
+## Web UI 功能
+
+启动 `npm run serve` 后，界面提供：
+
+- **起卦配置**：选择起卦方式、依据、时间、数字/铜钱输入
+- **生辰八字**：可选填出生时间，支持时间+八字叠加推演
+- **六面板渲染**：卦象可视化、四柱展示、六爻表格、紫微星盘等
+- **历史比对**：保存最近 8 次排盘，按总览/四柱/卦象/小六壬/综合分类横向对比
+- **AI 解卦**：填入 DeepSeek API Key 后可一键获取 AI 解卦分析
+- **响应式布局**：自适应桌面与移动端，比对表格在小屏下自动缩放与横向滚动
+
+## 类型定义
+
+核心类型一览（详见 [src/types/index.ts](./src/types/index.ts)）：
+
+| 类型 | 说明 |
+|------|------|
+| `TimeInput` | 时间输入（year/month/day/hour/minute） |
+| `Bazi` | 四柱八字（年月日时干支 + 农历 + 节气） |
+| `Hexagram` | 卦象（名称/宫位/五行/世应/六爻） |
+| `CoreState` | 完整排盘状态（输入/八字/卦象/六面板） |
+| `Synthesized` | 综合分析结果（趋势/评分/要点/建议） |
+| `QiGuaMethod` | 起卦方式联合类型 |
+| `QiGuaBasis` | 起卦依据联合类型 |
+
+## 部署
+
+项目内置 GitHub Pages 自动部署工作流（`.github/workflows/deploy-pages.yml`），推送到 `main` 分支即自动将 `dist_ui/` 目录部署为 GitHub Pages 静态站点。
+
+如需本地预览，执行：
+
+```bash
+npm run serve
+```
+
+## 许可证
 
 MIT License
