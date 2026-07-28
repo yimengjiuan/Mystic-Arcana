@@ -15,7 +15,7 @@
 
 **[https://yimengjiuan.github.io/Mystic-Arcana/](https://yimengjiuan.github.io/Mystic-Arcana/)**
 
-> 首次访问需等待 GitHub Actions 构建部署完成（推送到 main 后约 1-2 分钟）。AI 解卦功能需在界面内自行填入 DeepSeek API Key。
+> 首次访问需等待 GitHub Actions 构建部署完成（推送到 main 后约 1-2 分钟）。AI 解卦功能需在界面内自行填入 DeepSeek API Key。页面加载时自动通过世界时间 API 校准初始时间。
 
 ## 功能概览
 
@@ -66,6 +66,7 @@
 - **测试框架**：Node.js 原生测试运行器 + tsx
 - **Web UI**：原生 HTML/CSS/TS，零运行时框架依赖
 - **AI 解卦**：DeepSeek Chat API（可选）
+- **时间校准**：uapis.cn 世界时间 API，静态部署下自动获取准确时区时间
 
 ## 项目结构
 
@@ -231,10 +232,12 @@ fullPaipan(input, 'zaobi', [], 42);
 启动 `npm run serve` 后，界面提供：
 
 - **起卦配置**：选择起卦方式、依据、时间、数字/铜钱输入
+- **时间校准**：页面加载时自动通过世界时间 API 获取浏览器所在时区的准确时间，解决静态部署时系统时钟不准的问题
 - **生辰八字**：可选填出生时间，支持时间+八字叠加推演
 - **六面板渲染**：卦象可视化、四柱展示、六爻表格、紫微星盘等
 - **历史比对**：保存最近 8 次排盘，按总览/四柱/卦象/小六壬/综合分类横向对比
 - **AI 解卦**：填入 DeepSeek API Key 后可一键获取 AI 解卦分析
+- **开源标识**：界面右上角 GitHub 图标链接，直达仓库源码
 - **响应式布局**：自适应桌面与移动端，比对表格在小屏下自动缩放与横向滚动
 
 ## 类型定义
