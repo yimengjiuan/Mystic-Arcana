@@ -18,8 +18,8 @@ main{max-width:1440px;margin:0 auto;padding:28px 24px;position:relative}
 h2{font-size:20px;color:var(--gold-b);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);letter-spacing:4px;text-shadow:0 0 8px var(--glow-x);position:relative}
 h2::before{content:'◆';color:var(--zhu);margin-right:8px;font-size:14px;text-shadow:0 0 6px var(--glow-z)}
 .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px}
-.form-grid label{display:flex;flex-direction:column;font-size:13px;color:var(--ink-d);letter-spacing:2px}
-.form-grid input,.form-grid select,.full-label input,.full-label textarea,.full-label select{margin-top:6px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:rgba(15,10,7,.6);color:var(--ink);font-family:inherit;font-size:15px;transition:all .3s}
+.form-grid label{display:flex;flex-direction:column;font-size:13px;color:var(--ink-d);letter-spacing:2px;min-width:0}
+.form-grid input,.form-grid select,.full-label input,.full-label textarea,.full-label select{margin-top:6px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:rgba(15,10,7,.6);color:var(--ink);font-family:inherit;font-size:15px;transition:all .3s;width:100%}
 .form-grid input:focus,.full-label input:focus,.full-label textarea:focus,.full-label select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 2px rgba(212,168,87,.2),0 0 12px var(--glow-x);background:rgba(15,10,7,.8)}
 .full-label{display:flex;flex-direction:column;font-size:13px;color:var(--ink-d);margin-top:14px}
 .full-label textarea{resize:vertical}
@@ -116,3 +116,4 @@ footer .opensource-notice a:hover{color:var(--gold-b);text-decoration:underline}
 .github-link:hover{color:var(--gold-b);border-color:var(--gold);box-shadow:0 0 12px var(--glow-x);background:rgba(212,168,87,.08)}
 .github-link svg{flex:none}
 @media(max-width:768px){header h1{font-size:28px;letter-spacing:8px}main{padding:16px}.pillars{grid-template-columns:repeat(2,1fr)}.triple{grid-template-columns:1fr}#output{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr 1fr}.result{font-size:28px;letter-spacing:8px}.compare-section{padding:16px}.compare-tab{padding:6px 12px;font-size:12px;letter-spacing:1px}.compare-table th,.compare-table td{padding:8px 10px;font-size:13px}.compare-table .col-key{white-space:normal}.github-link{top:14px;right:14px;padding:4px 10px;font-size:11px}}
+@media(max-width:480px){.form-section{padding:16px}.form-grid{grid-template-columns:1fr}}
