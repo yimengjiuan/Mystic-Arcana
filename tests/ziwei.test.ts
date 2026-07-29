@@ -131,7 +131,7 @@ test('紫微Z14：命格概述非空且含关键信息', () => {
 
 // ── 标准化用例验证 ──
 
-test('标准case01：1986年丙寅年-杀破狼格', () => {
+test('标准case01：1986年丙寅年-紫府朝垣格', () => {
   const inp: TimeInput = { year: 1986, month: 9, day: 12, hour: 3, minute: 10, second: 0 };
   const state = paipan(inp, 'time', [], 0, undefined, 'time', '男');
   const zw = state.panels.ziwei;
@@ -140,10 +140,10 @@ test('标准case01：1986年丙寅年-杀破狼格', () => {
   for (const s of zw.siHua) huaMap[s.hua] = s.star;
   assert.equal(huaMap['化禄'], '天同', '丙年化禄应为天同');
   assert.equal(huaMap['化忌'], '廉贞', '丙年化忌应为廉贞');
-  // 杀破狼格：命宫主星应为七杀/破军/贪狼之一
+  // 紫府朝垣格：命宫主星应为紫微/天府之一
   const mingPalace = zw.palaces.find(p => p.gong === '命宫');
-  const shaPoLang = ['七杀', '破军', '贪狼'];
-  assert.ok(mingPalace && mingPalace.stars.some(s => shaPoLang.includes(s)), '命宫应有杀破狼主星');
+  const ziFu = ['紫微', '天府'];
+  assert.ok(mingPalace && mingPalace.stars.some(s => ziFu.includes(s)), '命宫应有紫微或天府主星');
   // 阳男顺行
   assert.equal(zw.daXianDirection, '顺行', '丙年阳男应顺行');
 });

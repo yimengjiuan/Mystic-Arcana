@@ -29,8 +29,8 @@ const LUNAR_DATA = [
   '0b5a0', '056d0', '055b2', '049b0', '0a577', '0a4b0', '0aa50', '1b255', '06d20', '0ada0',
 ];
 
-/** 农历基准日期：1900-01-31（正月初一） */
-const LUNAR_BASE = new Date(1900, 0, 31).getTime();
+/** 农历基准日期：1900-01-31（正月初一），使用 UTC 避免时区差异 */
+const LUNAR_BASE = Date.UTC(1900, 0, 31);
 
 /** 获取指定年份的农历信息编码 */
 function getLunarData(year: number): number {
@@ -67,7 +67,7 @@ function lunarYearDays(year: number): number {
  * @returns 农历日期（年、月、日、是否闰月）
  */
 export function solarToLunar(y: number, m: number, d: number) {
-  let offset = Math.floor((new Date(y, m - 1, d).getTime() - LUNAR_BASE) / 86400000);
+  let offset = Math.floor((Date.UTC(y, m - 1, d) - LUNAR_BASE) / 86400000);
   if (offset < 0) return { year: 1900, month: 1, day: 1, isLeap: false };
 
   // 逐年扣减天数，定位农历年份
