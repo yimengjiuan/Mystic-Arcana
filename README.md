@@ -104,7 +104,7 @@ Mystic-Arcana/
 │   ├── serve.mjs                # 本地预览服务器
 │   ├── copy-ui.mjs              # UI 构建资源拷贝
 │   └── fix-imports.mjs          # 构建后导入路径修正
-├── dist_ui/                     # UI 可直接预览的构建产物（GitHub Pages 部署源）
+├── dist/                        # 构建产物（本地 .gitignore 忽略，CI 构建后部署）
 ├── start.bat                    # Windows 一键构建启动脚本
 ├── package.json
 ├── tsconfig.json
@@ -256,7 +256,7 @@ fullPaipan(input, 'zaobi', [], 42);
 
 ## 部署
 
-项目内置 GitHub Pages 自动部署工作流（`.github/workflows/deploy-pages.yml`），推送到 `main` 分支即自动将 `dist_ui/` 目录部署为 GitHub Pages 静态站点。
+项目内置 GitHub Pages 自动部署工作流（`.github/workflows/deploy-pages.yml`），推送到 `main` 分支后 CI 自动执行 `npm run build:ui` 构建，并将 `dist/` 目录部署为 GitHub Pages 静态站点。构建产物不再入库，仓库只保留源码。
 
 如需本地预览，执行：
 

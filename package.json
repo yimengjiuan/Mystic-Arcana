@@ -5,6 +5,7 @@
   "type": "commonjs",
   "scripts": {
     "build": "tsc -p tsconfig.json && tsc -p tsconfig.test.json",
+    "build:ui": "tsc -p tsconfig.json && node scripts/copy-ui.mjs && node scripts/fix-imports.mjs",
     "serve": "node scripts/serve.mjs",
     "test": "node --import tsx --test tests/*.test.ts"
   },
