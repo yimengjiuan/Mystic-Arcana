@@ -26,8 +26,8 @@ const INNER_OUTER_TRIGRAMS: readonly TrigramNajia[] = [
   { name: '兑', inner: '丁巳丁卯丁丑', outer: '丁亥丁酉丁未' },
 ];
 
-/** 八卦名称 -> 索引映射 */
-const TRIGRAM_INDEX: Record<string, number> = { 乾: 0, 兑: 1, 离: 2, 震: 3, 巽: 4, 坎: 5, 艮: 6, 坤: 7 };
+/** 八卦名称 -> 索引映射（与 INNER_OUTER_TRIGRAMS 顺序一致） */
+const TRIGRAM_INDEX: Record<string, number> = { 乾: 0, 坤: 1, 震: 2, 巽: 3, 坎: 4, 离: 5, 艮: 6, 兑: 7 };
 
 /**
  * 获取六爻纳甲干支串（共 12 字符 = 6 爻 × 2 字符）。
