@@ -152,14 +152,20 @@ export interface ZhouYiPanel {
 
 /** 紫微斗数面板数据 */
 export interface ZiWeiPanel {
-  /** 命宫 */
+  /** 命宫地支 */
   readonly mingGong: string;
-  /** 身宫 */
+  /** 身宫地支 */
   readonly shenGong: string;
   /** 五行局 */
   readonly wuXingJu: string;
-  /** 主星列表 */
+  /** 十二宫位主星分布 */
+  readonly palaces: readonly { gong: string; zhi: string; stars: readonly string[] }[];
+  /** 主星列表（按宫位排列） */
   readonly mainStars: readonly { star: string; gong: string; brightness: string }[];
+  /** 四化 */
+  readonly siHua: readonly { hua: string; star: string }[];
+  /** 大限方向 */
+  readonly daXianDirection: '顺行' | '逆行';
   /** 命格概述 */
   readonly summary: string;
 }
