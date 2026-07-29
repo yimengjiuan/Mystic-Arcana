@@ -51,7 +51,7 @@ export function synthesize(state: CoreState): Synthesized {
   }
 
   // ── 六爻：动爻所临六亲（权重 25%） ──
-  // 易学原则：子孙临动爻为福神（吉），财爻动主财（吉），
+  // 易学原则：子孙临动爻为福神（吉），妻财动主财（吉），
   // 官鬼动主忧（凶），父母动主辛劳（平偏凶），兄弟动主劫财（平偏凶）。
   const ly = state.panels.liuyao;
   const dongLiuQin = ly.liuQinMap.filter(lq => ly.dong.includes(lq.position));
@@ -59,16 +59,16 @@ export function synthesize(state: CoreState): Synthesized {
     let lqScore = 0;
     for (const lq of dongLiuQin) {
       const name = lq.liuQin;
-      if (name === '食神') {
+      if (name === '子孙') {
         lqScore += 18; // 子孙爻动，主福气消解
         points.push(`六爻：${lq.position}爻临子孙动，主吉庆解难`);
-      } else if (name === '财爻') {
-        lqScore += 12; // 财爻动，主得财
-        points.push(`六爻：${lq.position}爻临财爻动，主有财利`);
-      } else if (name === '比肩') {
+      } else if (name === '妻财') {
+        lqScore += 12; // 妻财爻动，主得财
+        points.push(`六爻：${lq.position}爻临妻财动，主有财利`);
+      } else if (name === '兄弟') {
         lqScore += 0; // 兄弟爻动，主劫财竞争
         warnings.push(`六爻：${lq.position}爻临兄弟动，防破财竞争`);
-      } else if (name === '印爻') {
+      } else if (name === '父母') {
         lqScore += 4; // 父母爻动，主辛劳但有庇护
         points.push(`六爻：${lq.position}爻临父母动，主辛劳有获`);
       } else if (name === '官鬼') {

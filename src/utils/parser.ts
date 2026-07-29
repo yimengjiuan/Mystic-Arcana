@@ -15,6 +15,12 @@ const WUXING_MAP: Record<string, string> = {
   '午': '火', '未': '土', '申': '金', '酉': '金', '戌': '土', '亥': '水',
 };
 
+/** 八宫五行属性：乾兑金、震巽木、坎水、离火、坤艮土 */
+const PALACE_WUXING: Record<string, string> = {
+  '乾': '金', '兑': '金', '震': '木', '巽': '木',
+  '坎': '水', '离': '火', '坤': '土', '艮': '土',
+};
+
 /**
  * 查询天干或地支的五行属性。
  * @param ganOrZhi - 天干或地支字符
@@ -25,31 +31,29 @@ export function wuXingOf(ganOrZhi: string): string {
 }
 
 /**
- * 五行生克关系表（以日干五行为主，推导其他五行的六亲）。
- * rel[日干五行][其他五行] => 六亲简称
+ * 五行生克关系表（以宫位五行为主，推导其他五行的六亲）。
+ * rel[宫位五行][爻位五行] => 六亲名称
+ * 传统六爻六亲：兄弟（同类）、子孙（我生）、妻财（我克）、官鬼（克我）、父母（生我）。
  */
 const LIUQIN_REL: Record<string, Record<string, string>> = {
-  '金': { '木': '财', '火': '官', '水': '食', '土': '印' },
-  '木': { '火': '食', '土': '财', '金': '官', '水': '印' },
-  '水': { '木': '印', '火': '财', '土': '官', '金': '食' },
-  '火': { '土': '印', '金': '财', '水': '官', '木': '食' },
-  '土': { '金': '印', '水': '官', '木': '财', '火': '食' },
+  '金': { '木': '妻财', '火': '官鬼', '水': '子孙', '土': '父母' },
+  '木': { '火': '子孙', '土': '妻财', '金': '官鬼', '水': '父母' },
+  '水': { '木': '父母', '火': '妻财', '土': '官鬼', '金': '子孙' },
+  '火': { '土': '父母', '金': '妻财', '水': '官鬼', '木': '子孙' },
+  '土': { '金': '父母', '水': '官鬼', '木': '妻财', '火': '子孙' },
 };
 
 /**
- * 推算六亲关系（基于地支五行与日干五行的生克）。
- * @param zhiSelf - 爻位地支
- * @param zhiOther - 对应地支（本实现中与 zhiSelf 相同）
- * @param dayGan - 日柱天干
- * @returns 六亲名称（比肩/比和/财/官/食/印/和）
+ * 推算六亲关系（基于宫位五行与爻位地支五行的生克）。
+ * @param zhi - 爻位地支
+ * @param palaceEl - 本卦所属宫位的五行
+ * @returns 六亲名称（兄弟/父母/子孙/妻财/官鬼）
  */
-export function liuQinOf(zhiSelf: string, zhiOther: string, dayGan: string): string {
-  const selfEl = wuXingOf(zhiSelf);
-  const otherEl = wuXingOf(zhiOther);
-  if (!selfEl || !otherEl) return '';
-  if (selfEl === otherEl) return wuXingOf(dayGan) === selfEl ? '比肩' : '比和';
-  const dayEl = wuXingOf(dayGan) || '木';
-  return (LIUQIN_REL[dayEl] || {})[otherEl] || '和';
+export function liuQinOf(zhi: string, palaceEl: string): string {
+  const el = wuXingOf(zhi);
+  if (!el) return '';
+  if (el === palaceEl) return '兄弟';
+  return (LIUQIN_REL[palaceEl] || {})[el] || '';
 }
 
 /**
@@ -94,13 +98,14 @@ export function buildBazi(y: number, m: number, d: number, h: number) {
  * 构建六爻爻线详情（含纳甲干支、世应标记、六亲）。
  * @param hexIndex - 卦序（1-64）
  * @param moving - 动爻位置数组（1-6）
- * @param dayGan - 日柱天干（用于六亲推算）
+ * @param dayGan - 日柱天干（保留接口兼容，六亲改用宫位五行）
  * @returns 6 爻详情数组
  */
-export function buildLines(hexIndex: number, moving: readonly number[], dayGan: string) {
+export function buildLines(hexIndex: number, moving: readonly number[], _dayGan: string) {
   const h = getHexagramByIndex(hexIndex);
   const najiaStr = getNajia(TRIGRAMS[h.upper] || '', TRIGRAMS[h.lower] || '');
   const parsed = parseNajia(najiaStr);
+  const palaceEl = PALACE_WUXING[h.palace] || '土';
   return Array.from({ length: 6 }, (_, i) => {
     const pos = (i + 1) as 1 | 2 | 3 | 4 | 5 | 6;
     const isYang = h.lines[i] === true;
@@ -113,7 +118,7 @@ export function buildLines(hexIndex: number, moving: readonly number[], dayGan: 
       dizhi: p?.zhi || '子',
       shi: pos === h.shiPosition,
       ying: pos === h.yingPosition,
-      liuQin: liuQinOf(p?.zhi || '', p?.zhi || '', dayGan),
+      liuQin: liuQinOf(p?.zhi || '', palaceEl),
     };
   });
 }

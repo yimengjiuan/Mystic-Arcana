@@ -2,7 +2,7 @@
  * 六爻基础面板
  * ------------------------------------------------------------------
  * 六爻排盘：以本卦为主，推算变卦、伏神、六神、六亲等。
- * 六亲关系基于日干五行与各爻地支五行的生克。
+ * 六亲关系基于宫位五行与各爻地支五行的生克。
  */
 import type { Hexagram, LiuYaoPanel, Bazi } from '../types';
 import { wuXingOf, findChangedHexagram } from '../utils/parser';
@@ -15,6 +15,12 @@ const LIU_SHEN = ['青龙', '朱雀', '勾陈', '螣蛇', '白虎', '玄武'];
 const SHENG_MAP: Record<string, string> = { '木': '火', '火': '土', '土': '金', '金': '水', '水': '木' };
 /** 五行相克关系表（我克） */
 const KE_MAP: Record<string, string> = { '木': '土', '火': '金', '土': '水', '金': '木', '水': '火' };
+
+/** 八宫五行属性：乾兑金、震巽木、坎水、离火、坤艮土 */
+const PALACE_WUXING: Record<string, string> = {
+  '乾': '金', '兑': '金', '震': '木', '巽': '木',
+  '坎': '水', '离': '火', '坤': '土', '艮': '土',
+};
 
 /**
  * 由卦序构造轻量卦象（不含爻线详情，仅基本信息）。
@@ -52,16 +58,16 @@ export function buildLiuYao(ben: Hexagram, dong: readonly number[], bazi: Bazi):
   const palaceIdx = ['乾', '坎', '艮', '震', '巽', '离', '坤', '兑'].indexOf(ben.palace);
   const fuShi = Array.from({ length: 6 }, (_, i) => ({ hex: makeHex(palaceIdx * 8 + 1), line: i + 1 }));
 
-  // 六亲推算：以日干五行与各爻地支五行的生克关系判定
-  const dayEl = wuXingOf(bazi.day.gan);
+  // 六亲推算：以宫位五行与各爻地支五行的生克关系判定
+  const palaceEl = PALACE_WUXING[ben.palace] || '土';
   const liuQinMap = ben.lines.map((l, i) => {
     const el = wuXingOf(l.dizhi);
-    let lq = '和';
-    if (el === dayEl) lq = '比肩';
-    else if (SHENG_MAP[dayEl] === el) lq = '食神';
-    else if (KE_MAP[dayEl] === el) lq = '财爻';
-    else if (SHENG_MAP[el] === dayEl) lq = '印爻';
-    else if (KE_MAP[el] === dayEl) lq = '官鬼';
+    let lq = '';
+    if (el === palaceEl) lq = '兄弟';
+    else if (SHENG_MAP[el] === palaceEl) lq = '父母';
+    else if (SHENG_MAP[palaceEl] === el) lq = '子孙';
+    else if (KE_MAP[palaceEl] === el) lq = '妻财';
+    else if (KE_MAP[el] === palaceEl) lq = '官鬼';
     return { position: i + 1, liuQin: lq, ganZhi: l.tiangan + l.dizhi };
   });
 
