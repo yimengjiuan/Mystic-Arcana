@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 💬 一般讨论 / 提问
+    url: https://github.com/yimengjiuan/Mystic-Arcana/issues/new
+    about: 通用问题与讨论请直接提交 Issue（本项目不使用 Discussions）。
+  - name: 📖 项目说明与免责声明
+    url: https://github.com/yimengjiuan/Mystic-Arcana#readme
+    about: 使用前请先阅读 README，排盘结果仅供娱乐参考。
