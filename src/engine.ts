@@ -64,7 +64,7 @@ export function paipan(
   const xiaoliu = buildXiaoLiu(bazi, input.hour);
   const meihua = buildMeiHua(hexagram, moving);
   const zhouyi = buildZhouYi(hexagram, moving);
-  const ziwei = buildZiWei(bazi);
+  const ziwei = buildZiWei(bazi, gender);
   const liuyao = buildLiuYao(hexagram, moving, bazi);
   const baziPanel = { ...bazi, ...buildBaziPanel(bazi) } as unknown as CoreState['panels']['bazi'];
 
