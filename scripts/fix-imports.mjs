@@ -2,7 +2,7 @@
  * ESM 导入路径修补脚本
  * ------------------------------------------------------------------
  * TypeScript 编译后的 .js 文件中相对导入缺少 .js 扩展名，
- * 在浏览器中无法直接加载。本脚本遍历 dist_ui 下所有 .js 文件，
+ * 在浏览器中无法直接加载。本脚本遍历 dist 下所有 .js 文件，
  * 为相对导入路径自动补全 .js 扩展名。
  */
 import fs from 'node:fs';
@@ -24,7 +24,7 @@ function walk(d) {
   return files;
 }
 
-const files = walk('dist_ui');
+const files = walk('dist');
 let count = 0;
 
 for (const file of files) {
@@ -40,4 +40,4 @@ for (const file of files) {
   }
 }
 
-console.log('imports patched: ' + count + ' files in dist_ui');
+console.log('imports patched: ' + count + ' files in dist');

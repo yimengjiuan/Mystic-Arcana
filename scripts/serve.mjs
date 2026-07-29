@@ -1,7 +1,7 @@
 /**
  * 本地静态服务器
  * ------------------------------------------------------------------
- * 托管 dist_ui 目录下的编译产物，支持局域网访问。
+ * 托管 dist 目录下的编译产物，支持局域网访问。
  * 提供路径安全校验与 MIME 类型映射。
  */
 import { createServer } from 'node:http';
@@ -9,7 +9,7 @@ import { readFile } from 'node:fs/promises';
 import { extname, join, resolve, normalize } from 'node:path';
 import { networkInterfaces } from 'node:os';
 
-const ROOT = resolve('dist_ui');
+const ROOT = resolve('dist');
 const PORT = 5173;
 const HOST = '0.0.0.0';
 
