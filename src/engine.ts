@@ -4,7 +4,9 @@
  * 串联起卦 -> 四柱 -> 卦象构建 -> 六大面板构建的完整流程。
  * paipan 返回核心状态；fullPaipan 额外附加综合分析。
  */
-import { CoreState, TimeInput, QiGuaMethod, QiGuaBasis, MovingMark, Hexagram } from './types';
+import { CoreState, TimeInput, QiGuaMethod, QiGuaBasis, MovingMark, Hexagram } from './types/index';
+// 重新导出类型，便于消费者从主入口引入（import type { CoreState } from 'xuanji-paipan'）
+export * from './types/index';
 import { dispatchQigua } from './utils/qigua';
 import { buildBazi, buildHexagram, findChangedHexagram, findHuHexagram } from './utils/parser';
 import { buildXiaoLiu } from './panels/xiaoliu';
