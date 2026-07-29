@@ -5,7 +5,7 @@
  * paipan 返回核心状态；fullPaipan 额外附加综合分析。
  */
 import { CoreState, TimeInput, QiGuaMethod, QiGuaBasis, MovingMark, Hexagram } from './types/index';
-// 重新导出类型，便于消费者从主入口引入（import type { CoreState } from 'xuanji-paipan'）
+// 重新导出类型，便于消费者从主入口引入（import type { CoreState } from 'mystic-arcana'）
 export * from './types/index';
 import { dispatchQigua } from './utils/qigua';
 import { buildBazi, buildHexagram, findChangedHexagram, findHuHexagram } from './utils/parser';

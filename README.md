@@ -60,7 +60,7 @@
 
 ## 技术栈
 
-- **语言**：TypeScript 5.4（CommonJS）
+- **语言**：TypeScript 5.4（ESM）
 - **运行环境**：Node.js 20+
 - **构建工具**：TypeScript Compiler（tsc）
 - **测试框架**：Node.js 原生测试运行器 + tsx
@@ -157,12 +157,18 @@ npm run serve
 
 ## 核心 API
 
-### `paipan` — 基础排盘
+> 排盘引擎已作为 npm 包发布，可作为 ESM 库引入。先安装：
+>
+> ```bash
+> npm install mystic-arcana
+> ```
+
+### `paipan` - 基础排盘
 
 执行起卦与全部面板计算，返回完整的 `CoreState` 状态。
 
 ```typescript
-import { paipan } from './dist/engine';
+import { paipan } from 'mystic-arcana';
 
 const state = paipan(
   { year: 2024, month: 1, day: 15, hour: 10, minute: 0, second: 0 },  // 起卦时间
@@ -186,7 +192,7 @@ const state = paipan(
 在 `paipan` 基础上额外执行综合分析，返回状态与分析结果。
 
 ```typescript
-import { fullPaipan } from './dist/engine';
+import { fullPaipan } from 'mystic-arcana';
 
 const { state, synthesis } = fullPaipan(
   { year: 2024, month: 1, day: 15, hour: 10, minute: 0, second: 0 },
@@ -210,7 +216,7 @@ const { state, synthesis } = fullPaipan(
 ### 起卦方式示例
 
 ```typescript
-import { fullPaipan } from './dist/engine';
+import { fullPaipan } from 'mystic-arcana';
 
 const input = { year: 2024, month: 6, day: 20, hour: 14, minute: 0, second: 0 };
 
