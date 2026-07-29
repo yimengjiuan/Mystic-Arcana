@@ -1,0 +1,71 @@
+name: 🐛 Bug 报告
+description: 排盘结果异常、界面报错、构建失败等问题
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈！本项目为个人维护，采用 Issue 单向贡献流程：维护者评估后会自行修改代码，**无需提交 PR**。
+        排盘结果仅供参考，如涉及算法争议请附古法出处。
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 问题描述
+      description: 简要说明遇到了什么问题，以及你期望的正确结果。
+      placeholder: 例如：选择数字起卦输入 [5,10] 后，变卦名称显示错误，应为 XX。
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 复现步骤
+      description: 请给出具体的起卦方式与输入参数，便于维护者复现。
+      placeholder: |
+        1. 打开（在线版 URL 或本地 npm run serve）
+        2. 起卦方式：数字起卦
+        3. 输入：5, 10
+        4. 起卦时间：2024-06-20 14:00
+        5. 观察：变卦显示为 ...
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: 环境信息
+      description: 浏览器/Node 版本、在线版还是本地构建。
+      placeholder: 例如：Chrome 126 / Node 20.11 / 在线版
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 预期结果
+      placeholder: 例如：变卦应为「雷水解」
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际结果
+      placeholder: 例如：变卦显示为「山水蒙」
+    validations:
+      required: true
+
+  - type: textarea
+    id: reference
+    attributes:
+      label: 术数依据（如涉及算法）
+      description: 若为算法修正，请附古法出处，便于核对。
+      placeholder: 例如：《增删卜易》某章 / 《周易本义》
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 截图 / 日志
+      description: 可选。粘贴控制台报错或界面截图。
