@@ -538,6 +538,14 @@ function ensureAIPanel(container: Element, id: string): HTMLElement {
   return panel;
 }
 
+/** 渲染 AI 解语结果：移除加载动画类后再写入，避免末尾残留 "..." 让人误以为未输出完毕 */
+function renderAIPanel(panel: HTMLElement, content: string): void {
+  const el = panel.querySelector('.w-ai-content') as HTMLElement | null;
+  if (!el) return;
+  el.classList.remove('w-loading');
+  el.innerHTML = content;
+}
+
 /** AI 解语（西式） */
 async function runWesternAI(): Promise<void> {
   if (!currentChart) { runWesternChart(); }
@@ -553,9 +561,9 @@ async function runWesternAI(): Promise<void> {
   const prompt = buildWesternAIPrompt(currentChart, undefined, q || undefined);
   try {
     const content = await askDeepSeek(key, '你是一位严谨的西方占星师，擅长星盘解读与生涯咨询。基于用户提供的星盘数据，给出结构清晰、贴合西方占星理论的解读。', prompt);
-    panel.querySelector('.w-ai-content')!.innerHTML = renderAIHtml(content);
+    renderAIPanel(panel, renderAIHtml(content));
   } catch (e) {
-    panel.querySelector('.w-ai-content')!.innerHTML = `<span style="color:var(--cos-pink)">失败：${(e as Error).message}</span>`;
+    renderAIPanel(panel, `<span style="color:var(--cos-pink)">失败：${(e as Error).message}</span>`);
   }
 }
 
@@ -609,9 +617,9 @@ async function runSynastryAI(): Promise<void> {
   const prompt = buildWesternAIPrompt(a, { b, aspects }, undefined);
   try {
     const content = await askDeepSeek(key, '你是一位严谨的西方占星师，擅长合盘（Synastry）解读与关系咨询。基于双方星盘与合盘相位，给出结构清晰、贴合西方占星理论的解读。', prompt);
-    panel.querySelector('.w-ai-content')!.innerHTML = renderAIHtml(content);
+    renderAIPanel(panel, renderAIHtml(content));
   } catch (e) {
-    panel.querySelector('.w-ai-content')!.innerHTML = `<span style="color:var(--cos-pink)">失败：${(e as Error).message}</span>`;
+    renderAIPanel(panel, `<span style="color:var(--cos-pink)">失败：${(e as Error).message}</span>`);
   }
 }
 
@@ -849,9 +857,9 @@ async function runTarotAI(): Promise<void> {
   const prompt = buildTarotAIPrompt(tarotSpread, q || undefined);
   try {
     const content = await askDeepSeek(key, '你是一位严谨的韦特塔罗占卜师，擅长牌阵解读与人生咨询。基于用户抽出的牌阵与问题，给出结构清晰、贴合传统塔罗含义的解读。', prompt);
-    panel.querySelector('.w-ai-content')!.innerHTML = renderAIHtml(content);
+    renderAIPanel(panel, renderAIHtml(content));
   } catch (e) {
-    panel.querySelector('.w-ai-content')!.innerHTML = `<span style="color:var(--cos-pink)">失败：${(e as Error).message}</span>`;
+    renderAIPanel(panel, `<span style="color:var(--cos-pink)">失败：${(e as Error).message}</span>`);
   }
 }
 
@@ -868,8 +876,10 @@ function initWestern(): void {
     t.addEventListener('click', () => switchWesternTab(t.dataset.tab || 'chart'));
   });
 
-  // 城市定位级联：国家 → 省份 → 城市，自动填充时区/经度/纬度
-  initCityCascader();
+  // 城市定位级联：国家 → 省份 → 城市，自动填充时区/经度/纬度（本命盘 + 合盘 A/B 盘）
+  initCityCascader('w');
+  initCityCascader('wa');
+  initCityCascader('wb');
 
   $('w-run-btn')?.addEventListener('click', runWesternChart);
   $('w-ai-btn')?.addEventListener('click', () => { void runWesternAI(); });
@@ -981,13 +991,14 @@ function bindSunsignModal(): void {
 }
 
 /**
- * 初始化国家 → 省份 → 城市级联选择器。
- * 选择城市后自动将经纬度与时区填入输入框（用户仍可手动微调）。
+ * 初始化国家 → 省份 → 城市级联选择器（前缀化，可复用于本命盘与合盘 A/B 盘）。
+ * 选择城市后自动将经纬度与时区填入对应输入框（用户仍可手动微调）。
+ * prefix 为表单元素 ID 前缀：本命盘 'w'、合盘 'wa' / 'wb'。
  */
-function initCityCascader(): void {
-  const countrySel = $('w-country') as HTMLSelectElement | null;
-  const provinceSel = $('w-province') as HTMLSelectElement | null;
-  const citySel = $('w-city') as HTMLSelectElement | null;
+function initCityCascader(prefix: string): void {
+  const countrySel = $(`${prefix}-country`) as HTMLSelectElement | null;
+  const provinceSel = $(`${prefix}-province`) as HTMLSelectElement | null;
+  const citySel = $(`${prefix}-city`) as HTMLSelectElement | null;
   if (!countrySel || !provinceSel || !citySel) return;
 
   /** 填充国家下拉 */
@@ -1018,9 +1029,9 @@ function initCityCascader(): void {
     const province = country?.p[parseInt(provinceSel.value, 10)];
     const city = province?.c[parseInt(citySel.value, 10)];
     if (!city) return;
-    const lon = $('w-lon') as HTMLInputElement | null;
-    const lat = $('w-lat') as HTMLInputElement | null;
-    const tz = $('w-tz') as HTMLInputElement | null;
+    const lon = $(`${prefix}-lon`) as HTMLInputElement | null;
+    const lat = $(`${prefix}-lat`) as HTMLInputElement | null;
+    const tz = $(`${prefix}-tz`) as HTMLInputElement | null;
     if (lon) lon.value = String(city[1]);
     if (lat) lat.value = String(city[2]);
     if (tz) tz.value = String(city[3] ?? country.tz); // 优先城市级时区，缺省用国家时区

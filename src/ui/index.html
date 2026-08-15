@@ -291,6 +291,15 @@
                         <label>经度<input id="wa-lon" type="number" value="121.47" step="0.01"></label>
                         <label>纬度<input id="wa-lat" type="number" value="31.23" step="0.01"></label>
                     </div>
+                    <!-- 城市定位：国家 → 省份 → 城市 级联选择，自动填充时区/经度/纬度 -->
+                    <div class="w-location">
+                        <span class="w-location-label">城市定位</span>
+                        <div class="w-location-selects">
+                            <label>国家<select id="wa-country"></select></label>
+                            <label>省份<select id="wa-province"></select></label>
+                            <label>城市<select id="wa-city"></select></label>
+                        </div>
+                    </div>
                 </section>
                 <section class="w-form-section">
                     <h2>B 盘出生信息</h2>
@@ -305,6 +314,15 @@
                         <label>时区<input id="wb-tz" type="number" value="8" step="0.5"></label>
                         <label>经度<input id="wb-lon" type="number" value="121.47" step="0.01"></label>
                         <label>纬度<input id="wb-lat" type="number" value="31.23" step="0.01"></label>
+                    </div>
+                    <!-- 城市定位：国家 → 省份 → 城市 级联选择，自动填充时区/经度/纬度 -->
+                    <div class="w-location">
+                        <span class="w-location-label">城市定位</span>
+                        <div class="w-location-selects">
+                            <label>国家<select id="wb-country"></select></label>
+                            <label>省份<select id="wb-province"></select></label>
+                            <label>城市<select id="wb-city"></select></label>
+                        </div>
                     </div>
                     <label class="w-full-label">DeepSeek Key<small style="font-size:11px;color:var(--ink-d);opacity:.8;margin-top:4px;letter-spacing:1px">仅在本会话内直连 DeepSeek 官方接口。</small><input id="w-syn-ai-key" type="password" placeholder="sk-..."></label>
                     <div class="w-btns">
