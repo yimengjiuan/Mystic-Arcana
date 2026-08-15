@@ -602,6 +602,7 @@ async function runSynastryAI(): Promise<void> {
   if (!out) return;
   const key = (($('w-syn-ai-key') as HTMLInputElement)?.value || '').trim();
   if (!key) { alert('请填写 DeepSeek Key'); return; }
+  const q = ($('w-syn-question') as HTMLTextAreaElement)?.value || '';
   let a: NatalChart;
   let b: NatalChart;
   let aspects: ReturnType<typeof synastry>;
@@ -614,7 +615,7 @@ async function runSynastryAI(): Promise<void> {
     return;
   }
   const panel = ensureAIPanel(out, 'w-syn-ai-panel');
-  const prompt = buildWesternAIPrompt(a, { b, aspects }, undefined);
+  const prompt = buildWesternAIPrompt(a, { b, aspects }, q || undefined);
   try {
     const content = await askDeepSeek(key, '你是一位严谨的西方占星师，擅长合盘（Synastry）解读与关系咨询。基于双方星盘与合盘相位，给出结构清晰、贴合西方占星理论的解读。', prompt);
     renderAIPanel(panel, renderAIHtml(content));
