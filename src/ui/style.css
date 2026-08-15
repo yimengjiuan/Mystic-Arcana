@@ -347,6 +347,11 @@ footer .opensource-notice a:hover{color:var(--gold-b);text-decoration:underline}
 .w-form-grid input,.w-form-grid select,.w-full-label input,.w-full-label select{height:42px;box-sizing:border-box;line-height:1.2}
 .w-form-grid input:focus,.w-full-label input:focus,.w-full-label textarea:focus,.w-full-label select:focus{outline:none;border-color:var(--cos-silver);box-shadow:0 0 0 2px rgba(168,218,220,.2),0 0 12px var(--cos-glow);background:rgba(7,11,26,.85)}
 .w-preset-label{font-size:12px;color:var(--cos-ink-d);letter-spacing:2px;margin-bottom:6px}
+/* 经纬度方式切换：地区自动定位（默认）/ 直接输入经纬度 */
+.w-mode-switch{display:flex;align-items:center;flex-wrap:wrap;gap:14px;margin-top:16px;padding:10px 14px;background:rgba(7,11,26,.25);border:1px solid var(--cos-line);border-radius:10px}
+.w-mode-label{font-size:12px;color:var(--cos-ink-d);letter-spacing:2px}
+.w-mode-option{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--cos-ink);letter-spacing:1px;cursor:pointer}
+.w-mode-option input{accent-color:var(--cos-violet);cursor:pointer}
 /* 城市定位：独立一栏（不与其他输入框混排），国家/省份/城市级联 select */
 .w-location{margin-top:16px;padding:14px 16px;background:rgba(7,11,26,.35);border:1px dashed var(--cos-line);border-radius:10px}
 .w-location-label{display:block;font-size:12px;color:var(--cos-ink-d);letter-spacing:2px;margin-bottom:10px}

@@ -245,13 +245,18 @@
                         <label>时<input id="w-hour" type="number" value="14" min="0" max="23"></label>
                         <label>分<input id="w-minute" type="number" value="30" min="0" max="59"></label>
                     </div>
-                    <div class="w-form-grid">
+                    <div class="w-mode-switch">
+                        <span class="w-mode-label">经纬度方式</span>
+                        <label class="w-mode-option"><input type="radio" name="w-coord-mode" value="loc" checked> 地区自动定位</label>
+                        <label class="w-mode-option"><input type="radio" name="w-coord-mode" value="manual"> 直接输入经纬度</label>
+                    </div>
+                    <div class="w-form-grid" id="w-coord-grid">
                         <label>时区（小时）<input id="w-tz" type="number" value="8" step="0.5"></label>
                         <label>经度（°）<input id="w-lon" type="number" value="121.47" step="0.01"></label>
                         <label>纬度（°）<input id="w-lat" type="number" value="31.23" step="0.01"></label>
                     </div>
                     <!-- 城市定位：独立一栏，国家 → 省份 → 城市 级联选择，自动填充时区/经度/纬度 -->
-                    <div class="w-location">
+                    <div class="w-location" id="w-location">
                         <span class="w-location-label">城市定位</span>
                         <div class="w-location-selects">
                             <label>国家<select id="w-country"></select></label>
@@ -286,13 +291,18 @@
                         <label>时<input id="wa-hour" type="number" value="10" min="0" max="23"></label>
                         <label>分<input id="wa-minute" type="number" value="0" min="0" max="59"></label>
                     </div>
-                    <div class="w-form-grid">
+                    <div class="w-mode-switch">
+                        <span class="w-mode-label">经纬度方式</span>
+                        <label class="w-mode-option"><input type="radio" name="wa-coord-mode" value="loc" checked> 地区自动定位</label>
+                        <label class="w-mode-option"><input type="radio" name="wa-coord-mode" value="manual"> 直接输入经纬度</label>
+                    </div>
+                    <div class="w-form-grid" id="wa-coord-grid">
                         <label>时区<input id="wa-tz" type="number" value="8" step="0.5"></label>
                         <label>经度<input id="wa-lon" type="number" value="121.47" step="0.01"></label>
                         <label>纬度<input id="wa-lat" type="number" value="31.23" step="0.01"></label>
                     </div>
                     <!-- 城市定位：国家 → 省份 → 城市 级联选择，自动填充时区/经度/纬度 -->
-                    <div class="w-location">
+                    <div class="w-location" id="wa-location">
                         <span class="w-location-label">城市定位</span>
                         <div class="w-location-selects">
                             <label>国家<select id="wa-country"></select></label>
@@ -310,13 +320,18 @@
                         <label>时<input id="wb-hour" type="number" value="20" min="0" max="23"></label>
                         <label>分<input id="wb-minute" type="number" value="15" min="0" max="59"></label>
                     </div>
-                    <div class="w-form-grid">
+                    <div class="w-mode-switch">
+                        <span class="w-mode-label">经纬度方式</span>
+                        <label class="w-mode-option"><input type="radio" name="wb-coord-mode" value="loc" checked> 地区自动定位</label>
+                        <label class="w-mode-option"><input type="radio" name="wb-coord-mode" value="manual"> 直接输入经纬度</label>
+                    </div>
+                    <div class="w-form-grid" id="wb-coord-grid">
                         <label>时区<input id="wb-tz" type="number" value="8" step="0.5"></label>
                         <label>经度<input id="wb-lon" type="number" value="121.47" step="0.01"></label>
                         <label>纬度<input id="wb-lat" type="number" value="31.23" step="0.01"></label>
                     </div>
                     <!-- 城市定位：国家 → 省份 → 城市 级联选择，自动填充时区/经度/纬度 -->
-                    <div class="w-location">
+                    <div class="w-location" id="wb-location">
                         <span class="w-location-label">城市定位</span>
                         <div class="w-location-selects">
                             <label>国家<select id="wb-country"></select></label>

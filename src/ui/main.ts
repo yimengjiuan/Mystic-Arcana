@@ -881,6 +881,11 @@ function initWestern(): void {
   initCityCascader('wa');
   initCityCascader('wb');
 
+  // 经纬度方式切换：地区自动定位（默认）/ 直接输入经纬度（本命盘 + 合盘 A/B 盘）
+  bindCoordMode('w');
+  bindCoordMode('wa');
+  bindCoordMode('wb');
+
   $('w-run-btn')?.addEventListener('click', runWesternChart);
   $('w-ai-btn')?.addEventListener('click', () => { void runWesternAI(); });
   $('w-syn-run')?.addEventListener('click', runWesternSynastry);
@@ -1049,6 +1054,25 @@ function initCityCascader(prefix: string): void {
   fillCities();
   citySel.value = '0';
   applyCity();
+}
+
+/**
+ * 绑定经纬度方式切换：地区自动定位（默认，隐藏手动经纬度输入）/ 直接输入经纬度。
+ * 两种方式共用同一组经纬度/时区输入框，其余逻辑保持一致。
+ * prefix 为表单元素 ID 前缀：本命盘 'w'、合盘 'wa' / 'wb'。
+ */
+function bindCoordMode(prefix: string): void {
+  const radios = document.querySelectorAll<HTMLInputElement>(`input[name="${prefix}-coord-mode"]`);
+  if (!radios.length) return;
+  const apply = (): void => {
+    const manual = Array.from(radios).some(r => r.checked && r.value === 'manual');
+    const grid = $(`${prefix}-coord-grid`) as HTMLElement | null;
+    const loc = $(`${prefix}-location`) as HTMLElement | null;
+    if (grid) grid.style.display = manual ? '' : 'none';
+    if (loc) loc.style.display = manual ? 'none' : '';
+  };
+  radios.forEach(r => r.addEventListener('change', apply));
+  apply();
 }
 
 // ============================================================
