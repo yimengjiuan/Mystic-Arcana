@@ -1,4 +1,6 @@
-:root{--zhu:#C03F3C;--zhu-d:#8B2828;--zhu-l:#E87575;--dai:#4A6B6F;--dai-d:#2F4749;--dai-l:#7A9A9E;--xiang:#ECD050;--xiang-d:#C5A830;--gold:#D4A857;--gold-b:#F5C563;--bg:#0F0A07;--bg2:#1A1209;--ink:#F0E8D8;--ink-d:#B8AC95;--border:#5A4633;--border-b:#8B6F47;--shadow:rgba(0,0,0,.7);--glow-z:rgba(192,63,60,.6);--glow-x:rgba(236,208,80,.5);--glow-d:rgba(74,107,111,.5)}
+:root{--zhu:#C03F3C;--zhu-d:#8B2828;--zhu-l:#E87575;--dai:#4A6B6F;--dai-d:#2F4749;--dai-l:#7A9A9E;--xiang:#ECD050;--xiang-d:#C5A830;--gold:#D4A857;--gold-b:#F5C563;--bg:#0F0A07;--bg2:#1A1209;--ink:#F0E8D8;--ink-d:#B8AC95;--border:#5A4633;--border-b:#8B6F47;--shadow:rgba(0,0,0,.7);--glow-z:rgba(192,63,60,.6);--glow-x:rgba(236,208,80,.5);--glow-d:rgba(74,107,111,.5);
+/* 西式星语主题（深空紫蓝 + 银青金） */
+--cos-bg:#070B1A;--cos-bg2:#0F1A2E;--cos-deep:#1A2244;--cos-ink:#D6E4F0;--cos-ink-d:#9DC3E6;--cos-gold:#F5C563;--cos-silver:#A8DADC;--cos-violet:#9B7BC4;--cos-pink:#E8B4BC;--cos-line:rgba(157,195,230,.25);--cos-glow:rgba(168,218,220,.5)}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:STKaiti,KaiTi,serif;background:var(--bg);color:var(--ink);line-height:1.7;min-height:100vh;overflow-x:hidden;position:relative}
@@ -19,6 +21,7 @@ h2{font-size:20px;color:var(--gold-b);margin-bottom:16px;padding-bottom:10px;bor
 h2::before{content:'◆';color:var(--zhu);margin-right:8px;font-size:14px;text-shadow:0 0 6px var(--glow-z)}
 .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px}
 .time-grid{grid-template-columns:repeat(auto-fit,minmax(80px,120px));justify-content:start;margin-bottom:14px}
+.time-hint{grid-column:1/-1;font-size:11px;color:var(--ink-d);opacity:.85;letter-spacing:1px;margin-top:-8px}
 .form-grid label{display:flex;flex-direction:column;font-size:13px;color:var(--ink-d);letter-spacing:2px;min-width:0}
 .form-grid input,.form-grid select,.full-label input,.full-label textarea,.full-label select{margin-top:6px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:rgba(15,10,7,.6);color:var(--ink);font-family:inherit;font-size:15px;transition:all .3s;width:100%}
 .form-grid input:focus,.full-label input:focus,.full-label textarea:focus,.full-label select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 2px rgba(212,168,87,.2),0 0 12px var(--glow-x);background:rgba(15,10,7,.8)}
@@ -118,3 +121,711 @@ footer .opensource-notice a:hover{color:var(--gold-b);text-decoration:underline}
 .github-link svg{flex:none}
 @media(max-width:768px){header h1{font-size:28px;letter-spacing:8px}main{padding:16px}.pillars{grid-template-columns:repeat(2,1fr)}.triple{grid-template-columns:1fr}#output{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr 1fr}.time-grid{grid-template-columns:repeat(auto-fit,minmax(70px,100px));justify-content:start}.result{font-size:28px;letter-spacing:8px}.compare-section{padding:16px}.compare-tab{padding:6px 12px;font-size:12px;letter-spacing:1px}.compare-table th,.compare-table td{padding:8px 10px;font-size:13px}.compare-table .col-key{white-space:normal}.github-link{top:14px;right:14px;padding:4px 10px;font-size:11px}}
 @media(max-width:480px){.form-section{padding:16px}.form-grid{grid-template-columns:1fr}.time-grid{grid-template-columns:repeat(3,1fr)}}
+
+/* ============================================================
+   主入口（Portal）— 日月并存 · 黄昏主题
+   左：西式（月落之方 · 月轮）  右：中式（旭日东升 · 太阳）
+   全部 UI 元素的颜色、背景、阴影都通过 CSS 变量 --t 与鼠标位置联动
+   --t = -1  → 西式深夜（月高 / 日沉 / 银青紫夜色）
+   --t =  0  → 黄昏双星并存（默认）
+   --t = +1  → 中式正午（日高 / 月沉 / 朱红金色日色）
+   ============================================================ */
+.portal-root{min-height:100vh;display:flex;flex-direction:column;position:relative;overflow:hidden;
+  /* 主体三层渐变随 --t 同步：日出色 / 黄昏 / 月夜色 */
+  background:
+    radial-gradient(ellipse 80% 60% at calc(50% + var(--t,0) * 35%) calc(35% - var(--t,0) * 15%),
+      rgba(245,197,99,calc(.08 + max(var(--t,0),0) * .32)),transparent 60%),
+    radial-gradient(ellipse 70% 50% at calc(50% - var(--t,0) * 35%) calc(35% + var(--t,0) * 15%),
+      rgba(168,218,220,calc(.10 - max(var(--t,0),0) * .06 + max(calc(-1 * var(--t,0)),0) * .30)),transparent 60%),
+    radial-gradient(ellipse 90% 70% at 50% 90%,
+      color-mix(in oklab,rgba(192,63,60,.25),rgba(155,123,196,.30) calc(max(calc(-1 * var(--t,0)),0) * 100%)),transparent 70%),
+    linear-gradient(135deg,
+      color-mix(in oklab,#2A1828,#4A1A18 calc(max(var(--t,0),0) * 100%)) 0%,
+      color-mix(in oklab,#1F1218,rgba(155,123,196,.20) calc(max(calc(-1 * var(--t,0)),0) * 100%)) 50%,
+      color-mix(in oklab,#2A1A24,#3F1F1F calc(max(var(--t,0),0) * 100%)) 100%);
+
+}
+/* 整页叠层：随 --t 同步切换日出/日落/月夜 */
+.portal-root::before{content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse at calc(50% + var(--t,0) * 25%) 35%,
+      rgba(245,197,99,calc(max(var(--t,0),0) * .35)),transparent 55%),
+    radial-gradient(ellipse at 50% 100%,
+      rgba(232,168,124,calc(.18 - abs(var(--t,0)) * .13)),transparent 60%),
+    radial-gradient(ellipse at calc(50% - var(--t,0) * 25%) 35%,
+      rgba(168,218,220,calc(max(calc(-1 * var(--t,0)),0) * .35)),transparent 55%);
+  z-index:-3;pointer-events:none;
+}
+.portal-header{position:relative;padding:clamp(28px,5vw,60px) 32px clamp(18px,3vw,36px);text-align:center;
+  background:radial-gradient(ellipse at calc(50% + var(--t,0) * 20%) center,
+    color-mix(in oklab,rgba(212,168,87,.14),rgba(245,197,99,.28) calc(max(var(--t,0),0) * 100%)),
+    transparent 70%);
+  border-bottom:1px solid color-mix(in oklab,var(--border),rgba(155,123,196,.5) calc(max(calc(-1 * var(--t,0)),0) * 100%));
+  overflow:hidden;
+}
+.portal-header::before{content:'';position:absolute;top:50%;left:50%;width:700px;height:700px;transform:translate(-50%,-50%);
+  background:conic-gradient(from 0deg,transparent,
+    color-mix(in oklab,rgba(212,168,87,.10),rgba(245,197,99,.22) calc(max(var(--t,0),0) * 100%)) 16%,
+    transparent 33%,
+    color-mix(in oklab,rgba(192,63,60,.08),rgba(232,117,117,.15) calc(max(var(--t,0),0) * 100%)) 50%,
+    transparent 66%,
+    color-mix(in oklab,rgba(155,123,196,.10),rgba(168,218,220,.22) calc(max(calc(-1 * var(--t,0)),0) * 100%)) 83%,
+    transparent);
+  border-radius:50%;animation:rg 50s linear infinite;pointer-events:none;
+}
+.portal-title{position:relative;font-size:clamp(28px,5vw,54px);letter-spacing:clamp(8px,2vw,18px);
+  color:color-mix(in oklab,var(--gold-b),#D6E4F0 calc(max(calc(-1 * var(--t,0)),0) * 100%));
+  text-shadow:0 0 24px color-mix(in oklab,var(--glow-x),rgba(168,218,220,.85) calc(max(calc(-1 * var(--t,0)),0) * 100%)),
+    0 0 48px color-mix(in oklab,rgba(232,168,124,.45),rgba(155,123,196,.5) calc(max(calc(-1 * var(--t,0)),0) * 100%)),
+    0 0 80px rgba(155,123,196,.25),2px 2px 4px var(--shadow);
+  margin-bottom:clamp(6px,1vw,10px);animation:tp 5s ease-in-out infinite;font-weight:400;
+}
+.portal-subtitle{position:relative;font-size:clamp(12px,1.4vw,15px);
+  color:color-mix(in oklab,var(--ink-d),#F5D5A0 calc(max(var(--t,0),0) * 100%));
+  letter-spacing:clamp(6px,1.2vw,10px);opacity:.95;
+}
+.portal-main{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:0;max-width:1320px;width:100%;margin:0 auto;padding:clamp(24px,5vw,60px) clamp(16px,2.5vw,32px);align-items:stretch;position:relative}
+/* 中线：日月交辉分隔（已去掉中央太极图） */
+.portal-main::before{content:'';position:absolute;top:80px;bottom:40px;left:50%;width:1px;
+  background:linear-gradient(180deg,transparent,
+    color-mix(in oklab,rgba(212,168,87,.4),rgba(168,218,220,.4) calc(max(calc(-1 * var(--t,0)),0) * 100%)) 18%,
+    color-mix(in oklab,rgba(168,218,220,.4),rgba(212,168,87,.4) calc(max(var(--t,0),0) * 100%)) 50%,
+    color-mix(in oklab,rgba(155,123,196,.4),rgba(192,63,60,.4) calc(max(var(--t,0),0) * 100%)) 82%,
+    transparent);
+  transform:translateX(-50%);z-index:1;pointer-events:none;
+}
+.portal-card{position:relative;display:block;text-decoration:none;color:inherit;border-radius:18px;overflow:hidden;min-height:clamp(380px,55vh,540px);cursor:pointer;padding:clamp(20px,3vw,32px) clamp(20px,2.5vw,28px)}
+/* 非 hover 卡片半透明：随 --t 决定哪一张淡化（|t|>0.3 时启动） */
+.portal-card[data-side="chinese"]{opacity:calc(1 - max(calc(-1 * var(--t,0)),0) * .45);transform:scale(calc(1 - max(calc(-1 * var(--t,0)),0) * .03))}
+.portal-card[data-side="western"]{opacity:calc(1 - max(var(--t,0),0) * .45);transform:scale(calc(1 - max(var(--t,0),0) * .03))}
+/* 只保留 hover 缩放过渡，0.25s 即时反馈，JS 不再驱动 transform */
+.portal-card:hover{transform:scale(1.02)!important;transition:transform .25s ease}
+.portal-chinese{margin-right:18px;
+ box-shadow:inset 0 0 80px rgba(192,63,60,.18),inset 0 0 24px rgba(245,197,99,.12),
+    0 0 40px color-mix(in oklab,rgba(245,197,99,.20),rgba(155,123,196,.15) calc(max(calc(-1 * var(--t,0)),0) * 100%));
+}.portal-western{margin-left:18px;
+  box-shadow:inset 0 0 80px rgba(155,123,196,.18),inset 0 0 24px rgba(168,218,220,.12),
+    0 0 40px color-mix(in oklab,rgba(168,218,220,.20),rgba(245,197,99,.15) calc(max(var(--t,0),0) * 100%));
+  
+}
+.portal-card-bg{position:absolute;inset:0;z-index:0;
+  filter:brightness(calc(0.85 + var(--t,0) * 0.15));
+}
+.portal-chinese .portal-card-bg{background:linear-gradient(160deg,rgba(74,42,42,.85) 0%,rgba(45,28,18,.95) 50%,rgba(15,10,7,.98) 100%);border:1px solid rgba(192,63,60,.4)}
+.portal-chinese .portal-card-bg::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 25% 18%,rgba(245,197,99,.40),transparent 45%),radial-gradient(circle at 80% 90%,rgba(192,63,60,.25),transparent 60%);opacity:.85}
+.portal-chinese .portal-card-bg::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent 0 14px,rgba(212,168,87,.05) 14px 15px)}
+.portal-western .portal-card-bg{background:linear-gradient(200deg,rgba(15,26,46,.95) 0%,rgba(7,11,26,.98) 50%,rgba(26,34,68,.85) 100%);border:1px solid rgba(155,123,196,.4)}
+.portal-western .portal-card-bg::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 75% 22%,rgba(155,123,196,.35),transparent 50%),radial-gradient(circle at 20% 80%,rgba(168,218,220,.25),transparent 60%);opacity:.85}
+.portal-western .portal-card-bg::after{content:'';position:absolute;inset:0;background-image:radial-gradient(1px 1px at 10% 20%,rgba(168,218,220,.7),transparent),radial-gradient(1px 1px at 30% 70%,rgba(245,197,99,.5),transparent),radial-gradient(1.5px 1.5px at 60% 30%,rgba(214,236,240,.6),transparent),radial-gradient(1px 1px at 80% 80%,rgba(155,123,196,.55),transparent);animation:sf 120s linear infinite;opacity:.8}
+/* ============================================================
+   太阳 / 月亮 天体意象（弧形轨迹 + 鼠标驱动）
+   太阳在右（东）· 月亮在左（西）
+   位置由 CSS 变量 --t 控制（-1=西夜 / 0=黄昏 / +1=东昼）
+   x/y 共同由 JS 设置的 --sun-x/--sun-y/--moon-x/--moon-y 驱动
+   ============================================================ */
+:root{
+    /* 时间变量（JS 持续更新） */
+    --t:.0001;        /* -1..+1，鼠标驱动 */
+    /* 太阳参数（JS 设置） */
+    --sun-y:0%; --sun-x:0%; --sun-scale:1; --sun-opacity:.85; --sun-glow:0;
+    /* 月亮参数（JS 设置） */
+    --moon-y:0%; --moon-x:0%; --moon-scale:1; --moon-opacity:.85; --moon-glow:0;
+}
+.portal-celestial{
+    position:absolute;left:50%;top:50%;width:clamp(120px,22vw,240px);height:clamp(120px,22vw,240px);z-index:1;
+    pointer-events:none;opacity:1;
+    transform-origin:center;
+    /* JS 帧循环直接控制 transform/filter/opacity，不加 CSS transition（避免争抢造成抖卡） */
+    transform:translate(calc(-50% + var(--celestial-x, 0%)),calc(-50% + var(--celestial-y, 0%))) scale(var(--celestial-scale, 1));
+    will-change:transform,filter,opacity;
+    filter:drop-shadow(0 0 calc(8px + var(--celestial-glow, 0)*40px) var(--celestial-color, rgba(232,168,124,.4)))
+           brightness(calc(0.7 + var(--celestial-glow, 0) * 0.5));
+}
+/* 月亮：左卡（西） */
+.portal-moon{
+    --celestial-x:var(--moon-x);
+    --celestial-y:var(--moon-y);
+    --celestial-scale:var(--moon-scale);
+    --celestial-opacity:var(--moon-opacity);
+    --celestial-glow:var(--moon-glow);
+    --celestial-color:rgba(168,218,220,.55);
+}
+/* 太阳：右卡（东） */
+.portal-sun{
+    --celestial-x:var(--sun-x);
+    --celestial-y:var(--sun-y);
+    --celestial-scale:var(--sun-scale);
+    --celestial-opacity:var(--sun-opacity);
+    --celestial-glow:var(--sun-glow);
+    --celestial-color:rgba(245,197,99,.6);
+}
+/* 透明度和辉光跟随：JS 帧循环直接设值，不加 transition */
+.portal-celestial > *{opacity:var(--celestial-opacity, .85)}
+.sun-svg,.moon-svg{width:100%;height:100%;display:block;filter:drop-shadow(0 0 24px rgba(245,197,99,.35))}
+.moon-svg{filter:drop-shadow(0 0 24px rgba(168,218,220,.35))}
+.sun-rays{transform-origin:center;animation:sun-spin 80s linear infinite}
+.sun-halo{animation:sun-pulse 6s ease-in-out infinite;transform-origin:center}
+.sun-core{animation:sun-glow 4s ease-in-out infinite;transform-origin:center}
+.moon-halo{animation:moon-pulse 7s ease-in-out infinite;transform-origin:center}
+.moon-shadow{animation:moon-orbit 40s linear infinite;transform-origin:0 0}
+.moon-stars .star{animation:star-twinkle 3s ease-in-out infinite}
+.moon-stars .star:nth-child(2){animation-delay:.6s}
+.moon-stars .star:nth-child(3){animation-delay:1.2s}
+.moon-stars .star:nth-child(4){animation-delay:1.8s}
+.moon-stars .star:nth-child(5){animation-delay:2.4s}
+.moon-stars .star:nth-child(6){animation-delay:.3s}
+.moon-stars .star:nth-child(7){animation-delay:1.5s}
+.moon-stars .star:nth-child(8){animation-delay:.9s}
+@keyframes sun-spin{to{transform:rotate(360deg)}}
+@keyframes sun-pulse{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.06)}}
+@keyframes sun-glow{0%,100%{filter:drop-shadow(0 0 6px rgba(245,197,99,.6))}50%{filter:drop-shadow(0 0 18px rgba(245,197,99,.95))}}
+@keyframes moon-pulse{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
+@keyframes moon-orbit{0%{transform:translateX(0) translateY(0)}50%{transform:translateX(2px) translateY(-1px)}100%{transform:translateX(0) translateY(0)}}
+@keyframes star-twinkle{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
+.portal-card-content{position:relative;z-index:3;padding:clamp(16px,2.5vw,32px) clamp(18px,2.2vw,28px) clamp(18px,2.5vw,28px);height:100%;display:flex;flex-direction:column;justify-content:space-between;align-items:center;text-align:center}
+/* 月亮卡（左）：天体居中作为底层装饰 → 内容垂直排布 */
+.portal-western .portal-card-content,.portal-chinese .portal-card-content{text-align:center;align-items:center;padding-left:clamp(18px,2.2vw,24px);padding-right:clamp(18px,2.2vw,24px);gap:clamp(6px,1vw,10px)}
+/* 上下区域，让天体在视觉中央 */
+.portal-card-content .content-top{width:100%;display:flex;flex-direction:column;align-items:center;gap:6px}
+.portal-card-content .content-mid{width:100%;flex:1;display:flex;align-items:center;justify-content:center;min-height:0}
+.portal-card-content .content-bottom{width:100%;display:flex;flex-direction:column;align-items:center;gap:clamp(6px,1vw,10px)}
+.portal-card-icon{font-size:clamp(38px,5vw,56px);text-align:center;margin-bottom:4px;filter:drop-shadow(0 0 16px var(--glow-x));animation:portal-icon-float 4s ease-in-out infinite;line-height:1}
+.portal-chinese .portal-card-icon{color:var(--gold-b);text-shadow:0 0 20px var(--glow-z),0 0 40px rgba(236,208,80,.4)}
+.portal-western .portal-card-icon{color:var(--cos-silver);text-shadow:0 0 20px var(--cos-glow),0 0 40px rgba(155,123,196,.5)}
+@keyframes portal-icon-float{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-6px) rotate(2deg)}}
+.portal-card-title{font-size:clamp(20px,3vw,32px);letter-spacing:clamp(3px,0.7vw,6px);text-align:center;margin-bottom:6px;color:color-mix(in oklab,var(--gold-b),#E8F4F8 calc(max(calc(-1 * var(--t,0)),0) * 100%));text-shadow:0 0 12px color-mix(in oklab,var(--glow-x),rgba(168,218,220,.85) calc(max(calc(-1 * var(--t,0)),0) * 100%)),0 0 24px color-mix(in oklab,rgba(232,168,124,.4),rgba(155,123,196,.4) calc(max(calc(-1 * var(--t,0)),0) * 100%));font-weight:400;line-height:1.3}
+.portal-chinese .portal-card-title{color:color-mix(in oklab,var(--gold-b),#E8F4F8 calc(max(calc(-1 * var(--t,0)),0) * 100%));text-align:center}
+.portal-western .portal-card-title{color:color-mix(in oklab,var(--cos-silver),#FFE5A0 calc(max(var(--t,0),0) * 100%));text-shadow:0 0 12px color-mix(in oklab,var(--cos-glow),rgba(245,197,99,.85) calc(max(var(--t,0),0) * 100%));text-align:center}
+.portal-card-en{text-align:center;font-size:clamp(10px,1.1vw,12px);letter-spacing:clamp(2px,0.5vw,4px);color:color-mix(in oklab,var(--ink-d),color-mix(in oklab,#F5D5A0,#A8DADC calc(max(calc(-1 * var(--t,0)),0) * 100%)) calc(var(--t-abs) * 100%));opacity:.85;margin-bottom:0;font-family:Georgia,serif;line-height:1.4}
+.portal-card-list{list-style:none;padding:0;margin:0 0 8px;font-size:clamp(12px,1.3vw,14px);color:var(--ink);letter-spacing:clamp(1px,0.3vw,2px);line-height:2;text-align:center}
+.portal-card-list li{position:relative;padding-left:0;opacity:.92}
+.portal-chinese .portal-card-list,.portal-western .portal-card-list{text-align:center}
+.portal-chinese .portal-card-list li{padding-left:0;padding-right:0}
+.portal-chinese .portal-card-list li::before{content:'◆';color:var(--zhu);font-size:10px;left:auto;right:auto;display:inline-block;margin-right:6px}
+.portal-western .portal-card-list{text-align:center}
+.portal-western .portal-card-list li::before{content:'✦';color:var(--cos-violet);font-size:11px;display:inline-block;margin-right:6px}
+.portal-card-cta{text-align:center;padding:clamp(9px,1.2vw,12px) clamp(20px,2.5vw,28px);border:1px solid var(--border-b);border-radius:28px;font-size:clamp(12px,1.3vw,15px);letter-spacing:clamp(3px,0.6vw,5px);color:var(--gold-b);background:linear-gradient(90deg,transparent,rgba(212,168,87,.10),transparent);display:inline-block;white-space:nowrap}
+.portal-chinese .portal-card-cta{color:var(--gold-b);border-color:rgba(212,168,87,.4)}
+.portal-western .portal-card-cta{color:var(--cos-silver);border-color:rgba(168,218,220,.4);background:linear-gradient(90deg,transparent,rgba(168,218,220,.10),transparent)}
+.portal-card:hover{transform:translateY(-4px)}
+.portal-chinese:hover{box-shadow:0 16px 48px rgba(192,63,60,.35),0 0 32px var(--glow-x)}
+.portal-western:hover{box-shadow:0 16px 48px rgba(155,123,196,.35),0 0 32px var(--cos-glow)}
+.portal-card:hover .portal-card-icon{transform:scale(1.15) rotate(8deg)}
+.portal-card:hover .portal-card-cta{background:linear-gradient(90deg,transparent,rgba(212,168,87,.25),transparent);color:var(--ink)}
+.portal-western:hover .portal-card-cta{background:linear-gradient(90deg,transparent,rgba(168,218,220,.25),transparent);color:var(--cos-ink)}
+.portal-footer{text-align:center;padding:32px 24px;
+  background:linear-gradient(180deg,transparent,
+    color-mix(in oklab,rgba(15,10,7,.8),rgba(7,11,26,.85) calc(max(calc(-1 * var(--t,0)),0) * 100%)));
+  color:color-mix(in oklab,var(--ink-d),#A8DADC calc(max(calc(-1 * var(--t,0)),0) * 100%));
+  font-size:12px;border-top:1px solid color-mix(in oklab,var(--border),rgba(155,123,196,.4) calc(max(calc(-1 * var(--t,0)),0) * 100%));
+  letter-spacing:2px;line-height:2;
+}
+.back-link{position:absolute;top:24px;left:32px;padding:6px 14px;border:1px solid var(--border);border-radius:20px;color:var(--ink-d);text-decoration:none;font-size:12px;letter-spacing:2px;transition:all .3s;z-index:10}
+.back-link:hover{color:var(--gold-b);border-color:var(--gold);box-shadow:0 0 12px var(--glow-x);background:rgba(212,168,87,.08)}
+
+/* ============================================================
+   西式星语（Western / Cosmic Theme）
+   ============================================================ */
+.western-root{background:radial-gradient(ellipse at 20% 10%,rgba(155,123,196,.10),transparent 50%),radial-gradient(ellipse at 80% 80%,rgba(168,218,220,.12),transparent 50%),radial-gradient(ellipse at 50% 50%,rgba(245,197,99,.05),transparent 70%),var(--cos-bg)}
+.western-root::after{background-image:radial-gradient(1px 1px at 5% 15%,rgba(168,218,220,.6),transparent),radial-gradient(1px 1px at 18% 70%,rgba(245,197,99,.5),transparent),radial-gradient(1.5px 1.5px at 35% 25%,rgba(214,236,240,.4),transparent),radial-gradient(1px 1px at 50% 80%,rgba(155,123,196,.55),transparent),radial-gradient(1px 1px at 70% 18%,rgba(245,197,99,.55),transparent),radial-gradient(2px 2px at 85% 60%,rgba(168,218,220,.4),transparent),radial-gradient(1px 1px at 92% 30%,rgba(214,236,240,.5),transparent),radial-gradient(1px 1px at 65% 92%,rgba(155,123,196,.45),transparent)}
+.western-root header{border-bottom:1px solid rgba(168,218,220,.25);background:radial-gradient(ellipse at center,rgba(155,123,196,.18),transparent 70%)}
+.western-root header h1{color:var(--cos-silver);text-shadow:0 0 24px var(--cos-glow),0 0 48px rgba(155,123,196,.4)}
+.western-root .subtitle{color:var(--cos-ink-d);letter-spacing:8px}
+.w-tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;padding:6px;background:linear-gradient(135deg,rgba(15,26,46,.6),rgba(7,11,26,.8));border:1px solid var(--cos-line);border-radius:30px;backdrop-filter:blur(8px);animation:pi .5s ease-out}
+.w-tab{padding:10px 22px;background:transparent;border:1px solid transparent;border-radius:22px;color:var(--cos-ink-d);cursor:pointer;font-family:inherit;font-size:13px;letter-spacing:3px;transition:all .35s cubic-bezier(.4,0,.2,1)}
+.w-tab:hover{color:var(--cos-ink);border-color:var(--cos-line)}
+.w-tab.active{background:linear-gradient(135deg,var(--cos-violet),rgba(155,123,196,.4));color:#fff;border-color:var(--cos-silver);box-shadow:0 0 20px var(--cos-glow),0 0 40px rgba(155,123,196,.3)}
+.w-form-section{background:linear-gradient(135deg,rgba(26,34,68,.55),rgba(15,26,46,.85));border:1px solid var(--cos-line);border-radius:14px;padding:24px;margin-bottom:24px;box-shadow:0 4px 24px rgba(0,0,0,.5),inset 0 1px 0 rgba(168,218,220,.12);backdrop-filter:blur(8px);position:relative;animation:pi .5s ease-out}
+.w-form-section::before{content:'';position:absolute;top:0;left:16px;right:16px;height:1px;background:linear-gradient(90deg,transparent,var(--cos-silver),transparent);opacity:.6}
+.w-form-section h2{color:var(--cos-silver);text-shadow:0 0 8px var(--cos-glow);border-bottom:1px solid var(--cos-line);font-size:20px;letter-spacing:4px}
+.w-form-section h2::before{content:'✦';color:var(--cos-violet);margin-right:8px;font-size:14px;text-shadow:0 0 8px var(--cos-glow)}
+.w-form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:14px}
+.w-form-grid label{display:flex;flex-direction:column;font-size:12px;color:var(--cos-ink-d);letter-spacing:2px}
+.w-form-grid input,.w-form-grid select,.w-full-label input,.w-full-label textarea,.w-full-label select{margin-top:6px;padding:10px 12px;border:1px solid var(--cos-line);border-radius:8px;background:rgba(7,11,26,.6);color:var(--cos-ink);font-family:inherit;font-size:14px;transition:all .3s;width:100%}
+/* 统一 select 与 input 输入框高度：select 默认行高与 input 不同，
+   导致牌阵/种子等并排控件参差不齐，固定 height + border-box 强制一致 */
+.w-form-grid input,.w-form-grid select,.w-full-label input,.w-full-label select{height:42px;box-sizing:border-box;line-height:1.2}
+.w-form-grid input:focus,.w-full-label input:focus,.w-full-label textarea:focus,.w-full-label select:focus{outline:none;border-color:var(--cos-silver);box-shadow:0 0 0 2px rgba(168,218,220,.2),0 0 12px var(--cos-glow);background:rgba(7,11,26,.85)}
+.w-preset-label{font-size:12px;color:var(--cos-ink-d);letter-spacing:2px;margin-bottom:6px}
+/* 城市定位：独立一栏（不与其他输入框混排），国家/省份/城市级联 select */
+.w-location{margin-top:16px;padding:14px 16px;background:rgba(7,11,26,.35);border:1px dashed var(--cos-line);border-radius:10px}
+.w-location-label{display:block;font-size:12px;color:var(--cos-ink-d);letter-spacing:2px;margin-bottom:10px}
+.w-location-selects{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.w-location-selects label{display:flex;flex-direction:column;font-size:12px;color:var(--cos-ink-d);letter-spacing:2px}
+.w-location-selects select{margin-top:6px;padding:9px 12px;height:42px;box-sizing:border-box;border:1px solid var(--cos-line);border-radius:8px;background:rgba(7,11,26,.6);color:var(--cos-ink);font-family:inherit;font-size:14px;transition:all .3s;width:100%}
+.w-location-selects select:focus{outline:none;border-color:var(--cos-silver);box-shadow:0 0 0 2px rgba(168,218,220,.2),0 0 12px var(--cos-glow);background:rgba(7,11,26,.85)}
+/* 表单说明小字：放在 w-form-grid 下方，不参与 grid 内控件对齐 */
+.w-form-hint{font-size:11px;color:var(--cos-ink-d);opacity:.7;letter-spacing:1px;margin:-6px 0 0;line-height:1.6}
+.w-full-label{display:flex;flex-direction:column;font-size:13px;color:var(--cos-ink-d);letter-spacing:2px;margin-top:14px}
+.w-full-label textarea{resize:vertical}
+.w-btns{display:flex;gap:14px;flex-wrap:wrap;margin-top:20px}
+button.w-run,button.w-ai{margin-top:20px;padding:14px 48px;background:linear-gradient(135deg,var(--cos-violet),rgba(155,123,196,.4));color:#fff;border:1px solid var(--cos-silver);border-radius:28px;font-size:16px;font-family:inherit;letter-spacing:6px;cursor:pointer;transition:all .3s cubic-bezier(.4,0,.2,1);box-shadow:0 4px 16px rgba(155,123,196,.4),inset 0 1px 0 rgba(255,255,255,.15);position:relative;overflow:hidden}
+button.w-ai{background:linear-gradient(135deg,var(--cos-silver),rgba(168,218,220,.4));color:var(--cos-bg);box-shadow:0 4px 16px rgba(168,218,220,.4)}
+button.w-run::before,button.w-ai::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);transition:left .6s}
+button.w-run:hover,button.w-ai:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 8px 28px rgba(155,123,196,.6),0 0 24px var(--cos-glow)}
+button.w-run:hover::before,button.w-ai:hover::before{left:100%}
+button.w-run:active,button.w-ai:active{transform:translateY(0)}
+.w-section-title{font-size:24px;color:var(--cos-silver);letter-spacing:6px;margin:8px 0 24px;padding-bottom:10px;border-bottom:1px solid var(--cos-line);text-shadow:0 0 8px var(--cos-glow);animation:pi .5s ease-out}
+.w-section-title::before{content:'✦';color:var(--cos-violet);margin-right:10px}
+.w-empty{color:var(--cos-ink-d);opacity:.6;text-align:center;padding:24px}
+
+/* 星盘渲染结果 */
+.w-header{margin-bottom:24px}
+.w-signs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
+.w-sign-card{background:linear-gradient(135deg,rgba(26,34,68,.7),rgba(15,26,46,.9));border:1px solid var(--cos-line);border-radius:12px;padding:16px;text-align:center;transition:all .35s;position:relative;overflow:hidden}
+.w-sign-card::after{content:'';position:absolute;top:0;left:16px;right:16px;height:1px;background:linear-gradient(90deg,transparent,var(--cos-silver),transparent);opacity:.5}
+.w-sign-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.4),0 0 16px var(--cos-glow);border-color:var(--cos-silver)}
+.w-sign-label{font-size:11px;color:var(--cos-ink-d);letter-spacing:3px;margin-bottom:4px}
+.w-sign-name{font-size:22px;color:var(--cos-silver);letter-spacing:2px;margin-bottom:4px;text-shadow:0 0 6px var(--cos-glow)}
+.w-sign-card.sun .w-sign-name{color:var(--cos-gold);text-shadow:0 0 8px rgba(245,197,99,.6)}
+.w-sign-meta{font-size:11px;color:var(--cos-ink-d);letter-spacing:1px;opacity:.8}
+.w-birth{font-size:12px;color:var(--cos-ink-d);letter-spacing:2px;text-align:center;padding:10px;background:rgba(7,11,26,.4);border-radius:8px;border:1px solid var(--cos-line)}
+.w-chart-wrap{display:flex;justify-content:center;padding:24px 0;animation:pi .6s ease-out}
+.chart-svg{width:100%;max-width:520px;height:auto;filter:drop-shadow(0 0 24px rgba(155,123,196,.3));animation:portal-icon-float 8s ease-in-out infinite}
+.w-table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px;background:linear-gradient(135deg,rgba(26,34,68,.4),rgba(15,26,46,.6));border-radius:10px;overflow:hidden}
+.w-table th{padding:10px 12px;background:rgba(155,123,196,.18);color:var(--cos-silver);font-weight:bold;letter-spacing:2px;text-align:left;border-bottom:1px solid var(--cos-line)}
+.w-table td{padding:10px 12px;border-bottom:1px solid var(--cos-line);text-align:left;color:var(--cos-ink)}
+.w-table tr:last-child td{border-bottom:none}
+.w-table tr:hover td{background:rgba(168,218,220,.06)}
+.planet-symbol{color:var(--cos-gold);text-shadow:0 0 6px rgba(245,197,99,.6);font-size:16px;display:inline-block;width:22px}
+.retro{color:var(--cos-pink);font-weight:bold}
+.asp-harm td{color:var(--cos-silver)}
+.asp-ten td{color:var(--cos-pink)}
+.asp-neu td{color:var(--cos-ink-d)}
+
+/* 十二星座网格 */
+.w-zodiac-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-top:12px}
+.w-zodiac-card{--zc:#888;background:linear-gradient(135deg,rgba(26,34,68,.55),rgba(15,26,46,.85));border:1px solid var(--cos-line);border-radius:12px;padding:18px 12px;text-align:center;transition:all .35s;position:relative;overflow:hidden}
+.w-zodiac-card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 30%,var(--zc),transparent 70%);opacity:.12;transition:opacity .35s}
+.w-zodiac-card:hover{transform:translateY(-4px);border-color:var(--zc);box-shadow:0 8px 28px rgba(0,0,0,.4),0 0 18px var(--zc)}
+.w-zodiac-card:hover::before{opacity:.25}
+.w-zodiac-sym{font-size:40px;color:var(--zc);text-shadow:0 0 12px var(--zc);margin-bottom:8px;position:relative}
+.w-zodiac-name{font-size:18px;color:var(--cos-ink);letter-spacing:3px;margin-bottom:4px;position:relative}
+.w-zodiac-en{font-size:11px;color:var(--cos-ink-d);letter-spacing:1px;opacity:.7;font-family:Georgia,serif;margin-bottom:6px;position:relative}
+.w-zodiac-date{font-size:12px;color:var(--cos-gold);letter-spacing:1px;margin-bottom:4px;position:relative}
+.w-zodiac-meta{font-size:11px;color:var(--cos-ink-d);letter-spacing:1px;opacity:.8;position:relative}
+.w-zodiac-hint{position:absolute;inset:auto 10px 8px auto;font-size:10px;color:var(--cos-gold);letter-spacing:2px;opacity:0;transform:translateY(4px);transition:opacity .3s,transform .3s}
+.w-zodiac-card:hover .w-zodiac-hint{opacity:1;transform:translateY(0)}
+.w-zodiac-card:focus-visible{outline:2px solid var(--cos-gold);outline-offset:2px}
+
+/* ============================================================
+   星座详解弹窗（毛玻璃 + 丝滑展开/回缩）
+   ============================================================ */
+.w-sign-modal{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(7,11,26,.38);backdrop-filter:blur(14px) saturate(1.3);-webkit-backdrop-filter:blur(14px) saturate(1.3);opacity:0;transition:opacity .38s cubic-bezier(.4,0,.2,1);overflow-y:auto}
+.w-sign-modal.is-open{opacity:1}
+.w-sign-modal.is-closing{opacity:0}
+.w-sign-modal-card{--zc:#888;position:relative;width:min(680px,94vw);max-height:86vh;overflow-y:auto;border-radius:18px;padding:34px 34px 26px;background:linear-gradient(160deg,rgba(22,32,64,.86),rgba(12,20,42,.92));border:1px solid color-mix(in oklab,var(--zc) 55%,transparent);box-shadow:0 24px 80px rgba(0,0,0,.65),0 0 0 1px rgba(168,218,220,.12) inset,0 0 46px color-mix(in oklab,var(--zc) 26%,transparent);backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);transform-origin:var(--ox,50%) var(--oy,50%);transform:scale(.36) translateY(26px);opacity:0;transition:transform .42s cubic-bezier(.22,1,.36,1),opacity .34s ease;scrollbar-width:thin;scrollbar-color:color-mix(in oklab,var(--zc) 60%,transparent) transparent}
+.w-sign-modal.is-open .w-sign-modal-card{transform:scale(1) translateY(0);opacity:1}
+.w-sign-modal.is-closing .w-sign-modal-card{transform:scale(.34) translateY(30px);opacity:0}
+.w-sign-modal-card::before{content:'';position:absolute;inset:0;border-radius:18px;background:radial-gradient(ellipse at 20% 0%,color-mix(in oklab,var(--zc) 18%,transparent),transparent 60%);pointer-events:none}
+.w-sign-modal-close{position:absolute;top:14px;right:16px;width:32px;height:32px;border:1px solid rgba(214,236,240,.25);border-radius:50%;background:rgba(7,11,26,.4);color:var(--cos-ink);font-size:14px;line-height:1;cursor:pointer;transition:all .3s;z-index:2}
+.w-sign-modal-close:hover{transform:rotate(90deg);border-color:var(--cos-gold);color:var(--cos-gold);box-shadow:0 0 14px color-mix(in oklab,var(--zc) 50%,transparent)}
+.w-sign-modal-head{display:flex;align-items:center;gap:16px;padding-right:44px;position:relative;z-index:1}
+.w-sign-modal-sym{font-size:52px;color:var(--zc);text-shadow:0 0 22px color-mix(in oklab,var(--zc) 70%,transparent);line-height:1}
+.w-sign-modal-name{font-size:26px;letter-spacing:4px;color:var(--cos-ink);text-shadow:0 0 12px color-mix(in oklab,var(--zc) 40%,transparent)}
+.w-sign-modal-en{font-size:13px;color:var(--cos-ink-d);font-family:Georgia,serif;letter-spacing:2px;opacity:.75;margin-top:2px}
+.w-sign-modal-date{font-size:12px;color:var(--cos-gold);letter-spacing:1px;margin-left:auto;opacity:.9}
+.w-sign-modal-chips{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 4px;position:relative;z-index:1}
+.w-chip{font-size:11px;letter-spacing:1px;padding:4px 12px;border-radius:20px;border:1px solid color-mix(in oklab,var(--zc) 40%,transparent);background:rgba(7,11,26,.35);color:var(--cos-ink-d)}
+.w-sign-modal-sec{margin-top:14px;position:relative;z-index:1}
+.w-sign-modal-sec h4{font-size:15px;color:var(--cos-gold);letter-spacing:3px;margin-bottom:6px;border-left:3px solid var(--zc);padding-left:10px}
+.w-sign-modal-sec h4.pos{color:#8fd69f;border-left-color:#8fd69f}
+.w-sign-modal-sec h4.neg{color:#e08f8f;border-left-color:#e08f8f}
+.w-sign-modal-sec p{font-size:13.5px;line-height:1.9;color:var(--cos-ink);opacity:.92;text-align:justify}
+.w-sign-modal-cols{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:640px){.w-sign-modal-cols{grid-template-columns:1fr}}
+.w-sign-modal-lucky{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;position:relative;z-index:1}
+.w-sign-modal-lucky span{display:flex;flex-direction:column;gap:2px;font-size:12px;color:var(--cos-ink-d);padding:8px 14px;border:1px dashed color-mix(in oklab,var(--zc) 35%,transparent);border-radius:10px;background:rgba(7,11,26,.25)}
+.w-sign-modal-lucky b{font-size:11px;color:var(--cos-gold);letter-spacing:2px;font-weight:600}
+.w-sign-modal-motto{margin-top:20px;padding-top:14px;border-top:1px solid rgba(214,236,240,.14);font-size:14px;color:var(--zc);letter-spacing:2px;text-align:center;position:relative;z-index:1;text-shadow:0 0 10px color-mix(in oklab,var(--zc) 40%,transparent)}
+
+/* ============================================================
+   塔罗：扇形抽牌台 + 精美 CSS 卡面 + 牌阵摆位
+   ============================================================ */
+#w-tarot-fan,.w-tarot-fan{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;min-height:236px;padding:22px 8px 10px;margin:8px 0 4px;perspective:900px}
+/* 抽满后扇形清空不再占位，牌阵紧贴上方提示，消除大片留白 */
+#w-tarot-fan:empty{display:none}
+
+/* 多行扇形：每行 26 张，角度随牌数收敛（--fan-n / --fan-i 由渲染代码写入） */
+.w-tarot-fan-row{display:flex;justify-content:center;align-items:center;gap:0;height:150px}
+.w-tarot-fan-row:nth-child(2){transform:translateY(-12px)}
+.w-tarot-fan-row:nth-child(3){transform:translateY(-4px)}
+
+/* 扇形覆面牌：行中心为旋转原点，边缘张角最大 ±16° 左右；负边距仅让相邻牌露出 ~28px 可见边缘 */
+.w-fan-card{position:relative;width:80px;height:136px;flex:0 0 auto;margin:0 calc(var(--fan-n,26) * -26px / 26);padding:0;border:none;background:transparent;cursor:pointer;transform:rotate(calc((var(--fan-i,0) - (var(--fan-n,1) - 1) / 2) * min(7deg, 34deg / var(--fan-n,26))));transform-origin:50% 112%;transition:transform .35s cubic-bezier(.34,1.56,.64,1),filter .35s,z-index 0s;z-index:1;filter:drop-shadow(0 6px 14px rgba(0,0,0,.55))}
+.w-fan-card:hover{transform:rotate(0deg) translateY(-16px) scale(1.06);z-index:20;filter:drop-shadow(0 12px 24px rgba(245,197,99,.35))}
+.w-fan-card:active{transform:rotate(0deg) translateY(-8px) scale(.97)}
+.w-fan-card:focus-visible{outline:2px solid var(--cos-gold);outline-offset:2px}
+/* 待确认抽取：立起高亮并金框提示，确认前不会真正抽出 */
+.w-fan-card.is-pending{transform:rotate(0deg) translateY(-22px) scale(1.08);z-index:25;outline:2px solid var(--cos-gold);outline-offset:3px;filter:drop-shadow(0 14px 26px rgba(245,197,99,.5));cursor:default}
+
+/* 扇形小卡内的牌背缩放适配 */
+.w-fan-card .w-tarot-back{border-radius:10px}
+.w-fan-card .w-tarot-back::before{top:8px;left:8px;right:8px;bottom:8px;border-radius:7px}
+.w-fan-card .w-tarot-back::after{width:56px;height:56px}
+.w-fan-card .w-tarot-back-orb{font-size:21px}
+.w-fan-card .w-tarot-back-logo{font-size:9px;letter-spacing:3px}
+
+/* 牌背：魔法阵 + 玄机阁 */
+.w-tarot-back{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;border-radius:12px;overflow:hidden;border:1px solid var(--cos-gold);background:radial-gradient(circle at 50% 26%,rgba(245,197,99,.16),transparent 55%),radial-gradient(circle at 50% 120%,rgba(155,123,196,.42),transparent 62%),linear-gradient(160deg,#1A2244,#0F1A2E 55%,#070B1A);box-shadow:inset 0 0 20px rgba(0,0,0,.6),inset 0 0 0 3px rgba(245,197,99,.1)}
+.w-tarot-back::before{content:'';position:absolute;top:12px;left:12px;right:12px;bottom:12px;border:1px solid rgba(245,197,99,.35);border-radius:9px;box-shadow:inset 0 0 14px rgba(168,218,220,.12)}
+.w-tarot-back::after{content:'';position:absolute;top:50%;left:50%;width:92px;height:92px;transform:translate(-50%,-50%);border-radius:50%;border:1px dashed rgba(245,197,99,.5);background:conic-gradient(from 0deg,transparent,rgba(245,197,99,.28),transparent 30%);animation:tarot-orb 16s linear infinite}
+@keyframes tarot-orb{to{transform:translate(-50%,-50%) rotate(360deg)}}
+.w-tarot-back-orb{position:relative;z-index:1;font-size:34px;color:var(--cos-gold);text-shadow:0 0 14px var(--cos-gold),0 0 32px rgba(245,197,99,.5);animation:tarot-float 3.4s ease-in-out infinite}
+.w-tarot-back-logo{position:relative;z-index:1;font-size:13px;color:var(--cos-silver);letter-spacing:5px;text-shadow:0 0 8px var(--cos-glow);opacity:.92}
+@keyframes tarot-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+
+/* 卡面（翻开后）：星云渐变 + 专属主色 + 金色描边 */
+.w-tarot-face{--accent:#c9b8ff;position:relative;width:148px;height:238px;margin:0 auto;border-radius:14px;padding:14px 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;overflow:hidden;border:1px solid color-mix(in srgb,var(--accent) 65%,#F5C563 35%);background:radial-gradient(circle at 50% 16%,color-mix(in srgb,var(--accent) 30%,transparent),transparent 55%),radial-gradient(circle at 50% 118%,color-mix(in srgb,var(--accent) 22%,transparent),transparent 60%),linear-gradient(165deg,#1A2244,#0F1A2E 55%,#070B1A);box-shadow:0 10px 26px rgba(0,0,0,.55),inset 0 0 0 3px rgba(245,197,99,.1),inset 0 0 22px color-mix(in srgb,var(--accent) 14%,transparent);transition:transform .4s,box-shadow .4s}
+.w-tarot-face::before{content:'';position:absolute;inset:6px;border:1px solid color-mix(in srgb,var(--accent) 38%,rgba(245,197,99,.2));border-radius:10px;pointer-events:none}
+.w-tarot-face::after{content:'';position:absolute;top:-60%;left:-60%;width:70%;height:150%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.1),transparent);transform:rotate(18deg);transition:left .8s;pointer-events:none}
+.w-tarot-face:hover{box-shadow:0 14px 34px rgba(0,0,0,.6),0 0 22px color-mix(in srgb,var(--accent) 35%,transparent)}
+.w-tarot-face:hover::after{left:135%}
+.w-tarot-face-top{position:relative;z-index:1;width:100%;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.w-tarot-face-num{font-size:11px;font-family:Georgia,serif;color:color-mix(in srgb,var(--accent) 80%,#fff 20%);border:1px solid color-mix(in srgb,var(--accent) 55%,transparent);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center}
+.w-tarot-face-ori{font-size:10px;letter-spacing:2px;padding:2px 8px;border-radius:10px;color:var(--cos-gold);border:1px solid rgba(245,197,99,.35);background:rgba(245,197,99,.08)}
+.w-tarot-face-symbol{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:52px;line-height:1.1;margin:6px 0 8px;color:var(--accent);text-shadow:0 0 18px color-mix(in srgb,var(--accent) 60%,transparent),0 0 40px color-mix(in srgb,var(--accent) 30%,transparent);filter:drop-shadow(0 2px 3px rgba(0,0,0,.5));transition:transform .5s}
+/* 小阿卡纳元素标签 */
+.w-tarot-face-el{display:block;font-style:normal;font-size:10px;line-height:1.5;letter-spacing:1px;color:var(--cos-ink-d);opacity:.85;margin-top:2px;text-shadow:none;filter:none}
+.w-tarot-face-name{position:relative;z-index:1;font-size:16px;color:var(--cos-ink);letter-spacing:3px;margin-bottom:2px;text-shadow:0 0 8px rgba(214,236,240,.35);transition:transform .5s}
+.w-tarot-face-en{position:relative;z-index:1;font-size:10px;font-family:Georgia,'Times New Roman',serif;letter-spacing:1.5px;color:color-mix(in srgb,var(--accent) 75%,var(--cos-ink-d) 25%);margin-bottom:8px;opacity:.85;transition:transform .5s}
+.w-tarot-face-key{position:relative;z-index:1;font-size:11px;line-height:1.7;color:var(--cos-ink-d);letter-spacing:1px;padding-top:8px;border-top:1px dashed rgba(245,197,99,.25);opacity:.92}
+/* 逆位：符号与牌名倒置 + 玫紫调 */
+.w-tarot-face.is-reversed{background:radial-gradient(circle at 50% 16%,rgba(232,180,188,.18),transparent 55%),radial-gradient(circle at 50% 118%,rgba(155,123,196,.28),transparent 60%),linear-gradient(165deg,#241a2e,#14101f 55%,#0a0710)}
+.w-tarot-face.is-reversed .w-tarot-face-symbol,.w-tarot-face.is-reversed .w-tarot-face-name,.w-tarot-face.is-reversed .w-tarot-face-en{transform:rotate(180deg)}
+.w-tarot-face.is-reversed .w-tarot-face-ori{color:var(--cos-pink);border-color:rgba(232,180,188,.4);background:rgba(232,180,188,.1)}
+
+/* 牌阵位：抽取结束后逐一归阵（覆面落位）→ 逐一翻开（3D 翻面） */
+.w-tarot-slot.is-placing{animation:tarot-place .45s cubic-bezier(.34,1.56,.64,1) backwards}
+@keyframes tarot-place{from{opacity:0;transform:translateY(24px) scale(.88)}to{opacity:1;transform:translateY(0) scale(1)}}
+.w-tarot-slot.is-flipping .w-tarot-face{animation:tarot-turn .75s cubic-bezier(.4,0,.2,1) backwards}
+@keyframes tarot-turn{0%{transform:perspective(900px) rotateY(-96deg) scale(.92);opacity:.4}55%{opacity:1}100%{transform:perspective(900px) rotateY(0deg) scale(1);opacity:1}}
+/* 覆面摆位：牌背铺满牌位容器 */
+.w-tarot-face.is-face-down{padding:0;background:none;border:none;box-shadow:none}
+.w-tarot-face.is-face-down::before,.w-tarot-face.is-face-down::after{display:none}
+.w-tarot-face.is-face-down .w-tarot-back{border-radius:14px}
+.w-tarot-pos{text-align:center;font-size:12px;color:var(--cos-gold);letter-spacing:3px;margin-bottom:6px;text-shadow:0 0 8px rgba(245,197,99,.5)}
+
+/* 确认抽取条：点选扇形牌后浮现，确认/再想想 */
+#w-tarot-confirm{display:none;flex-direction:column;align-items:center;gap:12px;margin:6px auto 8px;padding:14px 22px;max-width:460px;border:1px solid rgba(245,197,99,.4);border-radius:14px;background:linear-gradient(135deg,rgba(245,197,99,.12),rgba(26,34,68,.9));box-shadow:0 12px 32px rgba(0,0,0,.5),0 0 20px rgba(245,197,99,.12);animation:confirm-in .35s cubic-bezier(.34,1.56,.64,1)}
+#w-tarot-confirm.show{display:flex}
+@keyframes confirm-in{from{opacity:0;transform:translateY(12px) scale(.94)}to{opacity:1;transform:none}}
+.w-tarot-confirm-text{font-size:13px;color:var(--cos-ink);letter-spacing:1px;text-shadow:0 0 8px rgba(214,236,240,.3)}
+.w-tarot-confirm-btns{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+#w-tarot-confirm button.w-run,#w-tarot-confirm button.w-ai{margin-top:0;padding:9px 26px;font-size:14px;letter-spacing:3px}
+#w-tarot-confirm button.w-ai{background:linear-gradient(135deg,#3a4a6b,#232f4d);color:var(--cos-ink);border-color:var(--cos-line);box-shadow:0 4px 14px rgba(0,0,0,.35)}
+#w-tarot-confirm button.w-ai:hover{color:#fff;border-color:var(--cos-gold)}
+
+/* 已抽区域：确认抽出的牌放在一侧展示，直观显示抽取进度 */
+#w-tarot-drawn{display:flex;flex-direction:column;align-items:center;gap:8px;margin:4px 0 10px;padding:12px 18px;border:1px solid rgba(245,197,99,.22);border-radius:14px;background:linear-gradient(180deg,rgba(26,34,68,.5),rgba(15,26,46,.35))}
+#w-tarot-drawn .w-tarot-drawn-cards{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap}
+#w-tarot-drawn .w-tarot-drawn-card{position:relative;width:54px;height:92px;flex:0 0 auto;animation:drawn-in .4s cubic-bezier(.34,1.56,.64,1) backwards}
+#w-tarot-drawn .w-tarot-drawn-card .w-tarot-back{border-radius:8px}
+#w-tarot-drawn .w-tarot-drawn-card .w-tarot-back::before{top:6px;left:6px;right:6px;bottom:6px;border-radius:6px}
+#w-tarot-drawn .w-tarot-drawn-card .w-tarot-back::after{width:34px;height:34px}
+#w-tarot-drawn .w-tarot-drawn-card .w-tarot-back-orb{font-size:13px}
+#w-tarot-drawn .w-tarot-drawn-card .w-tarot-back-logo{font-size:7px;letter-spacing:2px}
+#w-tarot-drawn .w-tarot-drawn-card.is-out{animation:drawn-out .45s ease-in forwards}
+@keyframes drawn-in{from{opacity:0;transform:translateY(-16px) scale(.6)}to{opacity:1;transform:none}}
+@keyframes drawn-out{to{opacity:0;transform:translateY(20px) scale(.5)}}
+#w-tarot-drawn .w-tarot-drawn-count{font-size:12px;color:var(--cos-gold);letter-spacing:3px;text-shadow:0 0 8px rgba(245,197,99,.4)}
+
+/* 牌阵布局 */
+.w-tarot-spread{margin-top:8px}
+.w-tarot-title{text-align:center;font-size:22px;color:var(--cos-silver);letter-spacing:6px;margin-bottom:24px;text-shadow:0 0 10px var(--cos-glow)}
+.w-tarot-grid{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:26px 18px}
+.w-tarot-grid.spread-three{gap:28px}
+/* 吉普赛十字：十字形 */
+.w-tarot-grid.spread-cross5{display:grid;grid-template-columns:repeat(3,1fr);grid-template-areas:". top ." "left mid right" ". bot .";gap:24px 20px;max-width:660px;margin:0 auto;align-items:center}
+.w-tarot-grid.spread-cross5 .w-tarot-slot:nth-child(1){grid-area:top}
+.w-tarot-grid.spread-cross5 .w-tarot-slot:nth-child(2){grid-area:mid}
+.w-tarot-grid.spread-cross5 .w-tarot-slot:nth-child(3){grid-area:left}
+.w-tarot-grid.spread-cross5 .w-tarot-slot:nth-child(4){grid-area:right}
+.w-tarot-grid.spread-cross5 .w-tarot-slot:nth-child(5){grid-area:bot}
+.w-tarot-grid.spread-cross5 .w-tarot-slot:nth-child(2) .w-tarot-face{transform:scale(1.12)}
+/* 马蹄阵：上 4 下 3 */
+.w-tarot-grid.spread-horseshoe{max-width:780px;margin:0 auto}
+.w-tarot-grid.spread-horseshoe .w-tarot-slot{flex:0 0 calc((100% - 3 * 18px) / 4);max-width:176px}
+.w-tarot-grid.spread-horseshoe .w-tarot-slot:nth-child(n+5){margin-top:10px;transform:translateX(12.5%)}
+/* 单牌阵：居中放大 */
+.w-tarot-grid.spread-one .w-tarot-face{transform:scale(1.15)}
+
+/* 凯尔特十字：十字 + 右侧权杖柱（①核心 / ②挑战横叠其上） */
+.w-tarot-grid.spread-celtic{display:grid;grid-template-columns:repeat(5,1fr);grid-template-areas:". . top . ." "left mid mid right ." ". . bot . ." "s7 s8 s9 s10 .";gap:22px 14px;max-width:840px;margin:0 auto;align-items:center}
+.w-tarot-grid.spread-celtic .w-tarot-slot:nth-child(1){grid-area:mid}
+.w-tarot-grid.spread-celtic .w-tarot-slot:nth-child(2){grid-area:mid;position:relative;z-index:3;margin-top:-14px}
+.w-tarot-grid.spread-celtic .w-tarot-slot:nth-child(2) .w-tarot-face{transform:rotate(90deg) scale(.86);box-shadow:0 12px 30px rgba(0,0,0,.65)}
+.w-tarot-grid.spread-celtic .w-tarot-slot:nth-child(3){grid-area:bot}
+.w-tarot-grid.spread-celtic .w-tarot-slot:nth-child(4){grid-area:left}
+.w-tarot-grid.spread-celtic .w-tarot-slot:nth-child(5){grid-area:top}
+.w-tarot-grid.spread-celtic .w-tarot-slot:nth-child(6){grid-area:right}
+.w-tarot-grid.spread-celtic .w-tarot-slot:nth-child(7){grid-area:s7}
+.w-tarot-grid.spread-celtic .w-tarot-slot:nth-child(8){grid-area:s8}
+.w-tarot-grid.spread-celtic .w-tarot-slot:nth-child(9){grid-area:s9}
+.w-tarot-grid.spread-celtic .w-tarot-slot:nth-child(10){grid-area:s10}
+
+/* 六芒星：两个交叠三角形（上三角 精神 / 下三角 物质）+ 中央结果 */
+.w-tarot-grid.spread-star{display:grid;grid-template-columns:repeat(5,1fr);grid-template-areas:". . p1 . ." "p5 . p7 . p2" ". p3 . p6 ." ". . p4 . .";gap:22px 12px;max-width:820px;margin:0 auto;align-items:center}
+.w-tarot-grid.spread-star .w-tarot-slot:nth-child(1){grid-area:p1}
+.w-tarot-grid.spread-star .w-tarot-slot:nth-child(2){grid-area:p2}
+.w-tarot-grid.spread-star .w-tarot-slot:nth-child(3){grid-area:p3}
+.w-tarot-grid.spread-star .w-tarot-slot:nth-child(4){grid-area:p4}
+.w-tarot-grid.spread-star .w-tarot-slot:nth-child(5){grid-area:p5}
+.w-tarot-grid.spread-star .w-tarot-slot:nth-child(6){grid-area:p6}
+.w-tarot-grid.spread-star .w-tarot-slot:nth-child(7){grid-area:p7}
+
+/* 关系牌阵：3 列两行 */
+.w-tarot-grid.spread-relationship{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;max-width:660px;margin:0 auto}
+
+/* 是非牌阵：居中 */
+.w-tarot-grid.spread-yesno{justify-content:center}
+.w-tarot-grid.spread-yesno .w-tarot-face{transform:scale(1.1)}
+
+/* 年度运势：4 列 × 3 行（十二个月） */
+.w-tarot-grid.spread-year{display:grid;grid-template-columns:repeat(4,1fr);gap:18px 14px;max-width:840px;margin:0 auto}
+
+/* 脉轮牌阵：2 列（第七张居中） */
+.w-tarot-grid.spread-chakra{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;max-width:600px;margin:0 auto}
+.w-tarot-grid.spread-chakra .w-tarot-slot:nth-child(7){grid-column:1/-1;justify-self:center}
+
+/* 事业 / 爱情 / 七行星：4 列环绕 */
+.w-tarot-grid.spread-career,.w-tarot-grid.spread-love,.w-tarot-grid.spread-planets{display:grid;grid-template-columns:repeat(4,1fr);gap:22px 14px;max-width:800px;margin:0 auto}
+
+/* 决策牌阵：现状置顶，A/B 两列利弊对比 */
+.w-tarot-grid.spread-decision{display:grid;grid-template-columns:repeat(2,1fr);grid-template-areas:"now now" "a1 b1" "a2 b2";gap:22px;max-width:680px;margin:0 auto}
+.w-tarot-grid.spread-decision .w-tarot-slot:nth-child(1){grid-area:now;justify-self:center}
+.w-tarot-grid.spread-decision .w-tarot-slot:nth-child(2){grid-area:a1}
+.w-tarot-grid.spread-decision .w-tarot-slot:nth-child(3){grid-area:a2}
+.w-tarot-grid.spread-decision .w-tarot-slot:nth-child(4){grid-area:b1}
+.w-tarot-grid.spread-decision .w-tarot-slot:nth-child(5){grid-area:b2}
+
+/* 爱情金字塔：上尖下三 */
+.w-tarot-grid.spread-pyramid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-areas:". apex ." "b1 b2 b3";gap:22px 16px;max-width:680px;margin:0 auto;align-items:end}
+.w-tarot-grid.spread-pyramid .w-tarot-slot:nth-child(1){grid-area:b1}
+.w-tarot-grid.spread-pyramid .w-tarot-slot:nth-child(2){grid-area:b2}
+.w-tarot-grid.spread-pyramid .w-tarot-slot:nth-child(3){grid-area:b3}
+.w-tarot-grid.spread-pyramid .w-tarot-slot:nth-child(4){grid-area:apex}
+
+/* 二择一：现状置顶，A/B 两列各自前景 */
+.w-tarot-grid.spread-twochoices{display:grid;grid-template-columns:repeat(3,1fr);grid-template-areas:". now ." "a1 . b1" "a2 . b2";gap:22px 16px;max-width:720px;margin:0 auto}
+.w-tarot-grid.spread-twochoices .w-tarot-slot:nth-child(1){grid-area:now}
+.w-tarot-grid.spread-twochoices .w-tarot-slot:nth-child(2){grid-area:a1}
+.w-tarot-grid.spread-twochoices .w-tarot-slot:nth-child(3){grid-area:a2}
+.w-tarot-grid.spread-twochoices .w-tarot-slot:nth-child(4){grid-area:b1}
+.w-tarot-grid.spread-twochoices .w-tarot-slot:nth-child(5){grid-area:b2}
+
+/* 每日一牌：居中放大 */
+.w-tarot-grid.spread-daily{justify-content:center}
+.w-tarot-grid.spread-daily .w-tarot-face{transform:scale(1.2)}
+
+/* 四季牌阵：一行四张 */
+.w-tarot-grid.spread-seasons{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;max-width:760px;margin:0 auto}
+
+/* 塔罗响应式 */
+@media(max-width:760px){
+  .w-tarot-fan-row{height:92px}
+  .w-tarot-fan-row:nth-child(2),.w-tarot-fan-row:nth-child(3){transform:none}
+  /* 小屏收敛扇形：总宽 = 视口 - 58px（含旋转外沿预算），任意窄屏整行收进视口，避免横向滚动 */
+  .w-fan-card{width:46px;height:80px;margin:0 calc((100vw - 58px - var(--fan-n,26) * 46px) / (2 * var(--fan-n,26)));transform:rotate(calc((var(--fan-i,0) - (var(--fan-n,1) - 1) / 2) * min(3deg, 12deg / var(--fan-n,26))))}
+  .w-fan-card .w-tarot-back::after{width:30px;height:30px}
+  .w-fan-card .w-tarot-back-orb{font-size:13px}
+  .w-fan-card .w-tarot-back-logo{font-size:7px;letter-spacing:2px}
+  .w-tarot-face{width:118px;height:196px;padding:10px 8px}
+  .w-tarot-face-symbol{font-size:38px}
+  .w-tarot-face-name{font-size:14px}
+  .w-tarot-grid.spread-cross5{grid-template-columns:repeat(2,1fr);grid-template-areas:none;max-width:420px}
+  .w-tarot-grid.spread-cross5 .w-tarot-slot{grid-area:auto}
+  .w-tarot-grid.spread-cross5 .w-tarot-slot:nth-child(2) .w-tarot-face{transform:none}
+  .w-tarot-grid.spread-horseshoe .w-tarot-slot{flex-basis:calc((100% - 18px) / 2);max-width:150px}
+  .w-tarot-grid.spread-horseshoe .w-tarot-slot:nth-child(n+5){transform:none;margin-top:0}
+  /* 新增牌阵移动端：折叠为 2 列流式，取消固定宫位 */
+  .w-tarot-grid:is(.spread-celtic,.spread-star,.spread-year,.spread-relationship,.spread-chakra,.spread-career,.spread-love,.spread-planets,.spread-decision,.spread-pyramid,.spread-twochoices){
+    grid-template-columns:repeat(2,1fr);grid-template-areas:none;max-width:440px;gap:16px 12px
+  }
+  .w-tarot-grid:is(.spread-celtic,.spread-star,.spread-year,.spread-relationship,.spread-chakra,.spread-career,.spread-love,.spread-planets,.spread-decision,.spread-pyramid,.spread-twochoices) .w-tarot-slot{grid-area:auto}
+  .w-tarot-grid.spread-celtic .w-tarot-slot:nth-child(2){position:static;z-index:auto;margin-top:0}
+  .w-tarot-grid.spread-celtic .w-tarot-slot:nth-child(2) .w-tarot-face{transform:none}
+  .w-tarot-grid.spread-chakra .w-tarot-slot:nth-child(7){grid-column:auto;justify-self:auto}
+  .w-tarot-grid.spread-seasons{grid-template-columns:repeat(2,1fr);max-width:440px}
+  .w-tarot-grid.spread-daily .w-tarot-face{transform:scale(1.05)}
+}
+
+/* 平板收窄（761-1024）：保持 80px 大卡，按视口收紧重叠，避免旋转外沿溢出横向滚动 */
+@media(min-width:761px) and (max-width:1024px){
+  .w-fan-card{margin:0 calc((100vw - 145px - var(--fan-n,26) * 80px) / (2 * var(--fan-n,26)))}
+}
+
+/* 合盘双盘 */
+.w-synastry-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:12px}
+.w-synastry-half{background:linear-gradient(135deg,rgba(26,34,68,.5),rgba(15,26,46,.85));border:1px solid var(--cos-line);border-radius:14px;padding:14px;animation:pi .5s ease-out backwards}
+.w-synastry-label{text-align:center;font-size:13px;color:var(--cos-silver);letter-spacing:4px;margin-bottom:8px;text-shadow:0 0 6px var(--cos-glow)}
+
+/* AI 解语面板 */
+.w-ai-panel{margin-top:24px;background:linear-gradient(135deg,rgba(26,34,68,.7),rgba(7,11,26,.95));border:1px solid var(--cos-gold);border-radius:14px;padding:24px;box-shadow:0 0 24px rgba(245,197,99,.15);animation:pi .6s ease-out}
+.w-ai-panel h2{color:var(--cos-gold);text-shadow:0 0 10px var(--cos-gold);border-bottom:1px solid rgba(245,197,99,.3);font-size:18px;letter-spacing:4px}
+.w-ai-panel h2::before{content:'✦';color:var(--cos-gold);margin-right:8px}
+.w-ai-content{font-size:15px;line-height:2;color:var(--cos-ink)}
+.w-ai-content .ai-h2,.w-ai-content .ai-h3,.w-ai-content .ai-h4{display:inline-block;color:var(--cos-gold);font-weight:bold;letter-spacing:1px;text-shadow:0 0 6px var(--cos-gold);margin-top:8px}
+.w-ai-content .ai-h2{font-size:17px}
+.w-ai-content .ai-h3{font-size:16px}
+.w-ai-content .ai-h4{font-size:15px}
+.w-ai-content .ai-em{color:var(--cos-violet);font-weight:bold}
+.w-ai-content .ai-quote{display:block;border-left:2px solid var(--cos-silver);padding-left:10px;color:var(--cos-ink-d);font-style:italic;margin:4px 0}
+.w-ai-content code{background:rgba(7,11,26,.6);border:1px solid var(--cos-line);border-radius:4px;padding:0 4px;font-family:ui-monospace,Consolas,monospace;font-size:13px;color:var(--cos-gold)}
+
+.w-loading{text-align:center;padding:48px;color:var(--cos-silver);font-size:16px;letter-spacing:6px}
+.w-loading::after{content:'...';animation:dt 1.5s steps(4,end) infinite}
+.w-error{background:linear-gradient(135deg,rgba(192,63,60,.4),rgba(139,40,40,.6));color:var(--cos-ink);padding:18px 24px;border-radius:10px;margin:16px 0;border:1px solid var(--cos-pink);box-shadow:0 0 20px rgba(232,180,188,.3)}
+
+@media(max-width:1366px){.portal-main{max-width:100%}.portal-celestial{width:200px;height:200px}}
+/* 中段视口（1025-1280 之间）：双列 + 压缩高度，避免被裁切 */
+@media(max-width:1280px) and (min-width:1025px){
+  .portal-card{min-height:clamp(360px,52vh,460px);padding:24px 22px}
+  .portal-header{padding:48px 24px 28px}
+  .portal-card-icon{font-size:48px}
+  .portal-card-title{font-size:26px;letter-spacing:5px}
+  .portal-card-list{font-size:13px;line-height:1.9}
+}
+/* 视口高度不足时（笔记本/小屏）：进一步压缩高度 */
+@media(max-height:780px){
+  .portal-header{padding:28px 24px 18px}
+  .portal-title{font-size:clamp(26px,4vw,34px);letter-spacing:10px;margin-bottom:6px}
+  .portal-subtitle{font-size:12px;letter-spacing:6px}
+  .portal-main{padding:24px 24px}
+  .portal-card{min-height:clamp(320px,50vh,380px);padding:18px 18px}
+  .portal-celestial{width:clamp(110px,18vw,160px);height:clamp(110px,18vw,160px)}
+  .portal-card-icon{font-size:42px;margin-bottom:2px}
+  .portal-card-title{font-size:clamp(18px,2.5vw,22px);letter-spacing:4px;margin-bottom:4px}
+  .portal-card-en{font-size:11px}
+  .portal-card-list{font-size:12px;line-height:1.8;margin-bottom:4px}
+  .portal-card-cta{padding:9px 22px;font-size:13px;letter-spacing:3px}
+  .portal-footer{padding:20px 16px;font-size:11px}
+}
+/* ============================================================
+   小屏单列布局（≤1024px）：紧凑布局 + 天体在卡片右侧留白中央
+   解决问题：
+   1. 卡片高度自适应内容，首屏即可看到 CTA 按钮
+   2. 天体放在卡片右侧留白处中心，初始居中，scale 决定远近大小
+   3. 内容紧凑垂直排列，避免被截断
+   ============================================================ */
+@media(max-width:1024px){
+  /* 整页：内容垂直堆叠，无中线 */
+  .portal-main{grid-template-columns:1fr;gap:18px;padding:32px 18px;max-width:760px}
+  /* 卡片：自适应内容高度，给天体保留足够右侧高度空间
+     min-height 必须 ≥ 中心≥半径+Y移动 才能保证天体升起时不顶出卡片 */
+  .portal-card{
+    height:auto;
+    min-height:clamp(420px,56vh,500px);
+    padding:24px 24px 26px;
+    margin:0!important;
+    border-radius:14px;
+    overflow:hidden; /* 天体不能超出卡片边界 */
+    position:relative; /* 为天体绝对定位提供锚点 */
+  }
+  /* 卡片悬停抑制：移动端不要 scale 偏移 */
+  .portal-card:hover{transform:none!important}
+
+  /* 天体：绝对定位 → 卡片右侧留白处中心
+     JS 通过 --celestial-x / --celestial-y 驱动东升西落弧线
+     JS 通过 --celestial-scale 驱动近大远小
+     Y clamp ±50% 容纳 JS 最大升幅 -55%（月球/太阳全幅升起）
+     X clamp ±20% 容纳 JS 最大 ±30% 东移西沉 */
+  .portal-celestial{
+    position:absolute!important;
+    width:clamp(120px,22vw,200px);
+    height:clamp(120px,22vw,200px);
+    left:auto!important;
+    right:clamp(8px,2vw,30px)!important;
+    top:50%!important;
+    opacity:.7;
+    transform-origin:center;
+    transform:translate(
+      clamp(-20%, calc(0% + var(--celestial-x, 0%)), 20%),
+      calc(-50% + clamp(-50%, var(--celestial-y, 0%), 50%))
+    ) scale(var(--celestial-scale, 1))!important;
+  }
+  .portal-celestial > *{opacity:var(--celestial-opacity,.75)}
+
+  /* 内容：紧凑垂直流式，去除 flex:1 撑开 */
+  .portal-card-content{
+    padding:0!important;gap:0!important;
+    justify-content:flex-start!important;align-items:stretch!important;
+  }
+  .portal-card-content .content-top{
+    text-align:left;align-items:flex-start;gap:4px;
+    /* 给右侧天体留空：天体宽 ~ 200px + 20px 缓冲 = 220px */
+    padding-right:clamp(150px,24vw,230px);
+    min-height:clamp(120px,16vw,170px);
+  }
+  /* 取消中间空区 */
+  .portal-card-content .content-mid{display:none!important}
+  .portal-card-content .content-bottom{margin-top:14px;align-items:flex-start;gap:8px;padding-right:0}
+
+  /* 标题与图标：左对齐，紧凑 */
+  .portal-card-icon{font-size:34px!important;margin-bottom:2px;line-height:1}
+  .portal-card-title{font-size:24px!important;letter-spacing:3px!important;text-align:left!important;margin-bottom:4px!important;line-height:1.3}
+  .portal-card-en{font-size:11.5px!important;letter-spacing:2px!important;text-align:left!important;margin-bottom:0}
+
+  /* 列表：左对齐 + 紧凑行高，强制不溢出 */
+  .portal-card-list{
+    text-align:left!important;font-size:13.5px!important;line-height:1.8!important;
+    margin:0!important;letter-spacing:1px!important;
+  }
+  .portal-card-list li{
+    text-align:left!important;padding-left:0!important;padding-right:0!important;
+    overflow-wrap:break-word;word-break:normal;white-space:normal;
+  }
+  .portal-card-list li::before{
+    display:inline-block!important;margin-right:6px;position:static!important;
+    left:auto!important;right:auto!important;
+  }
+
+  /* CTA 按钮：靠左、显眼 */
+  .portal-card-cta{
+    margin-top:6px;padding:12px 28px;font-size:14px;letter-spacing:4px;
+    align-self:flex-start;
+  }
+  /* 隐藏中线分隔符 */
+  .portal-main::before{display:none}
+  /* 西方页面 */
+  .w-synastry-grid{grid-template-columns:1fr}
+}
+@media(max-width:768px){
+  .portal-header{padding:28px 16px 18px}
+  .portal-title{font-size:28px;letter-spacing:8px}
+  .portal-subtitle{font-size:11px;letter-spacing:5px}
+  .portal-main{padding:24px 14px;gap:14px;max-width:640px}
+  .portal-card{padding:20px 18px 22px;min-height:clamp(380px,54vh,460px)}
+  .portal-celestial{width:clamp(100px,22vw,170px)!important;height:clamp(100px,22vw,170px)!important;right:12px!important}
+  .portal-card-content .content-top{padding-right:clamp(130px,24vw,200px);min-height:clamp(100px,15vw,140px)}
+  .portal-card-icon{font-size:30px!important}
+  .portal-card-title{font-size:21px!important;letter-spacing:2.5px!important}
+  .portal-card-en{font-size:11px!important;letter-spacing:1.5px!important}
+  .portal-card-list{font-size:13px!important;line-height:1.75!important}
+  .portal-card-cta{padding:11px 24px;font-size:13px;letter-spacing:3px}
+  .w-signs{grid-template-columns:1fr}
+  .w-location-selects{grid-template-columns:1fr;gap:8px}
+  .back-link{top:14px;left:14px;font-size:11px}
+  .portal-footer{padding:22px 14px;font-size:11px}
+}
+@media(max-width:480px){
+  .portal-card{padding:18px 16px 20px;border-radius:12px;min-height:clamp(320px,52vh,400px)}
+  .portal-celestial{width:clamp(90px,22vw,140px)!important;height:clamp(90px,22vw,140px)!important;right:8px!important}
+  .portal-card-content .content-top{padding-right:clamp(110px,24vw,160px);min-height:clamp(80px,14vw,120px)}
+  .portal-card-icon{font-size:26px!important}
+  .portal-card-title{font-size:19px!important;letter-spacing:2px!important}
+  .portal-card-en{font-size:10.5px!important;letter-spacing:1.5px!important}
+  .portal-card-list{font-size:12.5px!important;line-height:1.7!important;letter-spacing:.5px!important}
+  .portal-card-cta{padding:10px 22px;font-size:12.5px;letter-spacing:3px}
+  .w-form-grid{grid-template-columns:1fr 1fr}
+  .w-btns{flex-direction:column}
+  button.w-run,button.w-ai{width:100%}
+}
+@media(max-width:360px){
+  .portal-title{font-size:24px;letter-spacing:6px}
+  .portal-card{min-height:clamp(280px,50vh,340px)}
+  .portal-celestial{width:clamp(80px,22vw,120px)!important;height:clamp(80px,22vw,120px)!important;right:6px!important}
+  .portal-card-content .content-top{padding-right:clamp(95px,24vw,135px);min-height:clamp(70px,14vw,100px)}
+  .portal-card-title{font-size:17px!important}
+  .portal-card-list{font-size:11.5px!important}
+}

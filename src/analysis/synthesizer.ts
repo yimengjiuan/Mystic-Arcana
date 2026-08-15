@@ -4,11 +4,11 @@
  * 汇总六大面板信息，依易学之理综合评分。
  *
  * 评分权重（合计 100 分基础，各项加减分独立计算后汇总）：
- *   梅花易数 30% - 体用生克是梅花核心，吉凶最为直截
- *   六爻      25% - 动爻所临六亲定吉凶
+ *   六爻      30% - 纳甲大宗之法，逐爻六亲与世应信息最丰富
+ *   梅花易数 30% - 体用生克直截了当，对所问之事吉凶最为直接
  *   周易卦辞  20% - 卦辞、变卦辞蕴含吉凶指示
- *   小六壬    15% - 落宫定性，快速参考
- *   八字      10% - 日干生克辅助参考
+ *   小六壬    12% - 落宫定性，仅作快速参考
+ *   八字       8% - 命理背景辅助，与所问之事关联最弱
  */
 import type { CoreState, Synthesized } from '../types';
 
@@ -29,28 +29,7 @@ export function synthesize(state: CoreState): Synthesized {
   let xiaoliuScore = 50;
   let baziScore = 50;
 
-  // ── 梅花易数：体用生克（权重 30%） ──
-  const mh = state.panels.meihua;
-  const interp = mh.interpretation;
-  if (interp.includes('用生体')) {
-    meihuaScore = 88;
-    points.push('梅花体用：用生体，大吉，百事可成');
-  } else if (interp.includes('体克用')) {
-    meihuaScore = 72;
-    points.push('梅花体用：体克用，所谋易成但需费力');
-  } else if (interp.includes('比和')) {
-    meihuaScore = 68;
-    points.push('梅花体用：体用比和，谋事可成');
-  } else if (interp.includes('体生用')) {
-    meihuaScore = 38;
-    warnings.push('梅花体用：体生用，付出多收获少');
-  } else if (interp.includes('用克体')) {
-    meihuaScore = 22;
-    warnings.push('梅花体用：用克体，所谋难成，防损耗');
-    recommendations.push('宜守不宜攻，待时而动');
-  }
-
-  // ── 六爻：动爻所临六亲（权重 25%） ──
+  // ── 六爻：动爻所临六亲（权重 30%，大宗之法） ──
   // 易学原则：子孙临动爻为福神（吉），妻财动主财（吉），
   // 官鬼动主忧（凶），父母动主辛劳（平偏凶），兄弟动主劫财（平偏凶）。
   const ly = state.panels.liuyao;
@@ -80,6 +59,27 @@ export function synthesize(state: CoreState): Synthesized {
     liuyaoScore = Math.max(10, Math.min(90, 50 + lqScore));
   }
 
+  // ── 梅花易数：体用生克（权重 30%） ──
+  const mh = state.panels.meihua;
+  const interp = mh.interpretation;
+  if (interp.includes('用生体')) {
+    meihuaScore = 88;
+    points.push('梅花体用：用生体，大吉，百事可成');
+  } else if (interp.includes('体克用')) {
+    meihuaScore = 72;
+    points.push('梅花体用：体克用，所谋易成但需费力');
+  } else if (interp.includes('比和')) {
+    meihuaScore = 68;
+    points.push('梅花体用：体用比和，谋事可成');
+  } else if (interp.includes('体生用')) {
+    meihuaScore = 38;
+    warnings.push('梅花体用：体生用，付出多收获少');
+  } else if (interp.includes('用克体')) {
+    meihuaScore = 22;
+    warnings.push('梅花体用：用克体，所谋难成，防损耗');
+    recommendations.push('宜守不宜攻，待时而动');
+  }
+
   // ── 周易卦辞判定（权重 20%） ──
   const zy = state.panels.zhouyi;
   const bianCi = zy.guaCi.bian;
@@ -98,7 +98,7 @@ export function synthesize(state: CoreState): Synthesized {
     recommendations.push('宜谨慎，不可冒进');
   }
 
-  // ── 小六壬落宫（权重 15%） ──
+  // ── 小六壬落宫（权重 12%） ──
   switch (state.panels.xiaoliu.result) {
     case '大安':
       xiaoliuScore = 78;
@@ -128,7 +128,7 @@ export function synthesize(state: CoreState): Synthesized {
       break;
   }
 
-  // ── 八字日干五行平衡（权重 10%） ──
+  // ── 八字日干五行平衡（权重 8%） ──
   // 以日干为自身，检测四柱天干中与日干同五行（比肩助身）的比例，
   // 以及生我（印）与克我（官杀）的分布，粗略判定日干强弱。
   const dayGan = state.bazi.day.gan;
@@ -160,11 +160,11 @@ export function synthesize(state: CoreState): Synthesized {
 
   // ── 加权汇总 ──
   const score = Math.round(
+    liuyaoScore * 0.30 +
     meihuaScore * 0.30 +
-    liuyaoScore * 0.25 +
     zhouyiScore * 0.20 +
-    xiaoliuScore * 0.15 +
-    baziScore * 0.10
+    xiaoliuScore * 0.12 +
+    baziScore * 0.08
   );
 
   // 评分 -> 趋势映射

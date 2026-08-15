@@ -9,66 +9,399 @@
 </head>
 
 <body>
-    <header>
-        <a class="github-link" href="https://github.com/yimengjiuan/Mystic-Arcana" target="_blank" rel="noopener" title="GitHub">
-            <svg fill="currentColor" viewBox="0 0 24 24" width="22" height="22" xmlns="http://www.w3.org/2000/svg"><path d="M12 0c6.63 0 12 5.276 12 11.79-.001 5.067-3.29 9.567-8.175 11.187-.6.118-.825-.25-.825-.56 0-.398.015-1.665.015-3.242 0-1.105-.375-1.813-.81-2.181 2.67-.295 5.475-1.297 5.475-5.822 0-1.297-.465-2.344-1.23-3.169.12-.295.54-1.503-.12-3.125 0 0-1.005-.324-3.3 1.209a11.32 11.32 0 00-3-.398c-1.02 0-2.04.133-3 .398-2.295-1.518-3.3-1.209-3.3-1.209-.66 1.622-.24 2.83-.12 3.125-.765.825-1.23 1.887-1.23 3.169 0 4.51 2.79 5.527 5.46 5.822-.345.294-.66.81-.765 1.577-.69.31-2.415.81-3.495-.973-.225-.354-.9-1.223-1.845-1.209-1.005.015-.405.56.015.781.51.28 1.095 1.327 1.23 1.666.24.663 1.02 1.93 4.035 1.385 0 .988.015 1.916.015 2.196 0 .31-.225.664-.825.56C3.303 21.374-.003 16.867 0 11.791 0 5.276 5.37 0 12 0z"></path></svg>
-        </a>
-        <h1>玄 机 阁</h1>
-        <div class="subtitle">五起卦·六面板·综合分析</div>
-    </header>
-    <main>
-        <section class="form-section">
-            <h2>起卦参数</h2>
-            <div class="form-grid time-grid">
-                <label>年<input id="year" type="number" value="2000"></label>
-                <label>月<input id="month" type="number" value="1" min="1" max="12"></label>
-                <label>日<input id="day" type="number" value="1" min="1" max="31"></label>
-                <label>时<input id="hour" type="number" value="12" min="0" max="23"></label>
-                <label>秒<input id="second" type="number" value="0" min="0" max="59"></label>
-            </div>
-            <div class="form-grid">
-                <label>起卦方式<select id="method">
-                        <option value="time">时间起卦</option>
-                        <option value="number">数字起卦</option>
-                        <option value="meihua">梅花易数</option>
-                        <option value="zaobi">蓍草占卜</option>
-                        <option value="cuanke">铜钱摇卦</option>
+    <!-- ============================================================
+         主入口（#/）：双门户（中式命理 / 西式星语）
+         ============================================================ -->
+    <div id="portal" class="portal-root">
+        <header class="portal-header">
+            <a class="github-link" href="https://github.com/yimengjiuan/Mystic-Arcana" target="_blank" rel="noopener" title="GitHub">
+                <svg fill="currentColor" viewBox="0 0 24 24" width="22" height="22" xmlns="http://www.w3.org/2000/svg"><path d="M12 0c6.63 0 12 5.276 12 11.79-.001 5.067-3.29 9.567-8.175 11.187-.6.118-.825-.25-.825-.56 0-.398.015-1.665.015-3.242 0-1.105-.375-1.813-.81-2.181 2.67-.295 5.475-1.297 5.475-5.822 0-1.297-.465-2.344-1.23-3.169.12-.295.54-1.503-.12-3.125 0 0-1.005-.324-3.3 1.209a11.32 11.32 0 00-3-.398c-1.02 0-2.04.133-3 .398-2.295-1.518-3.3-1.209-3.3-1.209-.66 1.622-.24 2.83-.12 3.125-.765.825-1.23 1.887-1.23 3.169 0 4.51 2.79 5.527 5.46 5.822-.345.294-.66.81-.765 1.577-.69.31-2.415.81-3.495-.973-.225-.354-.9-1.223-1.845-1.209-1.005.015-.405.56.015.781.51.28 1.095 1.327 1.23 1.666.24.663 1.02 1.93 4.035 1.385 0 .988.015 1.916.015 2.196 0 .31-.225.664-.825.56C3.303 21.374-.003 16.867 0 11.791 0 5.276 5.37 0 12 0z"></path></svg>
+            </a>
+            <h1 class="portal-title">玄 机 阁</h1>
+            <div class="portal-subtitle">东方术数 · 西方星语</div>
+        </header>
+        <main class="portal-main">
+            <!-- 左：西边（西式星语 · 月轮当空） -->
+            <a class="portal-card portal-western" data-side="western" data-target="moon" href="#/western">
+                <div class="portal-card-bg"></div>
+                <div class="portal-celestial portal-moon" aria-hidden="true">
+                    <svg class="moon-svg" viewBox="-120 -120 240 240">
+                        <defs>
+                            <radialGradient id="moonHalo" cx="50%" cy="50%" r="50%">
+                                <stop offset="0%" stop-color="#A8DADC" stop-opacity=".55"/>
+                                <stop offset="60%" stop-color="#9B7BC4" stop-opacity=".18"/>
+                                <stop offset="100%" stop-color="#9B7BC4" stop-opacity="0"/>
+                            </radialGradient>
+                            <radialGradient id="moonBody" cx="38%" cy="38%" r="62%">
+                                <stop offset="0%" stop-color="#FBFCFE"/>
+                                <stop offset="55%" stop-color="#D6E4F0"/>
+                                <stop offset="100%" stop-color="#A8DADC"/>
+                            </radialGradient>
+                            <radialGradient id="moonShadow" cx="65%" cy="50%" r="50%">
+                                <stop offset="0%" stop-color="#070B1A" stop-opacity=".95"/>
+                                <stop offset="100%" stop-color="#070B1A" stop-opacity="0"/>
+                            </radialGradient>
+                        </defs>
+                        <circle class="moon-halo" cx="0" cy="0" r="110" fill="url(#moonHalo)"/>
+                        <circle cx="0" cy="0" r="46" fill="url(#moonBody)"/>
+                        <circle cx="-14" cy="-12" r="8" fill="#A8DADC" opacity=".35"/>
+                        <circle cx="10" cy="6" r="5" fill="#A8DADC" opacity=".28"/>
+                        <circle cx="-4" cy="18" r="4" fill="#A8DADC" opacity=".30"/>
+                        <circle cx="18" cy="-18" r="3" fill="#A8DADC" opacity=".25"/>
+                        <circle class="moon-shadow" cx="22" cy="0" r="44" fill="url(#moonShadow)"/>
+                        <g class="moon-stars">
+                            <circle class="star" cx="78" cy="-22" r="1.6" fill="#FBFCFE"/>
+                            <circle class="star" cx="62" cy="46" r="1.2" fill="#A8DADC"/>
+                            <circle class="star" cx="92" cy="14" r="2" fill="#F5C563"/>
+                            <circle class="star" cx="48" cy="-78" r="1.1" fill="#A8DADC"/>
+                            <circle class="star" cx="-86" cy="-58" r="1.4" fill="#D6E4F0"/>
+                            <circle class="star" cx="-92" cy="42" r="1" fill="#A8DADC"/>
+                            <circle class="star" cx="-64" cy="78" r="1.3" fill="#FBFCFE"/>
+                            <circle class="star" cx="86" cy="-66" r="1" fill="#9B7BC4"/>
+                        </g>
+                    </svg>
+                </div>
+                <div class="portal-card-content">
+                    <div class="content-top">
+                        <div class="portal-card-icon">✦</div>
+                        <h2 class="portal-card-title">西 式 星 语</h2>
+                        <div class="portal-card-en">Western Astrology · 月华之境</div>
+                    </div>
+                    <div class="content-mid"></div>
+                    <div class="content-bottom">
+                        <ul class="portal-card-list">
+                            <li>本命星盘 · 圆形盘面排盘</li>
+                            <li>十二星座 · 详解弹窗 · 性格/爱情/事业</li>
+                            <li>合盘对照 · 双盘互动</li>
+                            <li>塔罗占卜 · 78 张全牌 / 22 张大阿卡纳 · AI 解语</li>
+                        </ul>
+                        <div class="portal-card-cta">进 入 星 域 →</div>
+                    </div>
+                </div>
+            </a>
+            <!-- 右：东边（中式命理 · 旭日东升） -->
+            <a class="portal-card portal-chinese" data-side="chinese" data-target="sun" href="#/chinese">
+                <div class="portal-card-bg"></div>
+                <div class="portal-celestial portal-sun" aria-hidden="true">
+                    <svg class="sun-svg" viewBox="-120 -120 240 240">
+                        <defs>
+                            <radialGradient id="sunCore" cx="50%" cy="50%" r="50%">
+                                <stop offset="0%" stop-color="#FFF6CC"/>
+                                <stop offset="35%" stop-color="#F5C563"/>
+                                <stop offset="75%" stop-color="#E87575"/>
+                                <stop offset="100%" stop-color="#C03F3C" stop-opacity="0"/>
+                            </radialGradient>
+                            <radialGradient id="sunHalo" cx="50%" cy="50%" r="50%">
+                                <stop offset="0%" stop-color="#F5C563" stop-opacity=".55"/>
+                                <stop offset="60%" stop-color="#C03F3C" stop-opacity=".18"/>
+                                <stop offset="100%" stop-color="#C03F3C" stop-opacity="0"/>
+                            </radialGradient>
+                            <linearGradient id="sunRay" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#F5C563" stop-opacity="0"/>
+                                <stop offset="30%" stop-color="#F5C563" stop-opacity=".85"/>
+                                <stop offset="100%" stop-color="#E87575" stop-opacity=".4"/>
+                            </linearGradient>
+                        </defs>
+                        <circle class="sun-halo" cx="0" cy="0" r="110" fill="url(#sunHalo)"/>
+                        <g class="sun-rays">
+                            <line x1="0" y1="-46" x2="0" y2="-86" stroke="url(#sunRay)" stroke-width="3.5" stroke-linecap="round"/>
+                            <line x1="0" y1="-46" x2="0" y2="-86" stroke="url(#sunRay)" stroke-width="3.5" stroke-linecap="round" transform="rotate(30)"/>
+                            <line x1="0" y1="-46" x2="0" y2="-86" stroke="url(#sunRay)" stroke-width="3.5" stroke-linecap="round" transform="rotate(60)"/>
+                            <line x1="0" y1="-46" x2="0" y2="-86" stroke="url(#sunRay)" stroke-width="3.5" stroke-linecap="round" transform="rotate(90)"/>
+                            <line x1="0" y1="-46" x2="0" y2="-86" stroke="url(#sunRay)" stroke-width="3.5" stroke-linecap="round" transform="rotate(120)"/>
+                            <line x1="0" y1="-46" x2="0" y2="-86" stroke="url(#sunRay)" stroke-width="3.5" stroke-linecap="round" transform="rotate(150)"/>
+                            <line x1="0" y1="-46" x2="0" y2="-86" stroke="url(#sunRay)" stroke-width="3.5" stroke-linecap="round" transform="rotate(180)"/>
+                            <line x1="0" y1="-46" x2="0" y2="-86" stroke="url(#sunRay)" stroke-width="3.5" stroke-linecap="round" transform="rotate(210)"/>
+                            <line x1="0" y1="-46" x2="0" y2="-86" stroke="url(#sunRay)" stroke-width="3.5" stroke-linecap="round" transform="rotate(240)"/>
+                            <line x1="0" y1="-46" x2="0" y2="-86" stroke="url(#sunRay)" stroke-width="3.5" stroke-linecap="round" transform="rotate(270)"/>
+                            <line x1="0" y1="-46" x2="0" y2="-86" stroke="url(#sunRay)" stroke-width="3.5" stroke-linecap="round" transform="rotate(300)"/>
+                            <line x1="0" y1="-46" x2="0" y2="-86" stroke="url(#sunRay)" stroke-width="3.5" stroke-linecap="round" transform="rotate(330)"/>
+                        </g>
+                        <circle class="sun-core" cx="0" cy="0" r="40" fill="url(#sunCore)"/>
+                    </svg>
+                </div>
+                <div class="portal-card-content">
+                    <div class="content-top">
+                        <div class="portal-card-icon">☯</div>
+                        <h2 class="portal-card-title">中 式 命 理</h2>
+                        <div class="portal-card-en">Chinese Metaphysics · 太阳之域</div>
+                    </div>
+                    <div class="content-mid"></div>
+                    <div class="content-bottom">
+                        <ul class="portal-card-list">
+                            <li>八卦六爻 · 梅花易数</li>
+                            <li>四柱八字 · 紫微斗数</li>
+                            <li>小六壬 · 周易卦辞</li>
+                            <li>综合评分 · DeepSeek AI 解卦</li>
+                        </ul>
+                        <div class="portal-card-cta">进 入 玄 界 →</div>
+                    </div>
+                </div>
+            </a>
+        </main>
+        <footer class="portal-footer">
+            <p>玄机阁·仅供文化研究与术数学习参考</p>
+            <p class="opensource-notice">本项目<a href="https://github.com/yimengjiuan/Mystic-Arcana" target="_blank" rel="noopener">开源免费</a>·禁止商业倒卖</p>
+        </footer>
+    </div>
+
+    <!-- ============================================================
+         中式命理（#/chinese）：保留全部现有逻辑
+         ============================================================ -->
+    <div id="chinese-root" class="app-root" style="display:none">
+        <header>
+            <a class="github-link" href="https://github.com/yimengjiuan/Mystic-Arcana" target="_blank" rel="noopener" title="GitHub">
+                <svg fill="currentColor" viewBox="0 0 24 24" width="22" height="22" xmlns="http://www.w3.org/2000/svg"><path d="M12 0c6.63 0 12 5.276 12 11.79-.001 5.067-3.29 9.567-8.175 11.187-.6.118-.825-.25-.825-.56 0-.398.015-1.665.015-3.242 0-1.105-.375-1.813-.81-2.181 2.67-.295 5.475-1.297 5.475-5.822 0-1.297-.465-2.344-1.23-3.169.12-.295.54-1.503-.12-3.125 0 0-1.005-.324-3.3 1.209a11.32 11.32 0 00-3-.398c-1.02 0-2.04.133-3 .398-2.295-1.518-3.3-1.209-3.3-1.209-.66 1.622-.24 2.83-.12 3.125-.765.825-1.23 1.887-1.23 3.169 0 4.51 2.79 5.527 5.46 5.822-.345.294-.66.81-.765 1.577-.69.31-2.415.81-3.495-.973-.225-.354-.9-1.223-1.845-1.209-1.005.015-.405.56.015.781.51.28 1.095 1.327 1.23 1.666.24.663 1.02 1.93 4.035 1.385 0 .988.015 1.916.015 2.196 0 .31-.225.664-.825.56C3.303 21.374-.003 16.867 0 11.791 0 5.276 5.37 0 12 0z"></path></svg>
+            </a>
+            <a class="back-link" href="#/" title="返回主入口">← 主入口</a>
+            <h1>玄 界</h1>
+            <div class="subtitle">五起卦·六面板·综合分析</div>
+        </header>
+        <main>
+            <section class="form-section">
+                <h2>起卦参数</h2>
+                <div class="form-grid time-grid">
+                    <span class="time-hint">请使用阳历（公历）时间输入</span>
+                    <label>年<input id="year" type="number" value="2000"></label>
+                    <label>月<input id="month" type="number" value="1" min="1" max="12"></label>
+                    <label>日<input id="day" type="number" value="1" min="1" max="31"></label>
+                    <label>时<input id="hour" type="number" value="12" min="0" max="23"></label>
+                    <label>秒<input id="second" type="number" value="0" min="0" max="59"></label>
+                </div>
+                <div class="form-grid">
+                    <label>起卦方式<select id="method">
+                            <option value="time">时间起卦</option>
+                            <option value="number">数字起卦</option>
+                            <option value="meihua">梅花易数</option>
+                            <option value="zaobi">蓍草占卜</option>
+                            <option value="cuanke">铜钱摇卦</option>
+                        </select></label>
+                    <label>数字/铜钱<input id="nums" type="text" placeholder="如5,10"></label>
+                </div>
+                <label class="full-label">起卦依据<select id="basis">
+                        <option value="time" selected>仅时间</option>
+                        <option value="time_bazi">时间+八字</option>
+                        <option value="bazi">仅八字</option>
                     </select></label>
-                <label>数字/铜钱<input id="nums" type="text" placeholder="如5,10"></label>
-            </div>
-            <label class="full-label">起卦依据<select id="basis">
-                    <option value="time" selected>仅时间</option>
-                    <option value="time_bazi">时间+八字</option>
-                    <option value="bazi">仅八字</option>
-                </select></label>
-            <div id="birth-block" class="form-grid time-grid" style="display:none;margin-top:14px">
-                <label>生辰年<input id="byear" type="number" value="1990"></label>
-                <label>生辰月<input id="bmonth" type="number" value="1" min="1" max="12"></label>
-                <label>生辰日<input id="bday" type="number" value="1" min="1" max="31"></label>
-                <label>生辰时<input id="bhour" type="number" value="12" min="0" max="23"></label>
-                <label>生辰秒<input id="bsecond" type="number" value="0" min="0" max="59"></label>
-                <label>性别<select id="gender">
-                        <option>男</option>
-                        <option>女</option>
-                    </select></label>
-            </div>
-            <label class="full-label">所问之事<textarea id="question" rows="2" placeholder="请输入您想问的问题"></textarea></label>
-            <label class="full-label">DeepSeek Key<small style="font-size:11px;color:var(--ink-d);opacity:.8;margin-top:4px;letter-spacing:1px">仅在本会话内直连 DeepSeek 官方接口，不发送至本站服务器，也不会上传或保存。</small><input id="apikey" type="password" placeholder="sk-..."></label>
-            <button id="run-btn">排 盘</button>
-        </section>
-        <div id="output"></div>
-        <section class="compare-section" id="compare-section" style="display:none">
-            <h2>横向比对</h2>
-            <div class="compare-tabs" id="compare-tabs"></div>
-            <div class="compare-table-wrap">
-                <table class="compare-table" id="compare-table"></table>
-            </div>
-        </section>
-    </main>
-    <footer>
-        <p>玄机阁·仅供文化研究与术数学习参考</p>
-        <p class="opensource-notice">本项目<a href="https://github.com/yimengjiuan/Mystic-Arcana" target="_blank" rel="noopener">开源免费</a>·禁止商业倒卖</p>
-    </footer>
+                <div id="birth-block" class="form-grid time-grid" style="display:none;margin-top:14px">
+                    <span class="time-hint">请使用阳历（公历）时间输入</span>
+                    <label>生辰年<input id="byear" type="number" value="1990"></label>
+                    <label>生辰月<input id="bmonth" type="number" value="1" min="1" max="12"></label>
+                    <label>生辰日<input id="bday" type="number" value="1" min="1" max="31"></label>
+                    <label>生辰时<input id="bhour" type="number" value="12" min="0" max="23"></label>
+                    <label>生辰秒<input id="bsecond" type="number" value="0" min="0" max="59"></label>
+                    <label>性别<select id="gender">
+                            <option>男</option>
+                            <option>女</option>
+                        </select></label>
+                </div>
+                <label class="full-label">所问之事<textarea id="question" rows="2" placeholder="请输入您想问的问题"></textarea></label>
+                <label class="full-label">DeepSeek Key<small style="font-size:11px;color:var(--ink-d);opacity:.8;margin-top:4px;letter-spacing:1px">仅在本会话内直连 DeepSeek 官方接口，不发送至本站服务器，也不会上传或保存。</small><input id="apikey" type="password" placeholder="sk-..."></label>
+                <button id="run-btn">排 盘</button>
+            </section>
+            <div id="output"></div>
+            <section class="compare-section" id="compare-section" style="display:none">
+                <h2>横向比对</h2>
+                <div class="compare-tabs" id="compare-tabs"></div>
+                <div class="compare-table-wrap">
+                    <table class="compare-table" id="compare-table"></table>
+                </div>
+            </section>
+        </main>
+        <footer>
+            <p>玄机阁·仅供文化研究与术数学习参考</p>
+            <p class="opensource-notice">本项目<a href="https://github.com/yimengjiuan/Mystic-Arcana" target="_blank" rel="noopener">开源免费</a>·禁止商业倒卖</p>
+        </footer>
+    </div>
+
+    <!-- ============================================================
+         西式星语（#/western）
+         ============================================================ -->
+    <div id="western-root" class="app-root western-root" style="display:none">
+        <header>
+            <a class="github-link" href="https://github.com/yimengjiuan/Mystic-Arcana" target="_blank" rel="noopener" title="GitHub">
+                <svg fill="currentColor" viewBox="0 0 24 24" width="22" height="22" xmlns="http://www.w3.org/2000/svg"><path d="M12 0c6.63 0 12 5.276 12 11.79-.001 5.067-3.29 9.567-8.175 11.187-.6.118-.825-.25-.825-.56 0-.398.015-1.665.015-3.242 0-1.105-.375-1.813-.81-2.181 2.67-.295 5.475-1.297 5.475-5.822 0-1.297-.465-2.344-1.23-3.169.12-.295.54-1.503-.12-3.125 0 0-1.005-.324-3.3 1.209a11.32 11.32 0 00-3-.398c-1.02 0-2.04.133-3 .398-2.295-1.518-3.3-1.209-3.3-1.209-.66 1.622-.24 2.83-.12 3.125-.765.825-1.23 1.887-1.23 3.169 0 4.51 2.79 5.527 5.46 5.822-.345.294-.66.81-.765 1.577-.69.31-2.415.81-3.495-.973-.225-.354-.9-1.223-1.845-1.209-1.005.015-.405.56.015.781.51.28 1.095 1.327 1.23 1.666.24.663 1.02 1.93 4.035 1.385 0 .988.015 1.916.015 2.196 0 .31-.225.664-.825.56C3.303 21.374-.003 16.867 0 11.791 0 5.276 5.37 0 12 0z"></path></svg>
+            </a>
+            <a class="back-link" href="#/" title="返回主入口">← 主入口</a>
+            <h1>星 域</h1>
+            <div class="subtitle">Astrology · Tarot · Synastry</div>
+        </header>
+        <main>
+            <nav class="w-tabs">
+                <button class="w-tab active" data-tab="chart">本命星盘</button>
+                <button class="w-tab" data-tab="sunsign">十二星座</button>
+                <button class="w-tab" data-tab="synastry">合盘</button>
+                <button class="w-tab" data-tab="tarot">塔罗</button>
+            </nav>
+
+            <!-- 1. 本命星盘 -->
+            <section class="w-pane" id="w-pane-chart">
+                <section class="w-form-section">
+                    <h2>出生信息（公历）</h2>
+                    <div class="w-form-grid">
+                        <label>年<input id="w-year" type="number" value="1990"></label>
+                        <label>月<input id="w-month" type="number" value="6" min="1" max="12"></label>
+                        <label>日<input id="w-day" type="number" value="15" min="1" max="31"></label>
+                        <label>时<input id="w-hour" type="number" value="14" min="0" max="23"></label>
+                        <label>分<input id="w-minute" type="number" value="30" min="0" max="59"></label>
+                    </div>
+                    <div class="w-form-grid">
+                        <label>时区（小时）<input id="w-tz" type="number" value="8" step="0.5"></label>
+                        <label>经度（°）<input id="w-lon" type="number" value="121.47" step="0.01"></label>
+                        <label>纬度（°）<input id="w-lat" type="number" value="31.23" step="0.01"></label>
+                    </div>
+                    <!-- 城市定位：独立一栏，国家 → 省份 → 城市 级联选择，自动填充时区/经度/纬度 -->
+                    <div class="w-location">
+                        <span class="w-location-label">城市定位</span>
+                        <div class="w-location-selects">
+                            <label>国家<select id="w-country"></select></label>
+                            <label>省份<select id="w-province"></select></label>
+                            <label>城市<select id="w-city"></select></label>
+                        </div>
+                    </div>
+                    <label class="w-full-label">所问之事（可选）<textarea id="w-question" rows="2" placeholder="想具体了解哪方面？"></textarea></label>
+                    <label class="w-full-label">DeepSeek Key<small style="font-size:11px;color:var(--ink-d);opacity:.8;margin-top:4px;letter-spacing:1px">仅在本会话内直连 DeepSeek 官方接口。</small><input id="w-apikey" type="password" placeholder="sk-..."></label>
+                    <div class="w-btns">
+                        <button id="w-run-btn" class="w-run">排 盘</button>
+                        <button id="w-ai-btn" class="w-ai">AI 解 语</button>
+                    </div>
+                </section>
+                <div id="w-chart-out"></div>
+            </section>
+
+            <!-- 2. 十二星座 -->
+            <section class="w-pane" id="w-pane-sunsign" style="display:none">
+                <h2 class="w-section-title">十二星座</h2>
+                <div id="w-sunsign-out"></div>
+            </section>
+
+            <!-- 3. 合盘 -->
+            <section class="w-pane" id="w-pane-synastry" style="display:none">
+                <section class="w-form-section">
+                    <h2>A 盘出生信息</h2>
+                    <div class="w-form-grid">
+                        <label>年<input id="wa-year" type="number" value="1992"></label>
+                        <label>月<input id="wa-month" type="number" value="3" min="1" max="12"></label>
+                        <label>日<input id="wa-day" type="number" value="21" min="1" max="31"></label>
+                        <label>时<input id="wa-hour" type="number" value="10" min="0" max="23"></label>
+                        <label>分<input id="wa-minute" type="number" value="0" min="0" max="59"></label>
+                    </div>
+                    <div class="w-form-grid">
+                        <label>时区<input id="wa-tz" type="number" value="8" step="0.5"></label>
+                        <label>经度<input id="wa-lon" type="number" value="121.47" step="0.01"></label>
+                        <label>纬度<input id="wa-lat" type="number" value="31.23" step="0.01"></label>
+                    </div>
+                </section>
+                <section class="w-form-section">
+                    <h2>B 盘出生信息</h2>
+                    <div class="w-form-grid">
+                        <label>年<input id="wb-year" type="number" value="1994"></label>
+                        <label>月<input id="wb-month" type="number" value="8" min="1" max="12"></label>
+                        <label>日<input id="wb-day" type="number" value="5" min="1" max="31"></label>
+                        <label>时<input id="wb-hour" type="number" value="20" min="0" max="23"></label>
+                        <label>分<input id="wb-minute" type="number" value="15" min="0" max="59"></label>
+                    </div>
+                    <div class="w-form-grid">
+                        <label>时区<input id="wb-tz" type="number" value="8" step="0.5"></label>
+                        <label>经度<input id="wb-lon" type="number" value="121.47" step="0.01"></label>
+                        <label>纬度<input id="wb-lat" type="number" value="31.23" step="0.01"></label>
+                    </div>
+                    <label class="w-full-label">DeepSeek Key<small style="font-size:11px;color:var(--ink-d);opacity:.8;margin-top:4px;letter-spacing:1px">仅在本会话内直连 DeepSeek 官方接口。</small><input id="w-syn-ai-key" type="password" placeholder="sk-..."></label>
+                    <div class="w-btns">
+                        <button id="w-syn-run" class="w-run">合 盘 对 照</button>
+                        <button id="w-syn-ai-btn" class="w-ai">AI 解 语</button>
+                    </div>
+                </section>
+                <div id="w-synastry-out"></div>
+            </section>
+
+            <!-- 4. 塔罗 -->
+            <section class="w-pane" id="w-pane-tarot" style="display:none">
+                <section class="w-form-section">
+                    <h2>塔罗抽牌</h2>
+                    <div class="w-form-grid">
+                        <label>牌阵<select id="w-spread">
+                            <optgroup label="入门">
+                                <option value="daily">每日一牌（1 张）</option>
+                                <option value="three" selected>三牌阵（3 张）</option>
+                            </optgroup>
+                            <optgroup label="经典">
+                                <option value="one">单牌阵（1 张）</option>
+                                <option value="celtic">凯尔特十字（10 张）</option>
+                                <option value="cross5">吉普赛十字（5 张）</option>
+                            </optgroup>
+                            <optgroup label="综合">
+                                <option value="star">六芒星牌阵（7 张）</option>
+                            </optgroup>
+                            <optgroup label="感情">
+                                <option value="relationship">关系牌阵（6 张）</option>
+                                <option value="love">爱情关系牌阵（7 张）</option>
+                                <option value="pyramid">爱情金字塔（4 张）</option>
+                            </optgroup>
+                            <optgroup label="事业">
+                                <option value="career">事业规划牌阵（7 张）</option>
+                            </optgroup>
+                            <optgroup label="年度">
+                                <option value="year">年度运势牌阵（12 张）</option>
+                                <option value="seasons">四季牌阵（4 张）</option>
+                            </optgroup>
+                            <optgroup label="灵性">
+                                <option value="chakra">脉轮牌阵（7 张）</option>
+                                <option value="planets">七行星牌阵（7 张）</option>
+                            </optgroup>
+                            <optgroup label="决策">
+                                <option value="decision">决策牌阵（5 张）</option>
+                                <option value="twochoices">二择一牌阵（5 张）</option>
+                            </optgroup>
+                            <optgroup label="速查">
+                                <option value="yesno">是非牌阵（1~3 张）</option>
+                            </optgroup>
+                            <optgroup label="进阶">
+                                <option value="horseshoe">马蹄阵（7 张）</option>
+                            </optgroup>
+                        </select></label>
+                        <label id="w-tarot-count-wrap" style="display:none">抽几张<select id="w-tarot-count">
+                            <option value="1" selected>1 张（快速）</option>
+                            <option value="2">2 张</option>
+                            <option value="3">3 张（完整）</option>
+                        </select></label>
+                        <label>牌组<select id="w-tarot-deck">
+                            <option value="full" selected>完整 78 张（大 + 小阿卡纳）</option>
+                            <option value="major">大阿卡纳 22 张</option>
+                        </select></label>
+                    </div>
+                    <p class="w-form-hint" id="w-tarot-hint">请选择牌阵并输入所问之事，再点击「开始占卜」展开全部 78 张塔罗牌。</p>
+                    <label class="w-full-label">所问之事<textarea id="w-tarot-q" rows="2" placeholder="想问什么，心里默念即可…"></textarea></label>
+                    <label class="w-full-label">DeepSeek Key<small style="font-size:11px;color:var(--ink-d);opacity:.8;margin-top:4px;letter-spacing:1px">仅在本会话内直连 DeepSeek 官方接口，填入后抽完牌会自动 AI 解语。</small><input id="w-tarot-apikey" type="password" placeholder="sk-..."></label>
+                    <div class="w-btns">
+                        <button id="w-tarot-run" class="w-run">开 始 占 卜</button>
+                        <button id="w-tarot-reset" class="w-run" style="display:none">再 次 占 卜</button>
+                        <button id="w-tarot-ai-btn" class="w-ai" style="display:none">AI 解 语</button>
+                    </div>
+                </section>
+                <div id="w-tarot-out">
+                    <div id="w-tarot-fan"></div>
+                    <div id="w-tarot-confirm">
+                        <span class="w-tarot-confirm-text">确认抽取这张牌吗？抽到即为定数，不可反悔。</span>
+                        <div class="w-tarot-confirm-btns">
+                            <button type="button" id="w-tarot-confirm-yes" class="w-run">确 认 抽 取</button>
+                            <button type="button" id="w-tarot-confirm-no" class="w-ai">再 想 想</button>
+                        </div>
+                    </div>
+                    <div id="w-tarot-drawn">
+                        <div class="w-tarot-drawn-cards"></div>
+                        <div class="w-tarot-drawn-count">已抽 0 张</div>
+                    </div>
+                    <div id="w-tarot-slot"></div>
+                </div>
+            </section>
+        </main>
+        <footer>
+            <p>玄机阁·仅供文化研究与术数学习参考</p>
+            <p class="opensource-notice">本项目<a href="https://github.com/yimengjiuan/Mystic-Arcana" target="_blank" rel="noopener">开源免费</a>·禁止商业倒卖</p>
+        </footer>
+    </div>
+
     <script type="module" src="./ui/main.js"></script>
 </body>
 

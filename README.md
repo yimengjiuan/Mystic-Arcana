@@ -4,9 +4,9 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.4-blue)
 ![Node](https://img.shields.io/badge/Node-20+-green)
 ![Version](https://img.shields.io/badge/version-1.0.0-orange)
-![Coverage](https://img.shields.io/badge/coverage-84%25-brightgreen)
+![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)
 
-一个中国传统术数排盘引擎与可视化工具，纯 TypeScript 实现，支持 **5 种起卦方式**、**6 种术数面板**与**综合趋势分析**，内置 Web UI 与 AI 解卦能力。
+一个中西合璧的术数排盘引擎与可视化工具，纯 TypeScript 实现。**中式命理**支持 **5 种起卦方式**、**6 种术数面板**与**综合趋势分析**；**西式星语**提供 **星盘排盘**、**星座**、**合盘**、**AI 解语**与 **塔罗占卜**。内置 Web UI（双门户入口）与 AI 解读能力。
 
 > **个人娱乐项目**，借助 AI 工具辅助完成，排盘结果仅供娱乐参考，力求严谨、努力向专业靠拢。详见末尾[免责声明](#免责声明)。
 
@@ -16,7 +16,7 @@
 
 **[https://yimengjiuan.github.io/Mystic-Arcana/](https://yimengjiuan.github.io/Mystic-Arcana/)**
 
-> 首次访问需等待 GitHub Actions 构建部署完成（推送到 main 后约 1-2 分钟）。AI 解卦功能需在界面内自行填入 DeepSeek API Key。页面加载时自动通过世界时间 API 校准初始时间。
+> 首次访问需等待 GitHub Actions 构建部署完成（推送到 main 后约 1-2 分钟）。AI 解卦 / 星盘解语功能需在界面内自行填入 DeepSeek API Key。页面加载时自动通过世界时间 API 校准初始时间。
 
 ## 功能概览
 
@@ -59,6 +59,19 @@
 - **风险提醒**：需注意的事项
 - **行动建议**：趋避方向
 
+### 西式星语（占星 + 塔罗）
+
+主入口左侧门户，遵循西方神秘学理论体系，包含四大能力：
+
+| 能力 | 标识 | 说明 |
+|------|------|------|
+| **星盘排盘** | `natalChart` | 输入出生时间/地点/时区，计算 10 行星黄经、上升点 ASC、天顶 MC、等宫制 12 宫、相位 |
+| **星座** | 星座资料 | 12 星座速查卡片 + 毛玻璃详解弹窗（性格/优点/缺点/爱情/事业/健康/幸运） |
+| **合盘** | `synastry` | 双盘 10×10 行星交叉相位，容许度放宽 +1° |
+| **塔罗占卜** | `createTarotDeck` 等 | 78 张全牌 / 22 张大阿卡纳双牌组，18 种牌阵，两段式确认抽牌 |
+
+星盘引擎为近似精度（纯前端、零依赖）：太阳 ±0.01°、月亮 ±0.1°、外行星 <1°（NASA JPL 开普勒根数，1800–2050 有效），ASC/MC 采用标准恒星时公式，宫位制为等宫制。算法实现与精度已通过 3 组公开权威名人星盘实例（Rodden AA 评级）对照验证，详见 [tests/chart.test.ts](./tests/chart.test.ts)。
+
 ## 技术栈
 
 - **语言**：TypeScript 5.4（ESM）
@@ -66,7 +79,7 @@
 - **构建工具**：TypeScript Compiler（tsc）
 - **测试框架**：Node.js 原生测试运行器 + tsx
 - **Web UI**：原生 HTML/CSS/TS，零运行时框架依赖
-- **AI 解卦**：DeepSeek Chat API（可选）
+- **AI 解卦 / 星盘解语**：DeepSeek Chat API（可选）
 - **时间校准**：uapis.cn 世界时间 API，静态部署下自动获取准确时区时间
 
 ## 项目结构
@@ -90,11 +103,15 @@ Mystic-Arcana/
 │   ├── data/
 │   │   ├── hexagrams.ts         # 64 卦与八卦数据
 │   │   ├── lunar.ts             # 农历转换算法
-│   │   └── najia.ts             # 纳甲（干支配卦）数据
+│   │   ├── najia.ts             # 纳甲（干支配卦）数据
+│   │   └── western.ts           # 西式：星座/行星/宫位/相位/牌阵/塔罗牌数据
 │   ├── analysis/
 │   │   └── synthesizer.ts       # 综合分析引擎
+│   ├── western.ts               # 西式星语引擎（星盘/合盘/塔罗）
 │   └── ui/
-│       ├── main.ts              # Web UI 主程序
+│       ├── main.ts              # Web UI 主程序（双门户：中式命理 / 西式星语）
+│       ├── western.ts           # 西式星语面板渲染（星盘 SVG/合盘/塔罗/解语）
+│       ├── cities.ts            # 城市经纬度与时区数据
 │       ├── index.html           # 界面布局
 │       ├── style.css            # 样式表
 │       └── assets/              # 静态资源（GitHub 图标等）
@@ -103,7 +120,9 @@ Mystic-Arcana/
 │   ├── cases.test.ts            # 实战卦象验证用例（5 大场景）
 │   ├── liuyao.test.ts           # 六爻纳甲标准案例（6 卦）
 │   ├── synthesis.test.ts        # 综合分析评分测试
-│   └── ziwei.test.ts            # 紫微斗数排盘测试（14 项 + 6 标准用例）
+│   ├── ziwei.test.ts            # 紫微斗数排盘测试（14 项 + 6 标准用例）
+│   ├── tarot.test.ts            # 塔罗洗牌/抽取/牌阵测试（11 项）
+│   └── chart.test.ts            # 星盘/合盘对照权威实例验证（9 项）
 ├── scripts/
 │   ├── serve.mjs                # 本地预览服务器
 │   ├── copy-ui.mjs              # UI 构建资源拷贝
@@ -143,7 +162,7 @@ npm test
 npm run coverage
 ```
 
-测试套件共 **41 项**，覆盖 5 个文件：
+测试套件共 **61 项**，覆盖 7 个文件：
 
 | 测试文件 | 项数 | 验证内容 |
 |----------|------|----------|
@@ -152,8 +171,10 @@ npm run coverage
 | `liuyao.test.ts` | 6 | 六爻纳甲标准案例（天地否/雷天大壮/雷风恒/山水蒙/山风蛊） |
 | `synthesis.test.ts` | 6 | 综合分析评分系统（体用生克、用克体、趋势映射） |
 | `ziwei.test.ts` | 20 | 紫微斗数排盘（命宫/身宫/五行局/十四主星/四化/大限 + 6 标准用例） |
+| `tarot.test.ts` | 11 | 塔罗洗牌随机性、正逆位、牌组模式、抽取与牌阵构造 |
+| `chart.test.ts` | 9 | 星盘/合盘对照权威实例（奥巴马/米歇尔/特朗普，行星/ASC/MC/相位/逆行/宫位） |
 
-当前覆盖率：**行 84% / 分支 79% / 函数 95%**。
+当前覆盖率：**行 90% / 分支 81% / 函数 96%**。
 
 | 实战案例 | 场景 | 主卦 | 动爻 | 变卦 | 验证要点 |
 |----------|------|------|------|------|----------|
@@ -249,16 +270,70 @@ fullPaipan(input, 'cuanke', [2, 1, 3, 0, 2, 1]);
 fullPaipan(input, 'zaobi', [], 42);
 ```
 
+### 西式星语 API
+
+#### `natalChart(birth)` — 星盘排盘
+
+输入出生信息，返回完整星盘：10 行星黄经、ASC/MC、等宫制 12 宫与相位。
+
+```typescript
+import { natalChart } from 'mystic-arcana';
+
+const chart = natalChart({
+  year: 1990, month: 5, day: 20, hour: 14, minute: 30, second: 0,
+  longitude: 116.4,   // 出生地经度（东经为正，北京）
+  latitude: 39.9,     // 出生地纬度（北纬为正）
+  timezone: 8,        // 时区偏移（东八区 = +8）
+});
+
+// chart.sunSign       — 太阳星座
+// chart.ascendant     — 上升点（黄经 0-360）
+// chart.ascSign       — 上升星座
+// chart.midheaven     — 天顶 MC
+// chart.planets       — 10 行星（longitude/signId/degreeInSign/retrograde）
+// chart.houses        — 12 宫头（等宫制）
+// chart.aspects       — 本命相位（合/六合/刑/拱/冲）
+```
+
+#### `synastry(a, b)` — 合盘
+
+计算两盘之间 10×10 行星交叉相位，容许度较本命盘放宽 +1°。
+
+```typescript
+const aspects = synastry(chartA, chartB);
+// aspects  — 交叉相位数组（p1/p2/type/orb/nature）
+```
+
+#### `createTarotDeck` / `drawTarot` — 塔罗
+
+支持 78 张全牌与 22 张大阿卡纳两种牌组，18 种牌阵。
+
+```typescript
+// 整副 78 张（默认）
+const deck = createTarotDeck();
+// 仅大阿卡纳 22 张
+const deck22 = createTarotDeck('major');
+// 抽取凯尔特十字牌阵（10 张）
+const spread = drawTarot('celtic', deck);
+// spread.draws     — 按牌阵位置抽取的牌（含正逆位）
+// spread.spreadId  — 牌阵标识
+```
+
 ## Web UI 功能
 
 启动 `npm run serve` 后，界面提供：
 
+- **双门户主入口**：左侧「西式星语」✦ 与右侧「中式命理」☯ 双门户，默认黄昏配色；鼠标接近入口时全局 UI 渐变联动（日升/星夜配色、日月沿东西弧形轨迹移动）
 - **起卦配置**：选择起卦方式、依据、时间、数字/铜钱输入
 - **时间校准**：页面加载时自动通过世界时间 API 获取浏览器所在时区的准确时间，解决静态部署时系统时钟不准的问题
 - **生辰八字**：可选填出生时间，支持时间+八字叠加推演
 - **六面板渲染**：卦象可视化、四柱展示、六爻表格、紫微星盘等
+- **星盘面板**：出生时间/地点输入（含常用城市时区数据），SVG 星盘渲染（12 星座环、12 宫、行星、ASC/MC、5° 刻度），行星落座与相位解读
+- **十二星座面板**：12 星座速查卡片，点击展开毛玻璃详解弹窗（性格/优点/缺点/爱情/事业/健康/幸运）
+- **合盘面板**：双盘交叉相位解读
+- **塔罗面板**：牌组选择（78 张全牌 / 22 张大阿卡纳）、18 种牌阵、两段式确认抽牌、已抽区展示
 - **历史比对**：保存最近 8 次排盘，按总览/四柱/卦象/小六壬/综合分类横向对比
-- **AI 解卦**：填入 DeepSeek API Key 后可一键获取 AI 解卦分析
+- **AI 解卦/解语**：填入 DeepSeek API Key 后可一键获取 AI 解卦与星盘解语分析
 - **开源标识**：界面右上角 GitHub 图标链接，直达仓库源码
 - **响应式布局**：自适应桌面与移动端，比对表格在小屏下自动缩放与横向滚动
 
@@ -276,6 +351,18 @@ fullPaipan(input, 'zaobi', [], 42);
 | `QiGuaMethod` | 起卦方式联合类型 |
 | `QiGuaBasis` | 起卦依据联合类型 |
 
+西式星语类型（详见 [src/western.ts](./src/western.ts)）：
+
+| 类型 | 说明 |
+|------|------|
+| `BirthInfo` | 出生信息（公历年月日时刻 + 经度/纬度/时区偏移） |
+| `NatalChart` | 星盘结果（太阳星座/ASC/MC/10 行星/12 宫/相位） |
+| `PlanetPosition` | 行星位置（黄经/星座/宫内度数/逆行） |
+| `HousePosition` | 宫头位置（等宫制） |
+| `AspectResult` | 相位（合/六合/刑/拱/冲 + 容许度） |
+| `TarotDeckMode` | 塔罗牌组模式（`major` 22 张大阿卡纳 / `full` 78 张全牌） |
+| `TarotSpread` | 塔罗牌阵结果（按牌阵位置的抽取结果） |
+
 ## 部署
 
 项目内置 GitHub Pages 自动部署工作流（`.github/workflows/deploy-pages.yml`），推送到 `main` 分支后 CI 自动执行 `npm run build:ui` 构建，并将 `dist/` 目录部署为 GitHub Pages 静态站点。构建产物不再入库，仓库只保留源码。
@@ -292,6 +379,6 @@ MIT License
 
 ## 免责声明
 
-本项目仅为**个人娱乐项目**，旨在学习中国传统术数文化与 TypeScript 工程实践。项目开发过程中**借助了 AI 工具辅助完成**，所有排盘结果**仅供娱乐参考**，不构成任何专业预测、决策建议或命理咨询。
+本项目仅为**个人娱乐项目**，旨在学习中国传统术数与西方占星文化、TypeScript 工程实践。项目开发过程中**借助了 AI 工具辅助完成**，所有排盘结果**仅供娱乐参考**，不构成任何专业预测、决策建议或命理/占星咨询。
 
 作者非专业术数从业者，项目中的算法实现与解读逻辑力求严谨、努力向专业靠齐，但难免存在疏漏。请勿将本项目结果用于重大人生决策（如婚恋、投资、求职、健康等）。如有专业需求，请咨询持证命理师或相关领域专业人士。

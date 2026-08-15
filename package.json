@@ -1,7 +1,7 @@
 {
   "name": "mystic-arcana",
   "version": "1.0.0",
-  "description": "玄机阁术数排盘工具：5起卦+6面板+综合分析",
+  "description": "玄机阁中西术数排盘工具：5起卦+6面板+星盘/星座/合盘/塔罗",
   "type": "module",
   "license": "MIT",
   "author": "玄机阁",
@@ -22,6 +22,10 @@
     "liuyao",
     "ziwei",
     "chinese-metaphysics",
+    "astrology",
+    "tarot",
+    "natal-chart",
+    "synastry",
     "typescript"
   ],
   "engines": {
@@ -52,8 +56,9 @@
     "coverage": "node --import tsx --test --experimental-test-coverage tests/*.test.ts"
   },
   "devDependencies": {
-    "typescript": "^5.4.0",
+    "@types/node": "^20.10.0",
+    "playwright": "^1.62.1",
     "tsx": "^4.7.0",
-    "@types/node": "^20.10.0"
+    "typescript": "^5.4.0"
   }
 }
