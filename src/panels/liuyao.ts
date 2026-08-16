@@ -11,6 +11,19 @@ import { getHexagramByIndex } from '../data/hexagrams';
 /** 六神列表（按日干起算，日复一日循环） */
 const LIU_SHEN = ['青龙', '朱雀', '勾陈', '螣蛇', '白虎', '玄武'];
 
+/**
+ * 六神起例映射：日干 → 六神起始索引。
+ * 口诀「甲乙起青龙、丙丁起朱雀、戊起勾陈、己起螣蛇、庚辛起白虎、壬癸起玄武」。
+ */
+const SIX_SHEN_START: Record<string, number> = {
+  '甲': 0, '乙': 0, '丙': 1, '丁': 1, '戊': 2, '己': 3, '庚': 4, '辛': 4, '壬': 5, '癸': 5,
+};
+
+/** 八宫本宫卦（八纯卦）的卦序索引（依《周易》序卦传顺序，与 hexagrams.ts 一致） */
+const GONG_BENGONG: Record<string, number> = {
+  '乾': 1, '坤': 2, '坎': 29, '离': 30, '震': 51, '艮': 52, '巽': 57, '兑': 58,
+};
+
 /** 五行相生关系表（我生） */
 const SHENG_MAP: Record<string, string> = { '木': '火', '火': '土', '土': '金', '金': '水', '水': '木' };
 /** 五行相克关系表（我克） */
@@ -55,8 +68,7 @@ export function buildLiuYao(ben: Hexagram, dong: readonly number[], bazi: Bazi):
   const bianIdx = findChangedHexagram(ben.index, dong);
 
   // 伏神：以本卦所属宫位的本宫卦为伏神来源
-  const palaceIdx = ['乾', '坎', '艮', '震', '巽', '离', '坤', '兑'].indexOf(ben.palace);
-  const fuShi = Array.from({ length: 6 }, (_, i) => ({ hex: makeHex(palaceIdx * 8 + 1), line: i + 1 }));
+  const fuShi = Array.from({ length: 6 }, (_, i) => ({ hex: makeHex(GONG_BENGONG[ben.palace] ?? 1), line: i + 1 }));
 
   // 六亲推算：以宫位五行与各爻地支五行的生克关系判定
   const palaceEl = PALACE_WUXING[ben.palace] || '土';
@@ -71,8 +83,8 @@ export function buildLiuYao(ben: Hexagram, dong: readonly number[], bazi: Bazi):
     return { position: i + 1, liuQin: lq, ganZhi: l.tiangan + l.dizhi };
   });
 
-  // 六神：以日干序号为起点，逐爻循环配六神
-  const startIdx = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'].indexOf(bazi.day.gan);
+  // 六神：按日干起例确定起始六神，逐爻循环配六神
+  const startIdx = SIX_SHEN_START[bazi.day.gan] ?? 0;
   const liuShen = Array.from({ length: 6 }, (_, i) => LIU_SHEN[(startIdx + i) % 6]);
 
   // 生成概述

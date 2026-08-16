@@ -67,6 +67,9 @@ function lunarYearDays(year: number): number {
  * @returns 农历日期（年、月、日、是否闰月）
  */
 export function solarToLunar(y: number, m: number, d: number) {
+  if (y < 1900 || y > 2049) {
+    throw new Error(`农历转换仅支持 1900-2049 年（实际输入：${y} 年）`);
+  }
   let offset = Math.floor((Date.UTC(y, m - 1, d) - LUNAR_BASE) / 86400000);
   if (offset < 0) return { year: 1900, month: 1, day: 1, isLeap: false };
 

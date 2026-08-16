@@ -168,6 +168,32 @@
                     <label>时<input id="hour" type="number" value="12" min="0" max="23"></label>
                     <label>秒<input id="second" type="number" value="0" min="0" max="59"></label>
                 </div>
+                <div class="w-mode-switch">
+                    <span class="w-mode-label">真太阳时修正</span>
+                    <label class="w-mode-option"><input type="radio" name="c-coord-mode" value="off" checked> 不修正（用钟表时间）</label>
+                    <label class="w-mode-option"><input type="radio" name="c-coord-mode" value="loc"> 地区自动定位</label>
+                    <label class="w-mode-option"><input type="radio" name="c-coord-mode" value="manual"> 直接输入经纬度</label>
+                </div>
+                <div class="c-coord-hint">真太阳时：按出生地经度校正钟表时间（如乌鲁木齐与北京相差约 2 小时），影响八字日柱/时柱判定。选择「地区自动定位」或「直接输入经纬度」即启用修正。</div>
+                <div class="form-grid" id="c-coord-grid" style="display:none">
+                    <label>经度（°）<input id="c-lon" type="number" placeholder="东经，如 116.4；留空不修正" step="0.01"></label>
+                </div>
+                <!-- 城市定位：国家 → 省份 → 城市 级联选择，自动填充经度（真太阳时），逻辑与星域一致 -->
+                <div class="w-location" id="c-location" style="display:none">
+                    <span class="w-location-label">城市定位（自动填充经度）</span>
+                    <div class="w-location-selects">
+                        <label>国家<select id="c-country"></select></label>
+                        <label>省份<select id="c-province"></select></label>
+                        <label>城市<select id="c-city"></select></label>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <label>子时换日<select id="late-zishi">
+                            <option value="0" selected>零点换日（默认）</option>
+                            <option value="1">晚子时归次日（23点换日）</option>
+                        </select></label>
+                </div>
+                <div class="c-zishi-hint">子时换日流派：决定 23:00–24:00（晚子时）的日柱归属——「零点换日」日柱沿用当日（默认）；「晚子时归次日」日柱提前一日。多数专业软件默认 23 点换日；不确定时建议保持默认。</div>
                 <div class="form-grid">
                     <label>起卦方式<select id="method">
                             <option value="time">时间起卦</option>

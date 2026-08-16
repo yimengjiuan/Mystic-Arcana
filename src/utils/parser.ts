@@ -5,7 +5,7 @@
  */
 import { getHexagramByIndex, findHexagramByTrigrams, bitsToTrigramIdx, TRIGRAMS } from '../data/hexagrams';
 import { getNajia, parseNajia, hourToDizhi } from '../data/najia';
-import { yearGZ, monthGZ, dayGZ, hourGZ, getSolarMonth, getSolarTermYear, solarToLunar } from './calendar';
+import { yearGZ, monthGZ, dayGZ, hourGZ, getSolarMonth, getSolarTermYear, solarToLunar, trueSolarHour } from './calendar';
 
 /** 天干地支 -> 五行映射表 */
 const WUXING_MAP: Record<string, string> = {
@@ -69,20 +69,52 @@ export function modOrMax(n: number, mod: number): number {
 }
 
 /**
+ * 四柱构建的可选参数。
+ */
+export interface BaziOptions {
+  /** 出生地经度（东经，度）。传入后启用真太阳时修正（默认不启用）。 */
+  longitude?: number;
+  /** 晚子时（23 点）归次日换日流派。默认 false = 零点换日（保持现状）。 */
+  lateZiShi?: boolean;
+}
+
+/**
  * 构建四柱（年月日时）干支。
  * @param y - 公历年
  * @param m - 公历月
  * @param d - 公历日
  * @param h - 小时（0-23）
+ * @param opts - 可选参数：longitude 启用真太阳时修正（影响日柱/时柱，可能跨日）；lateZiShi 晚子时归次日
  * @returns 四柱信息（含天干、地支、干支合字，及农历/节气数据）
  */
-export function buildBazi(y: number, m: number, d: number, h: number) {
-  const sty = getSolarTermYear(y, m, d);
-  const sm = getSolarMonth(y, m, d);
+export function buildBazi(y: number, m: number, d: number, h: number, opts: BaziOptions = {}) {
+  const { longitude, lateZiShi } = opts;
+  // 年柱/月柱：以北京时间（钟表时）与精确交节时刻比较（节气时刻以北京时间为准）
+  const sty = getSolarTermYear(y, m, d, h);
+  const sm = getSolarMonth(y, m, d, h);
   const ygz = yearGZ(sty);
   const mgz = monthGZ(ygz, sm);
-  const dgz = dayGZ(y, m, d);
-  const hgz = hourGZ(dgz, h);
+  // 日柱/时柱：若传入经度，先换算真太阳时（小时可能跨日，日柱随之调整）
+  let dy = y, dm = m, dd = d, dh = h;
+  if (longitude !== undefined && Number.isFinite(longitude)) {
+    const ts = trueSolarHour(y, m, d, h, longitude);
+    const dayShift = Math.floor(ts / 24);
+    const remHour = ts - dayShift * 24;
+    const dt = new Date(y, m - 1, d + dayShift);
+    dy = dt.getFullYear();
+    dm = dt.getMonth() + 1;
+    dd = dt.getDate();
+    dh = Math.floor(remHour + 1e-9);
+  }
+  // 晚子时流派：23 时归次日（日柱基准日期 +1；时支仍为子，时干按次日日干推）
+  if (lateZiShi && dh === 23) {
+    const dt = new Date(dy, dm - 1, dd + 1);
+    dy = dt.getFullYear();
+    dm = dt.getMonth() + 1;
+    dd = dt.getDate();
+  }
+  const dgz = dayGZ(dy, dm, dd);
+  const hgz = hourGZ(dgz, dh);
   return {
     year: { gan: ygz[0], zhi: ygz[1], ganzhi: ygz },
     month: { gan: mgz[0], zhi: mgz[1], ganzhi: mgz },

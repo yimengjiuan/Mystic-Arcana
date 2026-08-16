@@ -8,7 +8,7 @@ import { CoreState, TimeInput, QiGuaMethod, QiGuaBasis, MovingMark, Hexagram } f
 // 重新导出类型，便于消费者从主入口引入（import type { CoreState } from 'mystic-arcana'）
 export * from './types/index';
 import { dispatchQigua } from './utils/qigua';
-import { buildBazi, buildHexagram, findChangedHexagram, findHuHexagram } from './utils/parser';
+import { buildBazi, buildHexagram, findChangedHexagram, findHuHexagram, type BaziOptions } from './utils/parser';
 import { buildXiaoLiu } from './panels/xiaoliu';
 import { buildMeiHua } from './panels/meihua';
 import { buildZhouYi } from './panels/zhouyi';
@@ -27,6 +27,7 @@ import { synthesize } from './analysis/synthesizer';
  * @param basis - 起卦依据
  * @param gender - 性别
  * @param name - 姓名
+ * @param baziOpts - 四柱可选参数（经度用于真太阳时修正 / 晚子时换日流派）
  * @returns 排盘核心状态
  */
 export function paipan(
@@ -38,9 +39,10 @@ export function paipan(
   basis: QiGuaBasis = 'time',
   gender?: '男' | '女',
   name?: string,
+  baziOpts?: BaziOptions,
 ): CoreState {
   // 1. 构建四柱
-  const bazi = buildBazi(input.year, input.month, input.day, input.hour);
+  const bazi = buildBazi(input.year, input.month, input.day, input.hour, baziOpts);
 
   // 2. 起卦
   const q = dispatchQigua(method, input, numberInput, extra, birth, basis);
@@ -85,6 +87,7 @@ export function paipan(
  * @param basis - 起卦依据
  * @param gender - 性别
  * @param name - 姓名
+ * @param baziOpts - 四柱可选参数（经度用于真太阳时修正 / 晚子时换日流派）
  * @returns 核心状态与综合分析
  */
 export function fullPaipan(
@@ -96,7 +99,8 @@ export function fullPaipan(
   basis: QiGuaBasis = 'time',
   gender?: '男' | '女',
   name?: string,
+  baziOpts?: BaziOptions,
 ) {
-  const state = paipan(input, method, numberInput, extra, birth, basis, gender, name);
+  const state = paipan(input, method, numberInput, extra, birth, basis, gender, name, baziOpts);
   return { state, synthesis: synthesize(state) };
 }

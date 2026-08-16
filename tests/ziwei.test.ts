@@ -1,25 +1,26 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { paipan } from '../src/engine';
+import { calcZiweiPos } from '../src/panels/ziwei';
 import type { TimeInput } from '../src/types';
 
 // 测试用例：1992年（壬申年）农历四月十一日巳时
 // 即公历 1992-05-12 10:00，男
 const input: TimeInput = { year: 1992, month: 5, day: 12, hour: 10, minute: 0, second: 0 };
 
-test('紫微Z1：命宫推算正确（从寅起顺数生月逆数生时）', () => {
+test('紫微Z1：命宫推算正确（从寅起顺数生月，从生月宫起子时逆数至生时）', () => {
   const state = paipan(input, 'time', [], 0, undefined, 'time', '男');
   const zw = state.panels.ziwei;
   // 农历四月，巳时（时辰序数=6）
-  // 从寅起顺数4月到巳宫（索引3），再逆数6步 -> 亥（索引9）
-  assert.equal(zw.mingGong, '亥', '农历四月巳时命宫应在亥');
+  // 从寅起顺数4月到巳宫（索引3），再从巳宫起子时逆数5步（子时不动、丑时退1格…依《紫微斗数全书》）-> 子（索引10）
+  assert.equal(zw.mingGong, '子', '农历四月巳时命宫应在子');
 });
 
-test('紫微Z2：身宫推算正确（从寅起顺数生月顺数生时）', () => {
+test('紫微Z2：身宫推算正确（从寅起顺数生月，从生月宫起子时顺数至生时）', () => {
   const state = paipan(input, 'time', [], 0, undefined, 'time', '男');
   const zw = state.panels.ziwei;
-  // 从寅起顺数4月到巳宫（索引3），再顺数6步 -> 亥（索引9）
-  assert.equal(zw.shenGong, '亥', '农历四月巳时身宫应在亥');
+  // 从寅起顺数4月到巳宫（索引3），再从巳宫顺数5步 -> 戌（索引8）
+  assert.equal(zw.shenGong, '戌', '农历四月巳时身宫应在戌');
 });
 
 test('紫微Z3：五行局为合法值', () => {
@@ -131,7 +132,7 @@ test('紫微Z14：命格概述非空且含关键信息', () => {
 
 // ── 标准化用例验证 ──
 
-test('标准case01：1986年丙寅年-紫府朝垣格', () => {
+test('标准case01：1986年丙寅年-金四局初九紫微在丑', () => {
   const inp: TimeInput = { year: 1986, month: 9, day: 12, hour: 3, minute: 10, second: 0 };
   const state = paipan(inp, 'time', [], 0, undefined, 'time', '男');
   const zw = state.panels.ziwei;
@@ -140,10 +141,11 @@ test('标准case01：1986年丙寅年-紫府朝垣格', () => {
   for (const s of zw.siHua) huaMap[s.hua] = s.star;
   assert.equal(huaMap['化禄'], '天同', '丙年化禄应为天同');
   assert.equal(huaMap['化忌'], '廉贞', '丙年化忌应为廉贞');
-  // 紫府朝垣格：命宫主星应为紫微/天府之一
-  const mingPalace = zw.palaces.find(p => p.gong === '命宫');
-  const ziFu = ['紫微', '天府'];
-  assert.ok(mingPalace && mingPalace.stars.some(s => ziFu.includes(s)), '命宫应有紫微或天府主星');
+  // 权威安星诀「除局求商余」：命宫未（乙未金四局）+ 农历初九 → 紫微在丑宫
+  // （对照《紫微斗数精成》金四局逐日表：初九丑；命宫按《紫微斗数全书》安身命例
+  //   从寅起顺数8月至酉，再从酉宫起子时逆数至寅时退2格 → 未）
+  const zwPalace = zw.palaces.find(p => p.stars.includes('紫微'));
+  assert.equal(zwPalace?.zhi, '丑', '金四局农历初九紫微应在丑（安紫微星诀除局求商余）');
   // 阳男顺行
   assert.equal(zw.daXianDirection, '顺行', '丙年阳男应顺行');
 });
@@ -207,4 +209,36 @@ test('标准case06：1985年乙丑年-阴男逆行', () => {
   assert.equal(huaMap['化禄'], '天机', '乙年化禄应为天机');
   assert.equal(huaMap['化忌'], '太阴', '乙年化忌应为太阴');
   assert.equal(zw.daXianDirection, '逆行', '乙年阴男应逆行');
+});
+
+// ── 紫微星定位逐日对照（权威依据：《紫微斗数精成》·缙长乐「紫微斗数排盘方法步骤总表」逐日表，
+//    与《安星诀》口诀「六五四三二，酉午亥辰丑，局数除日数，商数宫前走」一致）──
+
+/** 权威紫微星定位表（5 局 × 30 天 → 地支），用于全表对照 */
+const ZIWEI_AUTHORITATIVE: Record<number, string[]> = {
+  2: '丑寅寅卯卯辰辰巳巳午午未未申申酉酉戌戌亥亥子子丑丑寅寅卯卯辰'.split(''),
+  3: '辰丑寅巳寅卯午卯辰未辰巳申巳午酉午未戌未申亥申酉子酉戌丑戌亥'.split(''),
+  4: '亥辰丑寅子巳寅卯丑午卯辰寅未辰巳卯申巳午辰酉午未巳戌未申午亥'.split(''),
+  5: '午亥辰丑寅未子巳寅卯申丑午卯辰酉寅未辰巳戌卯申巳午亥辰酉午未'.split(''),
+  6: '酉午亥辰丑寅戌未子巳寅卯亥申丑午卯辰子酉寅未辰巳丑戌卯申巳午'.split(''),
+};
+
+test('紫微Z15：五行局+日数→紫微宫位 与权威逐日表全表一致（150 个值）', () => {
+  const ZHI_ORDER = ['寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥', '子', '丑'];
+  for (const ju of [2, 3, 4, 5, 6]) {
+    const ref = ZIWEI_AUTHORITATIVE[ju];
+    for (let day = 1; day <= 30; day++) {
+      const got = ZHI_ORDER[calcZiweiPos(ju, day)];
+      assert.equal(got, ref[day - 1], `局${ju} 第${day}日紫微应为${ref[day - 1]}，实际${got}`);
+    }
+  }
+});
+
+test('紫微Z16：书载验证例（安星诀算法例）', () => {
+  // 例一：27日木三局 → 整除商9 → 从寅进9格 → 戌
+  assert.equal(calcZiweiPos(3, 27), 8, '27日木三局紫微应在戌');
+  // 例二：13日火六局 → 商3余5（奇数）→ 辰逆回5宫 → 亥
+  assert.equal(calcZiweiPos(6, 13), 9, '13日火六局紫微应在亥');
+  // 例三：6日土五局 → 商2余4（偶数）→ 卯顺行4格 → 未
+  assert.equal(calcZiweiPos(5, 6), 5, '6日土五局紫微应在未');
 });

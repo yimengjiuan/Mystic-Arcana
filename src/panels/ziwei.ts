@@ -49,33 +49,35 @@ const NAYIN_JU: Record<string, string> = {
 };
 
 /**
- * 紫微星定位表：按五行局和农历日数（1-30）查表确定紫微星所在宫位。
- * 每个五行局对应30天的 ZHI_ORDER 索引（0=寅）。
- * 数据来源：标准紫微斗数排盘（浑天甲子法验证）。
- */
-const ZIWEI_POS_TABLE: Record<number, number[]> = {
-  2: [11,0,0,1,1,2,3,3,4,4,5,6,6,7,7,8,9,9,10,10,11,11,0,0,1,1,2,2,3,3],
-  3: [3,5,7,9,11,0,1,2,3,4,5,6,7,8,9,10,11,0,1,2,3,4,5,6,7,8,9,10,11,0],
-  4: [9,10,11,11,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,0,0],
-  5: [4,1,4,7,10,1,4,7,10,1,4,7,10,1,4,7,10,1,4,7,10,1,4,7,10,1,4,7,10,1],
-  6: [3,0,3,6,9,0,3,6,9,0,3,6,9,0,3,6,9,0,3,6,9,0,3,6,9,0,3,6,9,0],
-};
-
-/**
  * 紫微星定位算法：按五行局和农历日数确定紫微星所在宫位。
- * @param ju - 局数（2-6）
+ *
+ * 依据《安星诀》「除局求商余」法（权威来源：《紫微斗数精成》·缙长乐
+ * 「紫微斗数排盘方法步骤总表」逐日表；口诀「六五四三二，酉午亥辰丑，
+ * 局数除日数，商数宫前走；若见数无余，便要起虎口，日数小于局，还直宫中守」）：
+ *   1. Q = ⌈生日 / 局数⌉（向上取整）
+ *   2. R = Q × 局数 − 生日（补到下一个局数倍数的差值）
+ *   3. 以寅宫为基准：顺行走 Q − 1 位得基准宫；
+ *      R 为偶数（含 0）再顺行走 R 位，R 为奇数则逆行走 R 位。
+ * 书载验证例：27日木三局 → 整除商9 → 从寅进9格 → 戌；
+ *            13日火六局 → 商3（6×3=18）余5（奇数）→ 辰逆回5宫 → 亥；
+ *             6日土五局 → 商2（5×2=10）余4（偶数）→ 卯顺行4格 → 未。
+ * @param ju - 局数（水二局=2、木三局=3、金四局=4、土五局=5、火六局=6）
  * @param day - 农历日数（1-30）
  * @returns ZHI_ORDER 索引（0=寅）
  */
-function calcZiweiPos(ju: number, day: number): number {
-  const table = ZIWEI_POS_TABLE[ju] || ZIWEI_POS_TABLE[2];
-  return table[Math.min(Math.max(day, 1), 30) - 1];
+export function calcZiweiPos(ju: number, day: number): number {
+  const d = Math.min(Math.max(day, 1), 30);
+  const q = Math.ceil(d / ju);
+  const r = q * ju - d;
+  // R 偶数（含 0）顺行 R 位，R 奇数逆行 R 位
+  const step = r % 2 === 0 ? r : -r;
+  return (((q - 1) + step) % 12 + 12) % 12;
 }
 
-/** 从五行局名称提取局数 */
+/** 从五行局名称提取局数（局名中的数字为汉字，不能用 \d 匹配） */
 function juNumber(wuXingJu: string): number {
-  const m = wuXingJu.match(/\d/);
-  return m ? parseInt(m[0]) : 2;
+  const JU_MAP: Record<string, number> = { '水二局': 2, '木三局': 3, '金四局': 4, '土五局': 5, '火六局': 6 };
+  return JU_MAP[wuXingJu] || 2;
 }
 
 /**
@@ -179,11 +181,12 @@ export function buildZiWei(bazi: Bazi, gender?: '男' | '女'): ZiWeiPanel {
   const hourSeq = DIZHI.indexOf(hourZhi) + 1;
   // 从寅（索引0）起，顺数生月（正月=寅，二月=卯...）
   const monthPos = (lunarMonth - 1) % 12;
-  // 再从该位置逆数生时（时辰序数步）
-  const mingIdx = ((monthPos - hourSeq) % 12 + 12) % 12;
+  // 再从生月宫起子时，逆数至生时：子时不动、丑时退1格……（依《紫微斗数全书》安身命例
+  // 「自人生月起子时逆至本生时安命，顺至本生时安身」，故步数为 时辰序数−1）
+  const mingIdx = ((monthPos - (hourSeq - 1)) % 12 + 12) % 12;
 
-  // ── 2. 定身宫：从寅起顺数生月，再顺数生时 ──
-  const shenIdx = ((monthPos + hourSeq) % 12 + 12) % 12;
+  // ── 2. 定身宫：从寅起顺数生月，再顺数生时（步数同为 时辰序数−1）──
+  const shenIdx = ((monthPos + (hourSeq - 1)) % 12 + 12) % 12;
 
   const mingZhi = ZHI_ORDER[mingIdx];
   const shenZhi = ZHI_ORDER[shenIdx];

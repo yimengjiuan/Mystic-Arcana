@@ -143,10 +143,16 @@ function readForm() {
   const basis = (($('basis') as HTMLSelectElement)?.value || 'time') as QiGuaBasis;
   const birth: TimeInput | undefined = basis === 'time' ? undefined : { year: num('byear'), month: num('bmonth'), day: num('bday'), hour: num('bhour'), minute: 0, second: num('bsecond') };
   const gender = ($('gender') as HTMLSelectElement)?.value as '男' | '女' | undefined;
+  // 经度（真太阳时）：off（不修正）强制不启用；loc/manual 时读城市定位或手动输入的经度
+  const coordMode = (document.querySelector('input[name="c-coord-mode"]:checked') as HTMLInputElement)?.value || 'off';
+  const lonStr = coordMode === 'off' ? '' : (($('c-lon') as HTMLInputElement)?.value || '').trim();
+  const longitude = lonStr === '' ? undefined : parseFloat(lonStr);
+  // 晚子时换日流派（默认零点换日）
+  const lateZiShi = (($('late-zishi') as HTMLSelectElement)?.value || '0') === '1';
   let input: TimeInput = { year: y, month: m, day: d, hour: h, minute: 0, second: s };
   // 仅八字模式时，以生辰替代起卦时间
   if (basis === 'bazi' && birth) input = { ...birth };
-  return { input, method, nums, basis, birth, gender };
+  return { input, method, nums, basis, birth, gender, longitude, lateZiShi };
 }
 
 /** 根据起卦依据切换生辰输入区可见性 */
@@ -165,7 +171,12 @@ function updateMethodHint(): void {
   const method = (($('method') as HTMLSelectElement)?.value || 'time') as QiGuaMethod;
   const hint = METHOD_HINTS[method];
   const numsInput = $('nums') as HTMLInputElement | null;
-  if (numsInput) numsInput.placeholder = hint.ph;
+  if (numsInput) {
+    numsInput.placeholder = hint.ph;
+    // 时间起卦/蓍草无需数字：置灰禁用（数字起卦/梅花/铜钱才可输入）
+    const needNums = method === 'number' || method === 'meihua' || method === 'cuanke';
+    numsInput.disabled = !needNums;
+  }
   const numsLabel = numsInput?.parentElement;
   if (numsLabel && numsLabel.childNodes[0] && numsLabel.childNodes[0].nodeType === 3) {
     numsLabel.childNodes[0].nodeValue = hint.lb;
@@ -357,9 +368,9 @@ function bindChineseEvents(): void {
     // 延迟执行以显示加载动画
     setTimeout(() => {
       try {
-        const { input, method, nums, basis, birth, gender } = readForm();
+        const { input, method, nums, basis, birth, gender, longitude, lateZiShi } = readForm();
         if (method === 'cuanke' && nums.length !== 6) throw new Error('铜钱摇卦需输入6次结果(0-3)');
-        const { state, synthesis } = fullPaipan(input, method, nums, 0, birth, basis, gender);
+        const { state, synthesis } = fullPaipan(input, method, nums, 0, birth, basis, gender, undefined, { longitude, lateZiShi });
         addSnapshot(input, method, basis, state, synthesis);
         if (out) out.innerHTML = renderPanels(state, synthesis);
         showCompare();
@@ -386,6 +397,9 @@ function initChinese(): void {
   updateBasisVisibility();
   updateMethodHint();
   bindChineseEvents();
+  // 真太阳时经度：与星域一致的「城市级联自动定位 / 手动输入」逻辑（地区自动定位为默认）
+  initCityCascader('c');
+  bindCoordMode('c');
 }
 
 // ============================================================
@@ -1058,19 +1072,20 @@ function initCityCascader(prefix: string): void {
 }
 
 /**
- * 绑定经纬度方式切换：地区自动定位（默认，隐藏手动经纬度输入）/ 直接输入经纬度。
+ * 绑定经纬度方式切换：地区自动定位 / 直接输入经纬度（西式两态），
+ * 中式真太阳时支持三态：off（不修正）/ loc（地区自动定位）/ manual（直接输入经纬度）。
  * 两种方式共用同一组经纬度/时区输入框，其余逻辑保持一致。
- * prefix 为表单元素 ID 前缀：本命盘 'w'、合盘 'wa' / 'wb'。
+ * prefix 为表单元素 ID 前缀：本命盘 'w'、合盘 'wa' / 'wb'、中式真太阳时 'c'。
  */
 function bindCoordMode(prefix: string): void {
   const radios = document.querySelectorAll<HTMLInputElement>(`input[name="${prefix}-coord-mode"]`);
   if (!radios.length) return;
   const apply = (): void => {
-    const manual = Array.from(radios).some(r => r.checked && r.value === 'manual');
+    const v = Array.from(radios).find(r => r.checked)?.value || 'loc';
     const grid = $(`${prefix}-coord-grid`) as HTMLElement | null;
     const loc = $(`${prefix}-location`) as HTMLElement | null;
-    if (grid) grid.style.display = manual ? '' : 'none';
-    if (loc) loc.style.display = manual ? 'none' : '';
+    if (grid) grid.style.display = v === 'manual' ? '' : 'none';
+    if (loc) loc.style.display = v === 'loc' ? '' : 'none';
   };
   radios.forEach(r => r.addEventListener('change', apply));
   apply();

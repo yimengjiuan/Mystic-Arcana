@@ -58,6 +58,25 @@ const NAYIN_TABLE: Record<string, string> = {
   '戊午': '天上火', '己未': '天上火', '庚申': '石榴木', '辛酉': '石榴木', '壬戌': '大海水', '癸亥': '大海水',
 };
 
+/** 桃花（咸池）查法：以年支或日支为主，按三合局定桃花位（《三命通会》："申子辰在酉，寅午戌在卯，巳酉丑在午，亥卯未在子"） */
+const TAO_HUA_MAP: Record<string, string> = {
+  '申': '酉', '子': '酉', '辰': '酉',
+  '寅': '卯', '午': '卯', '戌': '卯',
+  '巳': '午', '酉': '午', '丑': '午',
+  '亥': '子', '卯': '子', '未': '子',
+};
+
+/** 判断四柱是否命带桃花：年支或日支的三合局桃花位出现在四柱其余地支中 */
+function hasTaoHua(bazi: Bazi): boolean {
+  const zhizhi = [bazi.year.zhi, bazi.month.zhi, bazi.day.zhi, bazi.hour.zhi];
+  // 以年支、日支分别作基准（基准支自身不可能是其桃花位，故直接查四柱全部地支）
+  for (const base of [bazi.year.zhi, bazi.day.zhi]) {
+    const want = TAO_HUA_MAP[base];
+    if (want && zhizhi.includes(want)) return true;
+  }
+  return false;
+}
+
 /**
  * 构建四柱详情面板。
  * @param bazi - 四柱数据
@@ -72,10 +91,10 @@ export function buildBaziPanel(bazi: Bazi): { pillars: PillarDetail[]; summary: 
     nayin: NAYIN_TABLE[p.ganzhi] || '',
   }));
 
-  // 命局概述：检测桃花（子午卯酉）
+  // 命局概述：检测桃花（咸池，按三合局查）
   let summary = `日主${dayGan}，生于${bazi.month.ganzhi}月。`;
-  if (['子', '午', '卯', '酉'].some(z => bazi.month.zhi === z || bazi.day.zhi === z)) {
-    summary += '四柱有桃花，需防感情纠葛。';
+  if (hasTaoHua(bazi)) {
+    summary += '命带桃花，需防感情纠葛。';
   } else {
     summary += '命局平和，宜稳中求进。';
   }

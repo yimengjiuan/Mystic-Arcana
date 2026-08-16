@@ -326,7 +326,7 @@ function computePlanetLongitudes(d: number): { id: string; lon: number; ret: boo
 }
 
 // ============================================================
-// 宫位计算（Placidus 简化：等宫制 + ASC/MC 准确公式）
+// 宫位计算（整宫制 Whole Sign + ASC/MC 准确公式）
 // ============================================================
 
 /** 儒略世纪数（自 J2000.0 起） */
@@ -376,12 +376,12 @@ function midheaven(d: number, _ut: number, lon: number): number {
 }
 
 /**
- * 等宫制宫头（Whole Sign 简化版）：
- *   - 第 1 宫 = 上升星座 0°
- *   - 第 N 宫 = 上升点 + (N-1) × 30°
+ * 整宫制宫头（Whole Sign）：
+ *   - 第 1 宫 = 上升点所在星座 0°
+ *   - 第 N 宫 = 上升点星座 0° + (N-1) × 30°
  * 优点：稳定、易于解释，符合古代占星传统。
  */
-function equalHouseCusps(asc: number): HousePosition[] {
+function wholeSignHouses(asc: number): HousePosition[] {
   const startSign = Math.floor(asc / 30);
   return Array.from({ length: 12 }, (_, i) => {
     const cusp = (startSign * 30 + i * 30) % 360;
@@ -468,8 +468,8 @@ export function natalChart(birth: BirthInfo): NatalChart {
   const ascSign = SIGNS[Math.floor(asc / 30) % 12];
   const mcSign = SIGNS[Math.floor(mc / 30) % 12];
 
-  // 宫位（等宫制）
-  const houses = equalHouseCusps(asc);
+  // 宫位（整宫制）
+  const houses = wholeSignHouses(asc);
 
   // 相位
   const aspects = computeAspects(planets);

@@ -38,23 +38,23 @@ function timeNumbers(input: TimeInput) {
 }
 
 /**
- * 时间起卦法。
+ * 时间起卦法（梅花易数「卦以八除，爻以六除」）。
  * 上卦 = (年支数 + 月数 + 日数) % 8
  * 下卦 = (年支数 + 月数 + 日数 + 时辰数) % 8
- * 动爻 = (年支数 + 月数 + 日数 + 时辰数 + 秒数) % 6
+ * 动爻 = (年支数 + 月数 + 日数 + 时辰数) % 6（不含秒数，同一时辰动爻一致）
  * 当 birth 存在时，可按 basis 叠加或替换生辰数据。
  */
 export function timeQiGua(input: TimeInput, birth?: TimeInput, basis?: QiGuaBasis) {
   const a = timeNumbers(input);
-  let yn = a.yearNum, mn = a.monthNum, dn = a.dayNum, hn = a.hourNum, sn = input.second;
+  let yn = a.yearNum, mn = a.monthNum, dn = a.dayNum, hn = a.hourNum;
 
   // 生辰八字叠加逻辑
   if (birth) {
     const b = timeNumbers(birth);
     if (basis === 'bazi') {
-      yn = b.yearNum; mn = b.monthNum; dn = b.dayNum; hn = b.hourNum; sn = birth.second;
+      yn = b.yearNum; mn = b.monthNum; dn = b.dayNum; hn = b.hourNum;
     } else if (basis === 'time_bazi') {
-      yn += b.yearNum; mn += b.monthNum; dn += b.dayNum; hn += b.hourNum; sn += birth.second;
+      yn += b.yearNum; mn += b.monthNum; dn += b.dayNum; hn += b.hourNum;
     }
   }
 
@@ -62,7 +62,7 @@ export function timeQiGua(input: TimeInput, birth?: TimeInput, basis?: QiGuaBasi
   const upper = modOrMax(total, 8) - 1;
   const total2 = total + hn;
   const lower = modOrMax(total2, 8) - 1;
-  const moveLine = modOrMax(total2 + sn, 6);
+  const moveLine = modOrMax(total2, 6);
   return { upper, lower, moving: [moveLine] };
 }
 
@@ -95,8 +95,9 @@ export function meihuaQiGua(input: TimeInput, numberInput: readonly number[] = [
 }
 
 /**
- * 蓍草占卜起卦法（伪随机）。
- * 以时间戳+种子生成 6 爻阴阳及动爻，模拟硬币摇卦的随机性。
+ * 蓍草占卜起卦法（模拟大衍筮法）。
+ * 以时间戳+种子生成 6 爻，四象概率符合大衍筮法标准分布：
+ * 老阴 1/16、少阳 5/16、少阴 7/16、老阳 3/16（老阴/老阳为动爻，共 1/4；少阴/少阳为静爻）。
  */
 export function zaobiQiGua(input: TimeInput, seed: number = 0, birth?: TimeInput, basis?: QiGuaBasis) {
   let base = input.year * 10000 + input.month * 100 + input.day + input.hour;
@@ -105,14 +106,17 @@ export function zaobiQiGua(input: TimeInput, seed: number = 0, birth?: TimeInput
     if (basis === 'bazi') base = bb;
     else if (basis === 'time_bazi') base += bb;
   }
-  const total = base + seed;
+  // 32 位线性同余生成器（Math.imul 保证无精度损失），由 (base + seed) 派生确定性随机序列
+  let state = (Math.imul((base + seed) | 0, 1664525) + 1013904223) | 0;
   const lines: boolean[] = [];
   const moving: number[] = [];
-  // 线性同余生成器模拟摇卦：4 概率阴，1/4 动爻
   for (let i = 0; i < 6; i++) {
-    const hash = ((total * (i + 7) * 1103515245 + 12345) >>> 0) % 1000;
-    lines.push((hash % 4) !== 0);
-    if ((hash % 16) === 0) moving.push(i + 1);
+    state = (Math.imul(state, 1103515245) + 12345) | 0;
+    const r = (state >>> 28) & 15;
+    if (r === 0) { lines.push(false); moving.push(i + 1); }    // 老阴 1/16（动）
+    else if (r < 4) { lines.push(true); moving.push(i + 1); }  // 老阳 3/16（动）
+    else if (r < 9) lines.push(true);                          // 少阳 5/16（静）
+    else lines.push(false);                                    // 少阴 7/16（静）
   }
   return { lines, moving };
 }

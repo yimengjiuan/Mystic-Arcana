@@ -25,6 +25,7 @@ h2::before{content:'◆';color:var(--zhu);margin-right:8px;font-size:14px;text-s
 .form-grid label{display:flex;flex-direction:column;font-size:13px;color:var(--ink-d);letter-spacing:2px;min-width:0}
 .form-grid input,.form-grid select,.full-label input,.full-label textarea,.full-label select{margin-top:6px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:rgba(15,10,7,.6);color:var(--ink);font-family:inherit;font-size:15px;transition:all .3s;width:100%}
 .form-grid input:focus,.full-label input:focus,.full-label textarea:focus,.full-label select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 2px rgba(212,168,87,.2),0 0 12px var(--glow-x);background:rgba(15,10,7,.8)}
+.form-grid input:disabled,.full-label input:disabled{opacity:.4;cursor:not-allowed;background:rgba(15,10,7,.35);color:var(--ink-d)}
 .full-label{display:flex;flex-direction:column;font-size:13px;color:var(--ink-d);margin-top:14px}
 .full-label textarea{resize:vertical}
 button#run-btn{margin-top:20px;padding:14px 48px;background:linear-gradient(135deg,var(--zhu),var(--zhu-d));color:var(--ink);border:1px solid var(--gold);border-radius:28px;font-size:18px;font-family:inherit;letter-spacing:8px;cursor:pointer;transition:all .3s cubic-bezier(.4,0,.2,1);box-shadow:0 4px 16px rgba(192,63,60,.4),inset 0 1px 0 rgba(255,255,255,.1);position:relative;overflow:hidden}
@@ -359,6 +360,17 @@ footer .opensource-notice a:hover{color:var(--gold-b);text-decoration:underline}
 .w-location-selects label{display:flex;flex-direction:column;font-size:12px;color:var(--cos-ink-d);letter-spacing:2px}
 .w-location-selects select{margin-top:6px;padding:9px 12px;height:42px;box-sizing:border-box;border:1px solid var(--cos-line);border-radius:8px;background:rgba(7,11,26,.6);color:var(--cos-ink);font-family:inherit;font-size:14px;transition:all .3s;width:100%}
 .w-location-selects select:focus{outline:none;border-color:var(--cos-silver);box-shadow:0 0 0 2px rgba(168,218,220,.2),0 0 12px var(--cos-glow);background:rgba(7,11,26,.85)}
+/* 中式面板真太阳时经纬度：覆盖西式 w-* 配色，保持玄界朱砂/金/黛青风格 */
+#chinese-root .w-mode-switch{background:rgba(45,36,25,.35);border:1px solid var(--border);border-radius:10px}
+#chinese-root .w-mode-label{color:var(--ink-d)}
+#chinese-root .w-mode-option{color:var(--ink)}
+#chinese-root .w-mode-option input{accent-color:var(--gold)}
+#chinese-root .w-location{background:rgba(45,36,25,.4);border:1px dashed var(--border-b)}
+#chinese-root .w-location-label{color:var(--ink-d)}
+#chinese-root .w-location-selects label{color:var(--ink-d)}
+#chinese-root .w-location-selects select{background:rgba(15,10,7,.6);color:var(--ink);border:1px solid var(--border)}
+#chinese-root .w-location-selects select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 2px rgba(212,168,87,.2),0 0 12px var(--glow-x);background:rgba(15,10,7,.85)}
+#chinese-root .c-coord-hint,#chinese-root .c-zishi-hint{margin-top:10px;padding:10px 14px;font-size:12px;line-height:1.7;color:var(--ink-d);letter-spacing:1px;background:rgba(45,36,25,.3);border-left:3px solid var(--gold);border-radius:0 8px 8px 0}
 /* 表单说明小字：放在 w-form-grid 下方，不参与 grid 内控件对齐 */
 .w-form-hint{font-size:11px;color:var(--cos-ink-d);opacity:.7;letter-spacing:1px;margin:-6px 0 0;line-height:1.6}
 .w-full-label{display:flex;flex-direction:column;font-size:13px;color:var(--cos-ink-d);letter-spacing:2px;margin-top:14px}
@@ -570,7 +582,7 @@ button.w-run:active,button.w-ai:active{transform:translateY(0)}
 .w-tarot-grid.spread-celtic .w-tarot-slot:nth-child(10){grid-area:s10}
 
 /* 六芒星：两个交叠三角形（上三角 精神 / 下三角 物质）+ 中央结果 */
-.w-tarot-grid.spread-star{display:grid;grid-template-columns:repeat(5,1fr);grid-template-areas:". . p1 . ." "p5 . p7 . p2" ". p3 . p6 ." ". . p4 . .";gap:22px 12px;max-width:820px;margin:0 auto;align-items:center}
+.w-tarot-grid.spread-star{display:grid;grid-template-columns:repeat(5,1fr);grid-template-areas:". . p1 . ." "p6 . . . p2" ". . p7 . ." "p5 . . . p3" ". . p4 . .";gap:22px 12px;max-width:820px;margin:0 auto;align-items:center}
 .w-tarot-grid.spread-star .w-tarot-slot:nth-child(1){grid-area:p1}
 .w-tarot-grid.spread-star .w-tarot-slot:nth-child(2){grid-area:p2}
 .w-tarot-grid.spread-star .w-tarot-slot:nth-child(3){grid-area:p3}
@@ -647,7 +659,7 @@ button.w-run:active,button.w-ai:active{transform:translateY(0)}
   .w-tarot-grid:is(.spread-celtic,.spread-star,.spread-year,.spread-relationship,.spread-chakra,.spread-career,.spread-love,.spread-planets,.spread-decision,.spread-pyramid,.spread-twochoices){
     grid-template-columns:repeat(2,1fr);grid-template-areas:none;max-width:440px;gap:16px 12px
   }
-  .w-tarot-grid:is(.spread-celtic,.spread-star,.spread-year,.spread-relationship,.spread-chakra,.spread-career,.spread-love,.spread-planets,.spread-decision,.spread-pyramid,.spread-twochoices) .w-tarot-slot{grid-area:auto}
+  .w-tarot-grid:is(.spread-celtic,.spread-star,.spread-year,.spread-relationship,.spread-chakra,.spread-career,.spread-love,.spread-planets,.spread-decision,.spread-pyramid,.spread-twochoices) .w-tarot-slot:nth-child(n){grid-area:auto}
   .w-tarot-grid.spread-celtic .w-tarot-slot:nth-child(2){position:static;z-index:auto;margin-top:0}
   .w-tarot-grid.spread-celtic .w-tarot-slot:nth-child(2) .w-tarot-face{transform:none}
   .w-tarot-grid.spread-chakra .w-tarot-slot:nth-child(7){grid-column:auto;justify-self:auto}

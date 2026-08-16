@@ -118,7 +118,7 @@ test('C6: 奥巴马本命相位——与公开星盘主要相位一致', () => {
   assertAspect(obamaChart, 'jupiter', 'saturn', 'conjunction');
 });
 
-test('C7: 等宫制宫头——第 N 宫 = ASC 所在星座起点 + (N-1)×30°', () => {
+test('C7: 整宫制宫头——第 N 宫 = 上升点所在星座 0° + (N-1)×30°', () => {
   // 奥巴马 ASC 318.05° → 水瓶座（300-330），第1宫头 = 300°
   assert.equal(obamaChart.houses.length, 12);
   assert.equal(obamaChart.houses[0].cusp, 300, '第1宫头应为水瓶 0°（300°）');

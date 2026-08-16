@@ -1,7 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { paipan } from '../src/engine';
-import type { TimeInput } from '../src/types';
+import { buildLiuYao } from '../src/panels/liuyao';
+import { buildHexagram, buildBazi } from '../src/utils/parser';
+import type { Bazi, TimeInput } from '../src/types';
 
 // 公共起卦时间（仅用于排盘，卦象由铜钱摇卦决定）
 const input: TimeInput = { year: 2024, month: 5, day: 12, hour: 10, minute: 0, second: 0 };
@@ -98,4 +100,61 @@ test('六爻案例：山风蛊 -> 地风升（巽宫，世3应6，动爻6）', (
   // 巽宫木：丑=妻财, 亥=父母, 酉=官鬼, 戌=妻财, 子=父母, 寅=兄弟
   const lq = ly.liuQinMap.map(lq => lq.liuQin);
   assert.deepEqual(lq, ['妻财', '父母', '官鬼', '妻财', '父母', '兄弟']);
+});
+
+// ---- 黄金测试：六神起例 ----
+
+// 构造指定日干的四柱（基于固定日期，仅覆盖日干）
+function makeBazi(gan: string): Bazi {
+  const base = buildBazi(2024, 5, 12, 10);
+  return { ...base, day: { gan, zhi: base.day.zhi, ganzhi: gan + base.day.zhi } };
+}
+
+// 六神起例口诀：甲乙起青龙、丙丁起朱雀、戊起勾陈、己起螣蛇、庚辛起白虎、壬癸起玄武
+test('六神起例：10 个日干初爻六神与口诀一致', () => {
+  const ben = buildHexagram(1, [], '甲'); // 乾为天（乾宫）
+  const cases: ReadonlyArray<readonly [string, string]> = [
+    ['甲', '青龙'], ['乙', '青龙'],
+    ['丙', '朱雀'], ['丁', '朱雀'],
+    ['戊', '勾陈'],
+    ['己', '螣蛇'],
+    ['庚', '白虎'], ['辛', '白虎'],
+    ['壬', '玄武'], ['癸', '玄武'],
+  ];
+  for (const [gan, expected] of cases) {
+    const ly = buildLiuYao(ben, [], makeBazi(gan));
+    assert.equal(ly.liuShen[0], expected, `日干 ${gan} 初爻应为 ${expected}`);
+  }
+});
+
+test('六神起例：六神顺序固定为青龙→朱雀→勾陈→螣蛇→白虎→玄武，逐爻顺排', () => {
+  const ben = buildHexagram(1, [], '甲');
+  // 甲日起青龙：青龙、朱雀、勾陈、螣蛇、白虎、玄武
+  const lyJia = buildLiuYao(ben, [], makeBazi('甲'));
+  assert.deepEqual(lyJia.liuShen, ['青龙', '朱雀', '勾陈', '螣蛇', '白虎', '玄武']);
+  // 壬日起玄武：玄武、青龙、朱雀、勾陈、螣蛇、白虎
+  const lyRen = buildLiuYao(ben, [], makeBazi('壬'));
+  assert.deepEqual(lyRen.liuShen, ['玄武', '青龙', '朱雀', '勾陈', '螣蛇', '白虎']);
+});
+
+// ---- 黄金测试：伏神本宫卦定位 ----
+
+test('伏神：八宫本宫卦定位（fuShi[0].hex 应为对应八纯卦）', () => {
+  // [卦序, 宫位, 本宫卦全称]
+  const cases: ReadonlyArray<readonly [number, string, string]> = [
+    [1, '乾', '乾为天'],
+    [2, '坤', '坤为地'],
+    [29, '坎', '坎为水'],
+    [30, '离', '离为火'],
+    [51, '震', '震为雷'],
+    [52, '艮', '艮为山'],
+    [57, '巽', '巽为风'],
+    [58, '兑', '兑为泽'],
+  ];
+  for (const [hexIndex, palace, expected] of cases) {
+    const ben = buildHexagram(hexIndex, [], '甲');
+    assert.equal(ben.palace, palace);
+    const ly = buildLiuYao(ben, [], makeBazi('甲'));
+    assert.equal(ly.fuShi[0].hex.fullName, expected, `${palace}宫伏神本宫卦应为${expected}`);
+  }
 });
