@@ -98,9 +98,10 @@ export function renderChartSVG(chart: NatalChart, size = 480): string {
 
   // 宫位数字
   const houseNums = houses.map((h) => {
-    // 宫位数字放在宫位中点
+    // 宫位数字放在宫位中点（跨 0°/360° 边界时按环绕角度计算，避免算到相反方向）
     const next = houses[(h.num) % 12];
-    const midLon = (h.cusp + next.cusp) / 2;
+    const diff = (next.cusp - h.cusp + 360) % 360;
+    const midLon = (h.cusp + diff / 2) % 360;
     const p = pt(rInner - 18, midLon);
     return `<text x="${p[0].toFixed(1)}" y="${p[1].toFixed(1)}" text-anchor="middle" dominant-baseline="central" fill="#D6E4F0" font-size="13" font-weight="bold">${h.num}</text>`;
   }).join('');
@@ -109,9 +110,10 @@ export function renderChartSVG(chart: NatalChart, size = 480): string {
   const planetPositions = layoutPlanets(chart.planets, rInner, cx, cy, angle);
   // id -> 实际布局坐标（行星标记可能被 layoutPlanets 偏移，相位线必须对准标记而非原始黄经）
   const posById = new Map(planetPositions.map(p => [p.planet.id, p]));
-  const planetMarks = planetPositions.map(({ planet, x, y }) => {
+  const planetMarks = planetPositions.map(({ planet, x, y, lon }) => {
     const line = (() => {
-      const p2 = pt(rZodiac + 5, planet.longitude);
+      // 用偏移后的最终黄经，保证连线从标记径向延伸到星座带
+      const p2 = pt(rZodiac + 5, lon);
       return `<line x1="${x.toFixed(1)}" y1="${y.toFixed(1)}" x2="${p2[0].toFixed(1)}" y2="${p2[1].toFixed(1)}" stroke="#D6E4F0" stroke-width="0.6" opacity="0.6"/>`;
     })();
     return `<g class="planet-mark">${line}<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="11" fill="#0F1A2E" stroke="#D6E4F0" stroke-width="1"/><text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="middle" dominant-baseline="central" fill="#F5C563" font-size="14" style="filter: drop-shadow(0 0 4px #F5C563)">${planet.symbol}</text>${planet.retrograde ? `<text x="${(x + 9).toFixed(1)}" y="${(y - 9).toFixed(1)}" fill="#FF6B6B" font-size="9">℞</text>` : ''}</g>`;
@@ -159,7 +161,7 @@ export function renderChartSVG(chart: NatalChart, size = 480): string {
 }
 
 /** 行星布局：避免重叠，水平偏移 12px 直至无冲突 */
-function layoutPlanets(planets: readonly PlanetPosition[], r: number, cx: number, cy: number, angle: (lon: number) => number): { planet: PlanetPosition; x: number; y: number }[] {
+function layoutPlanets(planets: readonly PlanetPosition[], r: number, cx: number, cy: number, angle: (lon: number) => number): { planet: PlanetPosition; lon: number; x: number; y: number }[] {
   // 按黄经排序
   const sorted = [...planets].sort((a, b) => a.longitude - b.longitude);
   const placed: { lon: number; x: number; y: number; planet: PlanetPosition }[] = [];
@@ -177,7 +179,9 @@ function layoutPlanets(planets: readonly PlanetPosition[], r: number, cx: number
       off += 0.05; // 约 3°
       tries++;
     }
-    placed.push({ lon: p.longitude, x, y, planet: p });
+    // 偏移后对应的最终黄经（angle(lon)=180°-lon，加 off 弧度等价于黄经减 off*180/PI）
+    const finalLon = (p.longitude - off * 180 / Math.PI + 360) % 360;
+    placed.push({ lon: finalLon, x, y, planet: p });
   }
   return placed;
 }
