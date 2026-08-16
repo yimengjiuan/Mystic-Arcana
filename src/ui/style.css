@@ -651,7 +651,7 @@ button.w-run:active,button.w-ai:active{transform:translateY(0)}
   .w-tarot-face-symbol{font-size:38px}
   .w-tarot-face-name{font-size:14px}
   .w-tarot-grid.spread-cross5{grid-template-columns:repeat(2,1fr);grid-template-areas:none;max-width:420px}
-  .w-tarot-grid.spread-cross5 .w-tarot-slot{grid-area:auto}
+  .w-tarot-grid.spread-cross5 .w-tarot-slot:nth-child(n){grid-area:auto}
   .w-tarot-grid.spread-cross5 .w-tarot-slot:nth-child(2) .w-tarot-face{transform:none}
   .w-tarot-grid.spread-horseshoe .w-tarot-slot{flex-basis:calc((100% - 18px) / 2);max-width:150px}
   .w-tarot-grid.spread-horseshoe .w-tarot-slot:nth-child(n+5){transform:none;margin-top:0}
