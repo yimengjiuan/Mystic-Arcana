@@ -1,29 +1,31 @@
-# Dependencies
 node_modules/
 
-# Build outputs
 dist/
 dist_ui/
 dist_test/
 
-# Logs
 *.log
 npm-debug.log*
 
-# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# OS
 .DS_Store
 Thumbs.db
 
-# Test coverage
 coverage/
 
-# Temporary files
 *.tmp
 *.temp
+
+tests/artifacts/v2/
+tests/artifacts/v3/
+tests/artifacts/static.mjs
+tests/artifacts/v2-concept.ts
+tests/artifacts/v2-preview.html
+tests/artifacts/v2-*.svg
+
+/tmp/

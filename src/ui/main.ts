@@ -16,6 +16,7 @@ import {
   renderChartSVG, renderChartHeader, renderPlanetList, renderAspectList, renderHouseList,
   renderSunsignPanel, renderSignDetailModal, renderTarotFan, renderTarotCardFace, renderTarotBack, renderSynastrySVG, buildWesternAIPrompt, buildTarotAIPrompt,
 } from './western';
+import { createChinesePosterSVG, createWesternPosterSVG, svgToCanvas, chinesePosterFilename, westernPosterFilename, type ChinesePosterData, type WesternPosterData } from './poster';
 import { GEO } from './cities';
 
 /** 按元素 ID 获取 DOM 元素 */
@@ -358,6 +359,9 @@ function showCompare(): void {
   }
 }
 
+/** 玄界海报数据缓存：测算完成后写入，AI 解卦完成后补入 ai 字段，供导出按钮即时渲染 */
+let chinesePosterData: ChinesePosterData | null = null;
+
 /** 绑定所有交互事件（中式） */
 function bindChineseEvents(): void {
   $('method')?.addEventListener('change', updateMethodHint);
@@ -379,10 +383,34 @@ function bindChineseEvents(): void {
         // 若填写了 API Key 和问题，异步请求 AI 解卦
         const key = ($('apikey') as HTMLInputElement)?.value || '';
         const q = ($('question') as HTMLTextAreaElement)?.value || '';
+        chinesePosterData = { q, input, method, nums, basis, birth, gender, state, synthesis };
+        appendPosterExport(
+          out!, 'zh',
+          () => chinesePosterData ? createChinesePosterSVG(chinesePosterData) : null,
+          chinesePosterFilename,
+          // 导出前：若已有 AI 解答且有 Key，调用 DeepSeek 将解答总结为 ≤350 字精简版
+          async () => {
+            const apiKey = ($('apikey') as HTMLInputElement)?.value?.trim() || '';
+            if (chinesePosterData?.ai && apiKey) {
+              const summary = await summarizeAiForPoster(apiKey, chinesePosterData.ai, 350);
+              chinesePosterData = { ...chinesePosterData, ai: summary };
+            }
+          },
+        );
         if (key && q) {
           askAI(state, synthesis, q, key)
-            .then(c => { if (out) out.innerHTML += renderAIResult(c); })
-            .catch(e => { if (out) out.innerHTML += `<section class="panel ai"><h2>AI 解卦</h2><p>失败：${(e as Error).message}</p></section>`; });
+            .then(c => {
+              // 关键：不能用 `out.innerHTML += ...`，那会重建整个子树，
+              // 导致已绑定的「导出海报」按钮连同事件监听一起被销毁，新按钮无法点击。
+              // 改用 insertAdjacentHTML 追加到末尾，保留已有按钮与监听。
+              out?.insertAdjacentHTML('beforeend', renderAIResult(c));
+              if (chinesePosterData) chinesePosterData = { ...chinesePosterData, ai: c };
+              if (out) movePosterExportToEnd(out);
+            })
+            .catch(e => {
+              out?.insertAdjacentHTML('beforeend', `<section class="panel ai"><h2>AI 解卦</h2><p>失败：${(e as Error).message}</p></section>`);
+              if (out) movePosterExportToEnd(out);
+            });
         }
       } catch (e) {
         if (out) out.innerHTML = `<div class="error">${(e as Error).message}</div>`;
@@ -409,6 +437,11 @@ function initChinese(): void {
 /** 当前星盘缓存（供 AI 解语使用） */
 let currentChart: NatalChart | null = null;
 let westernInited = false;
+
+/** 星域海报数据缓存：本命盘 / 合盘 / 塔罗各自保存，AI 解语完成后补入 ai 字段 */
+let westernChartData: WesternPosterData | null = null;
+let westernSynastryData: WesternPosterData | null = null;
+let westernTarotData: WesternPosterData | null = null;
 
 /** 塔罗会话状态：覆面牌堆 / 已抽出的牌 / 当前牌阵 / 阶段 */
 let tarotDeck: TarotDeckCard[] = [];
@@ -498,6 +531,21 @@ function runWesternChart(): void {
         <h2 class="w-section-title">主要相位</h2>
         ${renderAspectList(chart.aspects.slice(0, 12))}
       `;
+      const chartQ = (($('w-question') as HTMLTextAreaElement)?.value || '').trim();
+      westernChartData = { kind: 'chart', chart, question: chartQ || undefined };
+      appendPosterExport(
+        out, 'w',
+        () => westernChartData ? createWesternPosterSVG(westernChartData) : null,
+        () => westernPosterFilename('chart'),
+        // 导出前：若已有 AI 解答且有 Key，调用 DeepSeek 总结为 ≤300 字精简版
+        async () => {
+          const apiKey = (($('w-apikey') as HTMLInputElement)?.value || '').trim();
+          if (westernChartData?.kind === 'chart' && westernChartData.ai && apiKey) {
+            const summary = await summarizeAiForPoster(apiKey, westernChartData.ai, 300);
+            westernChartData = { ...westernChartData, ai: summary };
+          }
+        },
+      );
       out.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (e) {
       out.innerHTML = `<div class="w-error">${(e as Error).message}</div>`;
@@ -534,6 +582,29 @@ async function askDeepSeek(key: string, system: string, prompt: string): Promise
   if (!res.ok) throw new Error('AI请求失败：' + res.status);
   const data = await res.json() as { choices?: { message?: { content?: string } }[] };
   return data.choices?.[0]?.message?.content || '（AI未返回内容）';
+}
+
+/** 调用 DeepSeek 将已有的 AI 解答总结为精简版（指定字数以内），用于海报导出。
+ *  - 若无 key 或无原文，返回 undefined（海报将不显示 AI 区块或显示原文截断版）
+ *  - 若总结失败（网络/配额等），回退到原文前 maxChars 字符的截断版，保证导出不中断 */
+async function summarizeAiForPoster(
+  key: string,
+  originalAi: string | undefined,
+  maxChars = 350,
+): Promise<string | undefined> {
+  if (!originalAi || !originalAi.trim() || !key) return originalAi;
+  try {
+    const system = '你是一位精炼的编辑。请将用户提供的占卜/星盘 AI 解读原文，浓缩为一段不超过指定字数的精要总结，保留核心结论与关键建议，去除冗余解释。直接输出纯文本总结，不要标题、不要 Markdown 标记、不要分点列表。';
+    const user = `请将以下解读原文浓缩为不超过 ${maxChars} 字的精要总结（纯文本段落形式）：\n\n${originalAi}`;
+    const summary = await askDeepSeek(key, system, user);
+    // 如果总结后反而更长，截断到 maxChars
+    if (summary.length > maxChars) return summary.slice(0, maxChars) + '…';
+    return summary;
+  } catch {
+    // 总结失败：回退到原文截断版，保证导出流程不中断
+    const stripped = originalAi.replace(/[#>*`]/g, '').replace(/\n+/g, ' ').trim();
+    return stripped.length > maxChars ? stripped.slice(0, maxChars) + '…' : stripped;
+  }
 }
 
 /** 获取 AI 面板（不存在则创建），返回面板元素并置为加载态 */
@@ -576,8 +647,11 @@ async function runWesternAI(): Promise<void> {
   try {
     const content = await askDeepSeek(key, '你是一位严谨的西方占星师，擅长星盘解读与生涯咨询。基于用户提供的星盘数据，给出结构清晰、贴合西方占星理论的解读。', prompt);
     renderAIPanel(panel, renderAIHtml(content));
+    if (westernChartData) westernChartData = { ...westernChartData, ai: content };
+    movePosterExportToEnd(out);
   } catch (e) {
     renderAIPanel(panel, `<span style="color:var(--cos-pink)">失败：${(e as Error).message}</span>`);
+    movePosterExportToEnd(out);
   }
 }
 
@@ -603,6 +677,21 @@ function runWesternSynastry(): void {
         ${renderChartHeader(b)}
         <div class="w-chart-wrap">${renderChartSVG(b, 360)}</div>
       `;
+      const synQ = (($('w-syn-question') as HTMLTextAreaElement)?.value || '').trim();
+      westernSynastryData = { kind: 'synastry', chartA: a, chartB: b, aspects, question: synQ || undefined };
+      appendPosterExport(
+        out, 'w',
+        () => westernSynastryData ? createWesternPosterSVG(westernSynastryData) : null,
+        () => westernPosterFilename('synastry'),
+        // 导出前：若已有 AI 解答且有 Key，调用 DeepSeek 总结为 ≤300 字精简版
+        async () => {
+          const apiKey = (($('w-syn-ai-key') as HTMLInputElement)?.value || '').trim();
+          if (westernSynastryData?.kind === 'synastry' && westernSynastryData.ai && apiKey) {
+            const summary = await summarizeAiForPoster(apiKey, westernSynastryData.ai, 300);
+            westernSynastryData = { ...westernSynastryData, ai: summary };
+          }
+        },
+      );
       out.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (e) {
       out.innerHTML = `<div class="w-error">${(e as Error).message}</div>`;
@@ -633,8 +722,11 @@ async function runSynastryAI(): Promise<void> {
   try {
     const content = await askDeepSeek(key, '你是一位严谨的西方占星师，擅长合盘（Synastry）解读与关系咨询。基于双方星盘与合盘相位，给出结构清晰、贴合西方占星理论的解读。', prompt);
     renderAIPanel(panel, renderAIHtml(content));
+    if (westernSynastryData) westernSynastryData = { ...westernSynastryData, ai: content };
+    movePosterExportToEnd(out);
   } catch (e) {
     renderAIPanel(panel, `<span style="color:var(--cos-pink)">失败：${(e as Error).message}</span>`);
+    movePosterExportToEnd(out);
   }
 }
 
@@ -664,6 +756,7 @@ function resetTarot(forceShow = false): void {
   tarotDeck = createTarotDeck(deckMode);
   tarotPicks = [];
   tarotSpread = null;
+  westernTarotData = null;
 
   // 清理两段式确认与已抽区
   clearTarotPending();
@@ -794,7 +887,8 @@ function confirmTarotPick(): void {
 /** 抽取结束后：逐一归阵（覆面）→ 逐一翻开（按抽取先后顺序摆位） */
 function collectAndReveal(): void {
   const spreadId = (($('w-spread') as HTMLSelectElement)?.value || 'three');
-  tarotSpread = buildTarotSpread(spreadId, tarotPicks, currentSpreadCount(spreadById(spreadId)));
+  const spread = buildTarotSpread(spreadId, tarotPicks, currentSpreadCount(spreadById(spreadId)));
+  tarotSpread = spread;
   const slot = $('w-tarot-slot');
   const fan = $('w-tarot-fan');
   if (fan) fan.innerHTML = '';
@@ -849,6 +943,24 @@ function collectAndReveal(): void {
       const aiBtn = $('w-tarot-ai-btn');
       if (resetBtn) resetBtn.style.display = 'inline-block';
       if (aiBtn) aiBtn.style.display = 'inline-block';
+      // 塔罗牌：海报生成时直接用 drawTarotCard 渲染完整卡面（与界面风格一致），
+      // 无需栅格化 HTML（foreignObject 路径在 Chromium 下会污染画布，导致 toDataURL 失败）
+      const tarotQ = (($('w-tarot-q') as HTMLTextAreaElement)?.value || '').trim();
+      westernTarotData = { kind: 'tarot', spread, question: tarotQ || undefined };
+      appendPosterExport(
+        slot,
+        'w',
+        () => westernTarotData ? createWesternPosterSVG(westernTarotData) : null,
+        () => westernPosterFilename('tarot'),
+        // 导出前：若已有 AI 解答且有 Key，调用 DeepSeek 总结为 ≤300 字精简版
+        async () => {
+          const apiKey = (($('w-tarot-apikey') as HTMLInputElement)?.value || '').trim();
+          if (westernTarotData?.kind === 'tarot' && westernTarotData.ai && apiKey) {
+            const summary = await summarizeAiForPoster(apiKey, westernTarotData.ai, 300);
+            westernTarotData = { ...westernTarotData, ai: summary };
+          }
+        },
+      );
       slot.scrollIntoView({ behavior: 'smooth', block: 'start' });
       const key = (($('w-tarot-apikey') as HTMLInputElement)?.value || '').trim();
       if (key) void runTarotAI();
@@ -873,8 +985,11 @@ async function runTarotAI(): Promise<void> {
   try {
     const content = await askDeepSeek(key, '你是一位严谨的韦特塔罗占卜师，擅长牌阵解读与人生咨询。基于用户抽出的牌阵与问题，给出结构清晰、贴合传统塔罗含义的解读。', prompt);
     renderAIPanel(panel, renderAIHtml(content));
+    if (westernTarotData) westernTarotData = { ...westernTarotData, ai: content };
+    movePosterExportToEnd(slot);
   } catch (e) {
     renderAIPanel(panel, `<span style="color:var(--cos-pink)">失败：${(e as Error).message}</span>`);
+    movePosterExportToEnd(slot);
   }
 }
 
@@ -1261,6 +1376,90 @@ function initPortalAnim(): void {
   // 启动
   applyT(0);
   requestAnimationFrame(tick);
+}
+
+/** 追加测算海报导出按钮（主题 zhongjie=zh / 星域=w），点击时由 makeSvg 即时生成 SVG 并渲染为 PNG 下载
+ *  - prepare?: 导出前的异步预处理（如调用 AI 将已有解答总结为精简版，再注入海报数据） */
+function appendPosterExport(
+  container: HTMLElement,
+  theme: 'zh' | 'w',
+  makeSvg: () => string | null,
+  filename: () => string,
+  prepare?: () => Promise<void>,
+): void {
+  const prev = container.querySelector('.poster-export') as HTMLElement | null;
+  if (prev) prev.remove();
+  const wrap = document.createElement('div');
+  wrap.className = 'poster-export';
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = `poster-btn ${theme}`;
+  btn.textContent = '🖼 导出测算海报';
+  const hint = document.createElement('span');
+  hint.className = 'poster-hint';
+  hint.textContent = '将本次测算信息整合渲染为精美 PNG 海报';
+  wrap.appendChild(btn);
+  wrap.appendChild(hint);
+  // 内嵌预览区（点击后即时显示 PNG + 重下载链接；解决下载未自动弹出时的"无反应"假象）
+  const preview = document.createElement('div');
+  preview.className = 'poster-preview';
+  preview.style.cssText = 'display:none;margin-top:14px;padding:10px;border-radius:8px;background:rgba(0,0,0,0.18);text-align:center;';
+  const previewImg = document.createElement('img');
+  previewImg.className = 'poster-preview-img';
+  previewImg.style.cssText = 'max-width:100%;height:auto;border-radius:6px;box-shadow:0 4px 20px rgba(0,0,0,0.4);display:block;margin:0 auto;';
+  const previewLink = document.createElement('a');
+  previewLink.className = 'poster-preview-link';
+  previewLink.textContent = '↘ 再次下载海报';
+  previewLink.style.cssText = 'display:inline-block;margin-top:10px;color:inherit;font-size:13px;text-decoration:underline;';
+  preview.appendChild(previewImg);
+  preview.appendChild(document.createElement('br'));
+  preview.appendChild(previewLink);
+  wrap.appendChild(preview);
+  btn.addEventListener('click', async () => {
+    try {
+      btn.disabled = true;
+      // 异步预处理：如有 AI 解答，先调用 DeepSeek 总结为精简版再注入海报数据
+      if (prepare) {
+        btn.textContent = '🖼 AI 总结中…';
+        try { await prepare(); } catch { /* 总结失败时回退到原文，不阻断导出 */ }
+      }
+      btn.textContent = '🖼 海报生成中…';
+      const svg = makeSvg();
+      if (!svg) {
+        btn.textContent = '🖼 当前无数据可导出';
+        return;
+      }
+      const canvas = await svgToCanvas(svg);
+      const dataUrl = canvas.toDataURL('image/png');
+      // 1) 自动尝试下载（部分浏览器在用户手势内才允许）
+      try {
+        const a = document.createElement('a');
+        a.download = filename();
+        a.href = dataUrl;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      } catch { /* 忽略：以下提供内嵌预览兜底 */ }
+      // 2) 内嵌预览：避免被浏览器拦截/无下载目录时用户看不到结果
+      previewImg.src = dataUrl;
+      previewLink.href = dataUrl;
+      previewLink.download = filename();
+      preview.style.display = 'block';
+      preview.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      btn.textContent = '🖼 重新生成海报';
+    } catch (e) {
+      btn.textContent = '🖼 生成失败：' + (e as Error).message;
+    } finally {
+      btn.disabled = false;
+    }
+  });
+  container.appendChild(wrap);
+}
+
+/** 将海报导出按钮移到容器末尾（AI 解语完成后，确保按钮位于该业最后） */
+function movePosterExportToEnd(container: HTMLElement): void {
+  const wrap = container.querySelector('.poster-export') as HTMLElement | null;
+  if (wrap) container.appendChild(wrap);
 }
 
 function init(): void {

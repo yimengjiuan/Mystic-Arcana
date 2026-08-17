@@ -22,13 +22,20 @@ const SIGN_COLOR: Record<string, string> = {
  * 渲染真实圆形星盘（SVG）。
  * 坐标系：上方为 10 宫头位置，ASC 在左侧（9 点钟方向），符合西方占星传统。
  */
-export function renderChartSVG(chart: NatalChart, size = 480): string {
+export function renderChartSVG(chart: NatalChart, size = 480, scale = 1): string {
   const cx = size / 2;
   const cy = size / 2;
   const R = size / 2 - 8;
-  const rInner = R - 90; // 行星环内圈
-  const rZodiac = R - 50; // 星座带
-  const rSign = R - 25;   // 星座符号
+  // 内部各环半径与字号按 scale 缩放，避免小尺寸时元素过密
+  const rInner = R - 90 * scale; // 行星环内圈
+  const rZodiac = R - 50 * scale; // 星座带
+  const rSign = R - 25 * scale;   // 星座符号
+  const FS_SIGN = 18 * scale;     // 星座符号字号
+  const FS_HOUSE = 13 * scale;    // 宫位数字字号
+  const FS_PLANET = 14 * scale;   // 行星符号字号
+  const FS_ASCMC = 11 * scale;    // ASC/MC 标签字号
+  const PLANET_R = 11 * scale;    // 行星标记半径
+  const PLANET_GAP = 18 * scale;  // 行星最小间距
 
   // 角度转换：SVG 0° 在 3 点钟，逆时针为正。
   // 占星学：以 ASC 为左端（9 点钟），逆时针为黄道正向。
@@ -73,8 +80,8 @@ export function renderChartSVG(chart: NatalChart, size = 480): string {
       const outer = pt(R - 6, lon);
       tickLines.push(`<line x1="${inner[0].toFixed(1)}" y1="${inner[1].toFixed(1)}" x2="${outer[0].toFixed(1)}" y2="${outer[1].toFixed(1)}" stroke="#3a4860" stroke-width="0.5"/>`);
     }
-    return `<path d="M ${p1[0].toFixed(1)} ${p1[1].toFixed(1)} A ${R} ${R} 0 ${large} 0 ${p2[0].toFixed(1)} ${p2[1].toFixed(1)} L ${pt(R - 50, endLon)[0].toFixed(1)} ${pt(R - 50, endLon)[1].toFixed(1)} A ${rZodiac} ${rZodiac} 0 ${large} 1 ${pt(R - 50, startLon)[0].toFixed(1)} ${pt(R - 50, startLon)[1].toFixed(1)} Z" fill="${fill}" opacity="0.10" stroke="${fill}" stroke-width="0.4" opacity="0.18"/>
-      <text x="${sym[0].toFixed(1)}" y="${sym[1].toFixed(1)}" text-anchor="middle" dominant-baseline="central" fill="${fill}" font-size="18" style="filter: drop-shadow(0 0 4px ${fill})">${s.symbol}</text>
+    return `<path d="M ${p1[0].toFixed(1)} ${p1[1].toFixed(1)} A ${R} ${R} 0 ${large} 0 ${p2[0].toFixed(1)} ${p2[1].toFixed(1)} L ${pt(rZodiac, endLon)[0].toFixed(1)} ${pt(rZodiac, endLon)[1].toFixed(1)} A ${rZodiac} ${rZodiac} 0 ${large} 1 ${pt(rZodiac, startLon)[0].toFixed(1)} ${pt(rZodiac, startLon)[1].toFixed(1)} Z" fill="${fill}" fill-opacity="0.10" stroke="${fill}" stroke-width="0.4"/>
+      <text x="${sym[0].toFixed(1)}" y="${sym[1].toFixed(1)}" text-anchor="middle" dominant-baseline="central" fill="${fill}" font-size="${FS_SIGN.toFixed(1)}" style="filter: drop-shadow(0 0 4px ${fill})">${s.symbol}</text>
       ${tickLines.join('')}`;
   }).join('');
 
@@ -102,12 +109,12 @@ export function renderChartSVG(chart: NatalChart, size = 480): string {
     const next = houses[(h.num) % 12];
     const diff = (next.cusp - h.cusp + 360) % 360;
     const midLon = (h.cusp + diff / 2) % 360;
-    const p = pt(rInner - 18, midLon);
-    return `<text x="${p[0].toFixed(1)}" y="${p[1].toFixed(1)}" text-anchor="middle" dominant-baseline="central" fill="#D6E4F0" font-size="13" font-weight="bold">${h.num}</text>`;
+    const p = pt(rInner - 18 * scale, midLon);
+    return `<text x="${p[0].toFixed(1)}" y="${p[1].toFixed(1)}" text-anchor="middle" dominant-baseline="central" fill="#D6E4F0" font-size="${FS_HOUSE.toFixed(1)}" font-weight="bold">${h.num}</text>`;
   }).join('');
 
   // 4. 行星（沿 rInner 环排列，处理重叠）
-  const planetPositions = layoutPlanets(chart.planets, rInner, cx, cy, angle);
+  const planetPositions = layoutPlanets(chart.planets, rInner, cx, cy, angle, PLANET_GAP);
   // id -> 实际布局坐标（行星标记可能被 layoutPlanets 偏移，相位线必须对准标记而非原始黄经）
   const posById = new Map(planetPositions.map(p => [p.planet.id, p]));
   const planetMarks = planetPositions.map(({ planet, x, y, lon }) => {
@@ -116,7 +123,7 @@ export function renderChartSVG(chart: NatalChart, size = 480): string {
       const p2 = pt(rZodiac + 5, lon);
       return `<line x1="${x.toFixed(1)}" y1="${y.toFixed(1)}" x2="${p2[0].toFixed(1)}" y2="${p2[1].toFixed(1)}" stroke="#D6E4F0" stroke-width="0.6" opacity="0.6"/>`;
     })();
-    return `<g class="planet-mark">${line}<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="11" fill="#0F1A2E" stroke="#D6E4F0" stroke-width="1"/><text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="middle" dominant-baseline="central" fill="#F5C563" font-size="14" style="filter: drop-shadow(0 0 4px #F5C563)">${planet.symbol}</text>${planet.retrograde ? `<text x="${(x + 9).toFixed(1)}" y="${(y - 9).toFixed(1)}" fill="#FF6B6B" font-size="9">℞</text>` : ''}</g>`;
+    return `<g class="planet-mark">${line}<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${PLANET_R.toFixed(1)}" fill="#0F1A2E" stroke="#D6E4F0" stroke-width="1"/><text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="middle" dominant-baseline="central" fill="#F5C563" font-size="${FS_PLANET.toFixed(1)}" style="filter: drop-shadow(0 0 4px #F5C563)">${planet.symbol}</text>${planet.retrograde ? `<text x="${(x + 9 * scale).toFixed(1)}" y="${(y - 9 * scale).toFixed(1)}" fill="#FF6B6B" font-size="${(9 * scale).toFixed(1)}">℞</text>` : ''}</g>`;
   }).join('');
 
   // 5. 相位线（连接行星标记实际位置，端点收缩到标记边缘）
@@ -128,7 +135,7 @@ export function renderChartSVG(chart: NatalChart, size = 480): string {
     const dy = p2.y - p1.y;
     const len = Math.hypot(dx, dy);
     if (len < 1e-6) return '';
-    const pad = 13; // 行星标记半径 11 + 余量，线从标记边缘引出
+    const pad = PLANET_R + 2 * scale; // 行星标记半径 + 余量，线从标记边缘引出
     const ux = dx / len, uy = dy / len;
     const color = a.nature === 'harmonious' ? '#43AA8B' : a.nature === 'tense' ? '#E63946' : '#94A187';
     return `<line x1="${(p1.x + ux * pad).toFixed(1)}" y1="${(p1.y + uy * pad).toFixed(1)}" x2="${(p2.x - ux * pad).toFixed(1)}" y2="${(p2.y - uy * pad).toFixed(1)}" stroke="${color}" stroke-width="${Math.max(0.5, 2 - a.orb / 4)}" opacity="0.55"/>`;
@@ -155,13 +162,13 @@ export function renderChartSVG(chart: NatalChart, size = 480): string {
     ${houseNums}
     ${aspectLines}
     ${planetMarks}
-    <text x="${cx}" y="${cy - 4}" text-anchor="middle" fill="#9DC3E6" font-size="11" letter-spacing="2">ASC</text>
-    <text x="${cx}" y="${(cy - rInner + 12).toFixed(1)}" text-anchor="middle" fill="#A8DADC" font-size="11" letter-spacing="2">MC</text>
+    <text x="${cx}" y="${cy - 4}" text-anchor="middle" fill="#9DC3E6" font-size="${FS_ASCMC.toFixed(1)}" letter-spacing="2">ASC</text>
+    <text x="${cx}" y="${(cy - rInner + 12 * scale).toFixed(1)}" text-anchor="middle" fill="#A8DADC" font-size="${FS_ASCMC.toFixed(1)}" letter-spacing="2">MC</text>
   </svg>`;
 }
 
-/** 行星布局：避免重叠，水平偏移 12px 直至无冲突 */
-function layoutPlanets(planets: readonly PlanetPosition[], r: number, cx: number, cy: number, angle: (lon: number) => number): { planet: PlanetPosition; lon: number; x: number; y: number }[] {
+/** 行星布局：避免重叠，水平偏移直至无冲突 */
+function layoutPlanets(planets: readonly PlanetPosition[], r: number, cx: number, cy: number, angle: (lon: number) => number, minGap = 18): { planet: PlanetPosition; lon: number; x: number; y: number }[] {
   // 按黄经排序
   const sorted = [...planets].sort((a, b) => a.longitude - b.longitude);
   const placed: { lon: number; x: number; y: number; planet: PlanetPosition }[] = [];
@@ -174,7 +181,7 @@ function layoutPlanets(planets: readonly PlanetPosition[], r: number, cx: number
       const a = angle(p.longitude) + off;
       x = cx + r * Math.cos(a);
       y = cy - r * Math.sin(a);
-      const conflict = placed.some(q => Math.hypot(q.x - x, q.y - y) < 18);
+      const conflict = placed.some(q => Math.hypot(q.x - x, q.y - y) < minGap);
       if (!conflict) break;
       off += 0.05; // 约 3°
       tries++;
